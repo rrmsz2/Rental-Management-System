@@ -286,3 +286,32 @@ agent_communication:
     4. إغلاق عقد نشط
     5. التحقق من ظهور مربع حوار الإغلاق مع حقول tax_rate و discount_amount
     6. التحقق من ظهور مربع حوار الفاتورة بعد الإغلاق مع جميع التفاصيل"
+  
+  - agent: "main"
+    message: "Notification System Completed ✅
+    
+    تم استكمال نظام الإشعارات بالكامل:
+    
+    **الإشعارات المُنفذة:**
+    1. ✅ OTP Login - يعمل
+    2. ✅ Rental Activated (للعميل والمدير) - يعمل
+    3. ✅ Invoice Issued (للعميل) - يعمل عند إغلاق العقد
+    4. ✅ Payment Received (للعميل) - يعمل عند تحديث الفاتورة
+    5. ✅ Return Reminder (للعميل) - API جاهز: POST /reminders/check-return-reminders
+    6. ✅ Overdue Notification (للعميل) - API جاهز: POST /reminders/check-overdue
+    7. ✅ Daily Summary (للمدير) - API جاهز: POST /reminders/daily-summary
+    8. ✅ Rental Cancelled (للمدير) - يعمل
+    
+    **خدمات جديدة:**
+    - ✅ ReminderService: للتحقق من التذكيرات والتأخيرات
+    - ✅ Router جديد: /api/reminders مع 4 endpoints
+    - ✅ GET /reminders/status: للحصول على حالة العقود
+    
+    **ملاحظات:**
+    - جميع endpoints تم اختبارها وتعمل ✅
+    - يمكن استدعاء reminders APIs يدوياً أو عبر cron job
+    - التذكيرات ترسل للعملاء الذين لديهم whatsapp_opt_in=true
+    - تُسجل جميع الإشعارات في notification_logs
+    
+    **OTP Input Fix:**
+    - ✅ تم إضافة data-testid لكل خانة OTP للسماح بالاختبار الآلي"
