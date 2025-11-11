@@ -347,7 +347,7 @@ const RentalsPage = () => {
                       {rental.status === 'active' && (
                         <Button
                           size="sm"
-                          onClick={() => handleClose(rental.id)}
+                          onClick={() => handleOpenCloseDialog(rental)}
                           className="bg-blue-50 text-blue-600 hover:bg-blue-100 border-0"
                         >
                           <CheckCircle size={16} className="ml-1" />
