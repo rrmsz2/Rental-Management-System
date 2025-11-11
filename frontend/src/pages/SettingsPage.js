@@ -87,15 +87,15 @@ const SettingsPage = () => {
     <Layout>
       <div className="space-y-6 fade-in" data-testid="settings-page">
         <div>
-          <h2 className="text-3xl font-bold text-teal-700">الإعدادات</h2>
-          <p className="text-gray-600 mt-1">إعدادات النظام والهيدر والفوتر</p>
+          <h2 className="text-3xl font-bold text-slate-800">الإعدادات</h2>
+          <p className="text-slate-600 mt-2">إعدادات النظام والهيدر والفوتر</p>
         </div>
 
         <form onSubmit={handleSave} className="space-y-6">
           {/* Header Settings */}
-          <Card className="border-2 border-teal-100">
+          <Card className="modern-card border-0">
             <CardHeader>
-              <CardTitle className="text-teal-700">إعدادات الهيدر</CardTitle>
+              <CardTitle className="text-slate-800">إعدادات الهيدر</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
