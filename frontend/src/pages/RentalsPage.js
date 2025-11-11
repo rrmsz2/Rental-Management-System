@@ -85,12 +85,31 @@ const RentalsPage = () => {
     }
   };
 
-  const handleClose = async (id) => {
-    if (!window.confirm('هل تريد إغلاق هذا العقد؟')) return;
-    
+  const handleOpenCloseDialog = async (rental) => {
+    setSelectedRental(rental);
+    setCloseFormData({
+      tax_rate: '0.05',
+      discount_amount: '0'
+    });
+    setCloseDialogOpen(true);
+  };
+
+  const handleClose = async () => {
     try {
-      await axios.post(`/rentals/${id}/close`);
-      toast.success('تم إغلاق العقد بنجاح');
+      const response = await axios.post(`/rentals/${selectedRental.id}/close`, null, {
+        params: {
+          tax_rate: parseFloat(closeFormData.tax_rate),
+          discount_amount: parseFloat(closeFormData.discount_amount)
+        }
+      });
+      
+      toast.success('تم إغلاق العقد وإنشاء الفاتورة بنجاح');
+      setCloseDialogOpen(false);
+      
+      // Show invoice immediately
+      setCreatedInvoice(response.data.invoice);
+      setInvoiceDialogOpen(true);
+      
       fetchData();
     } catch (error) {
       toast.error(error.response?.data?.detail || 'فشل في إغلاق العقد');
