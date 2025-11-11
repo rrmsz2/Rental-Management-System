@@ -318,17 +318,6 @@ const RentalsPage = () => {
                         عرض
                       </Button>
                       
-                      {rental.status === 'draft' && (
-                        <Button
-                          size="sm"
-                          onClick={() => handleActivate(rental.id)}
-                          className="bg-green-50 text-green-600 hover:bg-green-100 border-0"
-                        >
-                          <PlayCircle size={16} className="ml-1" />
-                          تفعيل
-                        </Button>
-                      )}
-                      
                       {rental.status === 'active' && (
                         <Button
                           size="sm"
@@ -336,11 +325,11 @@ const RentalsPage = () => {
                           className="bg-blue-50 text-blue-600 hover:bg-blue-100 border-0"
                         >
                           <CheckCircle size={16} className="ml-1" />
-                          إغلاق
+                          إرجاع وإغلاق
                         </Button>
                       )}
                       
-                      {(rental.status === 'draft' || rental.status === 'active') && (
+                      {rental.status === 'active' && (
                         <Button
                           size="sm"
                           onClick={() => handleCancel(rental.id)}
