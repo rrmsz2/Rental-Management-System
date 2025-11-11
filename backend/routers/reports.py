@@ -52,6 +52,10 @@ async def get_dashboard_stats(db: AsyncIOMotorDatabase = Depends(get_db)) -> Dic
     # Equipment utilization
     utilization_rate = (rented_equipment / total_equipment * 100) if total_equipment > 0 else 0
     
+    # Total employees
+    total_employees = await db.employees.count_documents({})
+    active_employees = await db.employees.count_documents({"is_active": True})
+    
     return {
         "total_customers": total_customers,
         "total_equipment": total_equipment,
@@ -63,7 +67,9 @@ async def get_dashboard_stats(db: AsyncIOMotorDatabase = Depends(get_db)) -> Dic
         "unpaid_total": round(unpaid_total, 2),
         "today_revenue": round(today_revenue, 2),
         "month_revenue": round(month_revenue, 2),
-        "utilization_rate": round(utilization_rate, 2)
+        "utilization_rate": round(utilization_rate, 2),
+        "total_employees": total_employees,
+        "active_employees": active_employees
     }
 
 @router.get("/overdue-rentals")
