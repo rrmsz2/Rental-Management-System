@@ -225,7 +225,7 @@ const SettingsPage = () => {
           <Button 
             type="submit" 
             data-testid="save-settings-button"
-            className="w-full bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700"
+            className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 shadow-md h-12"
             disabled={saving}
           >
             {saving ? (
