@@ -316,19 +316,24 @@ const RentalsPage = () => {
                   </div>
 
                   <div>
-                    <Label htmlFor="end_date" className="text-slate-700 font-medium text-sm mb-2 block">تاريخ النهاية *</Label>
+                    <Label htmlFor="end_date" className="text-slate-700 font-medium text-sm mb-2 block">
+                      تاريخ النهاية (اختياري)
+                    </Label>
                     <Input
                       id="end_date"
                       type="date"
                       value={formData.end_date}
                       onChange={(e) => setFormData({...formData, end_date: e.target.value})}
-                      required
                       className="h-11 border-slate-200 bg-slate-50/50 focus:bg-white"
+                      placeholder="اترك فارغاً لعقد مفتوح"
                     />
+                    <p className="text-xs text-slate-500 mt-1">اترك فارغاً للعقود المفتوحة (بدون تاريخ نهاية)</p>
                   </div>
 
                   <div>
-                    <Label htmlFor="deposit" className="text-slate-700 font-medium text-sm mb-2 block">الوديعة (ريال)</Label>
+                    <Label htmlFor="deposit" className="text-slate-700 font-medium text-sm mb-2 block">
+                      الوديعة (ريال) - اختياري
+                    </Label>
                     <Input
                       id="deposit"
                       type="number"
@@ -336,7 +341,9 @@ const RentalsPage = () => {
                       value={formData.deposit}
                       onChange={(e) => setFormData({...formData, deposit: e.target.value})}
                       className="h-11 border-slate-200 bg-slate-50/50 focus:bg-white"
+                      placeholder="0.00"
                     />
+                    <p className="text-xs text-slate-500 mt-1">الوديعة ستُخصم من الفاتورة النهائية</p>
                   </div>
 
                   <div className="col-span-2">
