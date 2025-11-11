@@ -260,15 +260,18 @@ async def close_rental(
     await db.invoices.insert_one(invoice_doc)
     
     # Send notification to customer
-    customer = await db.customers.find_one({"id": rental["customer_id"]})
+    customer = await db.customers.find_one({"id": rental["customer_id"]}, {"_id": 0})
     from services.notification_service import NotificationService
     notification_service = NotificationService(db)
     await notification_service.notify_invoice_issued(invoice_doc, customer)
     
+    # Remove _id from invoice_doc before returning
+    invoice_response = {k: v for k, v in invoice_doc.items() if k != '_id'}
+    
     return {
         "message": "Rental closed successfully and invoice created",
         "actual_return_date": actual_return,
-        "invoice": invoice_doc
+        "invoice": invoice_response
     }
 
 @router.post("/{rental_id}/cancel")
