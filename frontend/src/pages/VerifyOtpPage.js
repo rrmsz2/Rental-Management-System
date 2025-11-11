@@ -66,9 +66,9 @@ const VerifyOtpPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4" data-testid="verify-page">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-slate-50 via-cyan-50/30 to-blue-50/30" data-testid="verify-page">
       <div className="w-full max-w-md fade-in">
-        <Card className="glass border-2 border-teal-100 shadow-xl" data-testid="verify-card">
+        <Card className="modern-card shadow-xl border-0" data-testid="verify-card">
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl font-bold text-center text-teal-700">
               التحقق من الرمز
