@@ -43,6 +43,8 @@ function App() {
         <BrowserRouter>
           <Routes>
             {/* Public Routes - No Auth Required */}
+            <Route path="/qr-login/:equipmentId" element={<QRScanLoginPage />} />
+            <Route path="/qr-scan/:equipmentId" element={<QRScanPage />} />
             <Route path="/quick-rent/:equipmentId" element={<QuickRentPage />} />
             <Route path="/quick-return/:equipmentId" element={<QuickReturnPage />} />
             
