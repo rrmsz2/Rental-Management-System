@@ -240,35 +240,47 @@ const EmployeesPage = () => {
             <Loader2 className="h-12 w-12 animate-spin text-teal-600" />
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {employees.map((employee) => (
-              <Card key={employee.id} data-testid={`employee-card-${employee.id}`} className="p-4 card-hover border-2 border-teal-100">
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-bold text-teal-700">{employee.full_name}</h3>
-                    {employee.is_active ? (
-                      <UserCheck className="text-green-600" size={20} />
-                    ) : (
-                      <UserX className="text-red-600" size={20} />
-                    )}
+              <div key={employee.id} data-testid={`employee-card-${employee.id}`} className="modern-card p-5">
+                <div className="space-y-3">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <h3 className="text-lg font-bold text-slate-800">{employee.full_name}</h3>
+                      <p className="text-sm font-medium text-cyan-600 mt-1">{employee.position}</p>
+                    </div>
+                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                      employee.is_active 
+                        ? 'bg-green-100' 
+                        : 'bg-slate-100'
+                    }`}>
+                      {employee.is_active ? (
+                        <UserCheck className="text-green-600" size={20} />
+                      ) : (
+                        <UserX className="text-slate-400" size={20} />
+                      )}
+                    </div>
                   </div>
-                  <p className="text-sm font-medium text-gray-700">{employee.position}</p>
-                  <p className="text-sm text-gray-600" dir="ltr">{employee.phone}</p>
-                  {employee.email && <p className="text-sm text-gray-500">{employee.email}</p>}
-                  {employee.salary && (
-                    <p className="text-sm text-teal-600 font-semibold">
-                      الراتب: {employee.salary} ريال
+                  <div className="space-y-2 text-sm">
+                    <p className="text-slate-600" dir="ltr">{employee.phone}</p>
+                    {employee.email && <p className="text-slate-500">{employee.email}</p>}
+                    {employee.salary && (
+                      <div className="bg-cyan-50 px-3 py-2 rounded-lg">
+                        <p className="text-sm text-cyan-700 font-semibold">
+                          الراتب: {employee.salary} ريال
+                        </p>
+                      </div>
+                    )}
+                    <p className="text-xs text-slate-400">
+                      تاريخ التوظيف: {new Date(employee.hire_date).toLocaleDateString('ar-SA')}
                     </p>
-                  )}
-                  <p className="text-xs text-gray-400">
-                    تاريخ التوظيف: {new Date(employee.hire_date).toLocaleDateString('ar-SA')}
-                  </p>
-                  <div className="flex gap-2 mt-4">
+                  </div>
+                  <div className="flex gap-2 mt-4 pt-4 border-t border-slate-100">
                     <Button
                       data-testid={`edit-employee-${employee.id}`}
                       size="sm"
                       onClick={() => handleEdit(employee)}
-                      className="flex-1 bg-blue-600 hover:bg-blue-700"
+                      className="flex-1 bg-slate-100 text-slate-700 hover:bg-slate-200"
                     >
                       <Edit size={16} className="ml-1" />
                       تحرير
@@ -278,12 +290,13 @@ const EmployeesPage = () => {
                       size="sm"
                       variant="destructive"
                       onClick={() => handleDelete(employee.id)}
+                      className="bg-red-50 text-red-600 hover:bg-red-100 border-0"
                     >
                       <Trash2 size={16} />
                     </Button>
                   </div>
                 </div>
-              </Card>
+              </div>
             ))}
           </div>
         )}
