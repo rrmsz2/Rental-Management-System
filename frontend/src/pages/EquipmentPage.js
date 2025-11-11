@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Layout from '../components/Layout';
 import axios from '../api/axios';
 import { Button } from '../components/ui/button';
@@ -7,7 +7,8 @@ import { Label } from '../components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../components/ui/dialog';
 import { toast } from 'sonner';
-import { Package, Loader2, Plus, Edit, Trash2, CheckCircle2, XCircle, Wrench } from 'lucide-react';
+import { Package, Loader2, Plus, Edit, Trash2, CheckCircle2, XCircle, Wrench, QrCode, Printer } from 'lucide-react';
+import { QRCodeCanvas } from 'qrcode.react';
 
 const EquipmentPage = () => {
   const [equipment, setEquipment] = useState([]);
