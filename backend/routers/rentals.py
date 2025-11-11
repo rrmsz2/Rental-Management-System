@@ -181,8 +181,14 @@ async def activate_rental(rental_id: str, db: AsyncIOMotorDatabase = Depends(get
     return {"message": "Rental activated successfully"}
 
 @router.post("/{rental_id}/close")
-async def close_rental(rental_id: str, return_date: str = None, db: AsyncIOMotorDatabase = Depends(get_db)):
-    """Close rental contract"""
+async def close_rental(
+    rental_id: str, 
+    return_date: str = None,
+    tax_rate: float = 0.05,
+    discount_amount: float = 0.0,
+    db: AsyncIOMotorDatabase = Depends(get_db)
+):
+    """Close rental contract and auto-create invoice"""
     rental = await db.rental_contracts.find_one({"id": rental_id})
     if not rental:
         raise HTTPException(status_code=404, detail="Rental contract not found")
@@ -208,7 +214,55 @@ async def close_rental(rental_id: str, return_date: str = None, db: AsyncIOMotor
         {"$set": {"status": EquipmentStatus.available}}
     )
     
-    return {"message": "Rental closed successfully", "actual_return_date": actual_return}
+    # Auto-create invoice
+    from routers.invoices import generate_invoice_no, calculate_rental_days
+    
+    # Calculate amounts
+    rental_days = calculate_rental_days(rental["start_date"], rental["end_date"])
+    base_cost = rental_days * rental["daily_rate_snap"]
+    
+    # Calculate late fee if applicable
+    late_fee = 0.0
+    actual_return_dt = datetime.fromisoformat(actual_return)
+    expected_return = datetime.fromisoformat(rental["end_date"])
+    if actual_return_dt > expected_return:
+        days_late = (actual_return_dt - expected_return).days
+        late_fee = days_late * rental["daily_rate_snap"] * 1.2
+    
+    subtotal = base_cost + late_fee - rental.get("deposit", 0)
+    tax_amount = subtotal * tax_rate
+    total = subtotal + tax_amount - discount_amount
+    
+    # Create invoice
+    invoice_doc = {
+        "id": str(uuid.uuid4()),
+        "invoice_no": generate_invoice_no(),
+        "contract_id": rental_id,
+        "issue_date": datetime.now(timezone.utc).isoformat(),
+        "subtotal": round(subtotal, 2),
+        "tax_rate": tax_rate,
+        "tax_amount": round(tax_amount, 2),
+        "discount_amount": discount_amount,
+        "total": round(total, 2),
+        "paid": False,
+        "payment_method": None,
+        "notes": "تم إنشاء الفاتورة تلقائياً عند إغلاق العقد",
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    await db.invoices.insert_one(invoice_doc)
+    
+    # Send notification to customer
+    customer = await db.customers.find_one({"id": rental["customer_id"]})
+    from services.notification_service import NotificationService
+    notification_service = NotificationService(db)
+    await notification_service.notify_invoice_issued(invoice_doc, customer)
+    
+    return {
+        "message": "Rental closed successfully and invoice created",
+        "actual_return_date": actual_return,
+        "invoice": invoice_doc
+    }
 
 @router.post("/{rental_id}/cancel")
 async def cancel_rental(rental_id: str, db: AsyncIOMotorDatabase = Depends(get_db)):
