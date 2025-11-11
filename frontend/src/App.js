@@ -6,10 +6,12 @@ import LoginPage from './pages/LoginPage';
 import VerifyOtpPage from './pages/VerifyOtpPage';
 import Dashboard from './pages/Dashboard';
 import CustomersPage from './pages/CustomersPage';
+import EmployeesPage from './pages/EmployeesPage';
 import EquipmentPage from './pages/EquipmentPage';
 import RentalsPage from './pages/RentalsPage';
 import InvoicesPage from './pages/InvoicesPage';
 import ReportsPage from './pages/ReportsPage';
+import SettingsPage from './pages/SettingsPage';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
