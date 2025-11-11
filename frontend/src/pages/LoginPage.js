@@ -41,17 +41,29 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-slate-50 via-cyan-50/30 to-blue-50/30" data-testid="login-page">
-      <div className="w-full max-w-md fade-in">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-600 shadow-lg mb-4">
-            <Phone className="text-white" size={32} />
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-50 via-blue-50/30 to-cyan-50/40 relative overflow-hidden" data-testid="login-page" dir="rtl">
+      {/* Decorative Background Pattern */}
+      <div className="fixed inset-0 pointer-events-none opacity-30">
+        <div className="absolute top-0 -right-40 w-80 h-80 bg-gradient-to-br from-cyan-200/40 to-blue-200/40 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 -left-40 w-96 h-96 bg-gradient-to-tr from-blue-200/30 to-purple-200/30 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-r from-cyan-100/20 to-blue-100/20 rounded-full blur-3xl"></div>
+      </div>
+
+      {/* Header */}
+      <Header />
+
+      {/* Main Content */}
+      <div className="flex-1 flex items-center justify-center p-4 relative z-10">
+        <div className="w-full max-w-md fade-in">
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-600 shadow-lg mb-4">
+              <Phone className="text-white" size={32} />
+            </div>
+            <h2 className="text-2xl font-bold text-slate-800 mb-2">
+              تسجيل الدخول
+            </h2>
+            <p className="text-slate-600">أدخل رقم هاتفك للمتابعة</p>
           </div>
-          <h1 className="text-3xl font-bold text-slate-800 mb-2" data-testid="app-title">
-            نظام إدارة التأجير
-          </h1>
-          <p className="text-slate-600">Rental Management System</p>
-        </div>
 
         <Card className="modern-card shadow-xl border-0" data-testid="login-card">
           <CardHeader className="space-y-1 pb-6">
