@@ -12,6 +12,8 @@ import RentalsPage from './pages/RentalsPage';
 import InvoicesPage from './pages/InvoicesPage';
 import ReportsPage from './pages/ReportsPage';
 import SettingsPage from './pages/SettingsPage';
+import QuickRentPage from './pages/QuickRentPage';
+import QuickReturnPage from './pages/QuickReturnPage';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
