@@ -11,6 +11,7 @@ import { FileText, Loader2, Plus, Eye, CheckCircle, XCircle, PlayCircle, AlertCi
 
 const RentalsPage = () => {
   const [rentals, setRentals] = useState([]);
+  const [filteredRentals, setFilteredRentals] = useState([]);
   const [customers, setCustomers] = useState([]);
   const [equipment, setEquipment] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -21,6 +22,8 @@ const RentalsPage = () => {
   const [selectedRental, setSelectedRental] = useState(null);
   const [rentalSummary, setRentalSummary] = useState(null);
   const [createdInvoice, setCreatedInvoice] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('active'); // Default: active only
   const [closeFormData, setCloseFormData] = useState({
     tax_rate: '0.05',
     discount_amount: '0'
