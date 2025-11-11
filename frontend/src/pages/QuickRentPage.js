@@ -22,6 +22,14 @@ const QuickRentPage = () => {
   });
 
   useEffect(() => {
+    // Check if coming from QR scan with session
+    const qrSession = localStorage.getItem('qr_session');
+    if (!qrSession) {
+      // No session, redirect to QR login
+      navigate(`/qr-login/${equipmentId}`);
+      return;
+    }
+    
     fetchEquipment();
   }, [equipmentId]);
 
