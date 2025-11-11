@@ -216,39 +216,48 @@ frontend:
 
   - task: "إنشاء عقد إيجار جديد"
     implemented: true
-    working: "NA"
+    working: true
     file: "frontend/src/pages/RentalsPage.js"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "نموذج إنشاء عقد الإيجار موجود. يحتاج للاختبار للتأكد من إنشاء عقد نشط مباشرة."
+      - working: true
+        agent: "testing"
+        comment: "✅ تم اختبار إنشاء العقود بنجاح. API يعمل بشكل مثالي - العقود تُنشأ مع status='active' مباشرة وليس 'draft'. نموذج الواجهة الأمامية موجود ويعمل مع حقول العميل والمعدة والتواريخ."
 
   - task: "إغلاق عقد مع إنشاء فاتورة تلقائي"
     implemented: true
-    working: "NA"
+    working: true
     file: "frontend/src/pages/RentalsPage.js"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "تم إضافة مربع حوار لإغلاق العقد مع حقول (نسبة الضريبة، مبلغ الخصم). عند الإغلاق، يظهر مربع حوار آخر يعرض تفاصيل الفاتورة المُنشأة. يحتاج للاختبار الشامل."
+      - working: true
+        agent: "testing"
+        comment: "✅ تم اختبار إغلاق العقود وإنشاء الفواتير بنجاح. API endpoint /rentals/{id}/close يعمل بشكل مثالي مع tax_rate و discount_amount. مربع حوار الإغلاق موجود مع القيم الافتراضية (0.05 للضريبة، 0 للخصم). الفاتورة تُنشأ تلقائياً مع الحسابات الصحيحة."
 
   - task: "عرض الفاتورة بعد الإنشاء"
     implemented: true
-    working: "NA"
+    working: true
     file: "frontend/src/pages/RentalsPage.js"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "تم إضافة مربع حوار يعرض تفاصيل الفاتورة المُنشأة (رقم الفاتورة، المبلغ الأساسي، الضريبة، الخصم، الإجمالي). يحتاج للاختبار."
+      - working: true
+        agent: "testing"
+        comment: "✅ تم اختبار عرض الفاتورة بنجاح. مربع حوار الفاتورة يظهر بعد الإغلاق مباشرة مع: رمز النجاح الأخضر، رقم الفاتورة (INV-...)، المبلغ الأساسي، الضريبة 5%، الخصم، والإجمالي. جميع التفاصيل تُعرض بشكل صحيح."
 
 metadata:
   created_by: "main_agent"
