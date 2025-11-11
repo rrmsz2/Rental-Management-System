@@ -49,14 +49,23 @@ async def get_equipment_for_rental(equipment_id: str, db: AsyncIOMotorDatabase =
     active_rental = await db.rental_contracts.find_one({
         "equipment_id": equipment_id,
         "status": "active"
-    })
+    }, {"_id": 0})
     
     return {
         "equipment": equipment,
         "is_available": equipment["status"] == "available",
         "has_active_rental": active_rental is not None,
-        "active_rental_id": active_rental["id"] if active_rental else None
+        "active_rental_id": active_rental["id"] if active_rental else None,
+        "active_rental": active_rental
     }
+
+@router.get("/customers")
+async def get_customers_by_phone(phone: str, db: AsyncIOMotorDatabase = Depends(get_db)):
+    """
+    البحث عن عميل برقم الهاتف
+    """
+    customers = await db.customers.find({"phone": phone}, {"_id": 0}).to_list(10)
+    return customers
 
 @router.post("/create")
 async def create_quick_rental(
