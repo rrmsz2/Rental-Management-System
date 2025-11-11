@@ -107,27 +107,27 @@ const CustomersPage = () => {
                 إضافة عميل جديد
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-white">
               <DialogHeader>
-                <DialogTitle className="text-2xl text-teal-700">
+                <DialogTitle className="text-2xl text-slate-800 font-bold">
                   {editingCustomer ? 'تحرير العميل' : 'إضافة عميل جديد'}
                 </DialogTitle>
               </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4" data-testid="customer-form">
-                <div className="grid grid-cols-2 gap-4">
+              <form onSubmit={handleSubmit} className="space-y-5 mt-4" data-testid="customer-form">
+                <div className="grid grid-cols-2 gap-5">
                   <div className="col-span-2">
-                    <Label htmlFor="full_name">الاسم الكامل *</Label>
+                    <Label htmlFor="full_name" className="text-slate-700 font-medium text-sm mb-2 block">الاسم الكامل *</Label>
                     <Input
                       id="full_name"
                       data-testid="input-full-name"
                       value={formData.full_name}
                       onChange={(e) => setFormData({...formData, full_name: e.target.value})}
                       required
-                      className="mt-1"
+                      className="h-11 border-slate-200 bg-slate-50/50 focus:bg-white"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="phone">رقم الهاتف *</Label>
+                    <Label htmlFor="phone" className="text-slate-700 font-medium text-sm mb-2 block">رقم الهاتف *</Label>
                     <Input
                       id="phone"
                       data-testid="input-phone"
@@ -136,52 +136,52 @@ const CustomersPage = () => {
                       onChange={(e) => setFormData({...formData, phone: e.target.value})}
                       required
                       dir="ltr"
-                      className="mt-1"
+                      className="h-11 border-slate-200 bg-slate-50/50 focus:bg-white"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="email">البريد الإلكتروني</Label>
+                    <Label htmlFor="email" className="text-slate-700 font-medium text-sm mb-2 block">البريد الإلكتروني</Label>
                     <Input
                       id="email"
                       data-testid="input-email"
                       type="email"
                       value={formData.email}
                       onChange={(e) => setFormData({...formData, email: e.target.value})}
-                      className="mt-1"
+                      className="h-11 border-slate-200 bg-slate-50/50 focus:bg-white"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="national_id">الرقم الوطني</Label>
+                    <Label htmlFor="national_id" className="text-slate-700 font-medium text-sm mb-2 block">الرقم الوطني</Label>
                     <Input
                       id="national_id"
                       data-testid="input-national-id"
                       value={formData.national_id}
                       onChange={(e) => setFormData({...formData, national_id: e.target.value})}
-                      className="mt-1"
+                      className="h-11 border-slate-200 bg-slate-50/50 focus:bg-white"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="address">العنوان</Label>
+                    <Label htmlFor="address" className="text-slate-700 font-medium text-sm mb-2 block">العنوان</Label>
                     <Input
                       id="address"
                       data-testid="input-address"
                       value={formData.address}
                       onChange={(e) => setFormData({...formData, address: e.target.value})}
-                      className="mt-1"
+                      className="h-11 border-slate-200 bg-slate-50/50 focus:bg-white"
                     />
                   </div>
                   <div className="col-span-2">
-                    <Label htmlFor="notes">ملاحظات</Label>
+                    <Label htmlFor="notes" className="text-slate-700 font-medium text-sm mb-2 block">ملاحظات</Label>
                     <Input
                       id="notes"
                       data-testid="input-notes"
                       value={formData.notes}
                       onChange={(e) => setFormData({...formData, notes: e.target.value})}
-                      className="mt-1"
+                      className="h-11 border-slate-200 bg-slate-50/50 focus:bg-white"
                     />
                   </div>
-                  <div className="col-span-2 flex items-center justify-between">
-                    <Label htmlFor="whatsapp_opt_in">تفعيل إشعارات واتساب</Label>
+                  <div className="col-span-2 flex items-center justify-between bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <Label htmlFor="whatsapp_opt_in" className="text-slate-700 font-medium text-sm">تفعيل إشعارات واتساب</Label>
                     <Switch
                       id="whatsapp_opt_in"
                       data-testid="switch-whatsapp"
@@ -190,8 +190,8 @@ const CustomersPage = () => {
                     />
                   </div>
                 </div>
-                <Button type="submit" data-testid="submit-customer" className="w-full bg-teal-600 hover:bg-teal-700">
-                  {editingCustomer ? 'تحديث' : 'إضافة'}
+                <Button type="submit" data-testid="submit-customer" className="w-full h-12 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 shadow-md">
+                  {editingCustomer ? 'تحديث العميل' : 'إضافة العميل'}
                 </Button>
               </form>
             </DialogContent>
