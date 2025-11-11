@@ -101,3 +101,170 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+user_problem_statement: "نظام إدارة الإيجارات - بناء نظام متكامل لإدارة محل معدات مع مصادقة OTP عبر WhatsApp، إدارة العملاء والمعدات والعقود والفواتير، إرسال إشعارات WhatsApp"
+
+backend:
+  - task: "نظام مصادقة OTP عبر WhatsApp"
+    implemented: true
+    working: true
+    file: "backend/routers/auth.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "previous"
+        comment: "نظام المصادقة يعمل بشكل صحيح. تم اختباره من قبل."
+
+  - task: "إدارة العملاء (CRUD)"
+    implemented: true
+    working: true
+    file: "backend/routers/customers.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "previous"
+        comment: "عمليات CRUD للعملاء تعمل بشكل صحيح"
+
+  - task: "إدارة المعدات (CRUD)"
+    implemented: true
+    working: true
+    file: "backend/routers/equipment.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "previous"
+        comment: "عمليات CRUD للمعدات تعمل بشكل صحيح"
+
+  - task: "إنشاء عقود الإيجار مع تفعيل تلقائي"
+    implemented: true
+    working: "NA"
+    file: "backend/routers/rentals.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "تم تنفيذ إنشاء العقود مع تفعيل تلقائي. يحتاج للاختبار."
+
+  - task: "إغلاق عقد الإيجار مع إنشاء فاتورة تلقائي"
+    implemented: true
+    working: "NA"
+    file: "backend/routers/rentals.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "تم تنفيذ API endpoint لإغلاق العقد وإنشاء الفاتورة تلقائياً. يستقبل tax_rate و discount_amount كـ query parameters. يحتاج للاختبار."
+
+  - task: "إدارة الفواتير (CRUD)"
+    implemented: true
+    working: "NA"
+    file: "backend/routers/invoices.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "CRUD للفواتير موجود. يحتاج للتحقق من توافقه مع الإنشاء التلقائي."
+
+frontend:
+  - task: "نظام تسجيل الدخول والمصادقة"
+    implemented: true
+    working: true
+    file: "frontend/src/pages/LoginPage.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "previous"
+        comment: "واجهة تسجيل الدخول تعمل بشكل صحيح"
+
+  - task: "صفحة إدارة العملاء"
+    implemented: true
+    working: true
+    file: "frontend/src/pages/CustomersPage.js"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "previous"
+        comment: "صفحة العملاء تعمل بتصميم عصري"
+
+  - task: "صفحة إدارة المعدات"
+    implemented: true
+    working: true
+    file: "frontend/src/pages/EquipmentPage.js"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "previous"
+        comment: "صفحة المعدات تعمل بتصميم عصري"
+
+  - task: "إنشاء عقد إيجار جديد"
+    implemented: true
+    working: "NA"
+    file: "frontend/src/pages/RentalsPage.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "نموذج إنشاء عقد الإيجار موجود. يحتاج للاختبار للتأكد من إنشاء عقد نشط مباشرة."
+
+  - task: "إغلاق عقد مع إنشاء فاتورة تلقائي"
+    implemented: true
+    working: "NA"
+    file: "frontend/src/pages/RentalsPage.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "تم إضافة مربع حوار لإغلاق العقد مع حقول (نسبة الضريبة، مبلغ الخصم). عند الإغلاق، يظهر مربع حوار آخر يعرض تفاصيل الفاتورة المُنشأة. يحتاج للاختبار الشامل."
+
+  - task: "عرض الفاتورة بعد الإنشاء"
+    implemented: true
+    working: "NA"
+    file: "frontend/src/pages/RentalsPage.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "تم إضافة مربع حوار يعرض تفاصيل الفاتورة المُنشأة (رقم الفاتورة، المبلغ الأساسي، الضريبة، الخصم، الإجمالي). يحتاج للاختبار."
+
+metadata:
+  created_by: "main_agent"
+  version: "1.0"
+  test_sequence: 1
+  run_ui: true
+
+test_plan:
+  current_focus:
+    - "إغلاق عقد مع إنشاء فاتورة تلقائي"
+    - "عرض الفاتورة بعد الإنشاء"
+    - "إنشاء عقد إيجار جديد"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication:
+  - agent: "main"
+    message: "تم استكمال الكود المفقود في الواجهة الأمامية. أُضيف مربع حوار لإغلاق العقد (closeDialogOpen) مع حقول نسبة الضريبة والخصم، ومربع حوار لعرض الفاتورة المُنشأة (invoiceDialogOpen). الكود في Backend جاهز ويستقبل tax_rate و discount_amount. يجب اختبار: 1) إنشاء عقد جديد والتأكد من أنه نشط مباشرة 2) إغلاق عقد نشط وملء نموذج الإغلاق 3) التحقق من إنشاء الفاتورة وعرضها للمستخدم. استخدم بيانات الاعتماد: رقم الهاتف +96894780842"
