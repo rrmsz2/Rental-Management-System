@@ -40,8 +40,15 @@ function App() {
       <div className="App">
         <BrowserRouter>
           <Routes>
+            {/* Public Routes - No Auth Required */}
+            <Route path="/quick-rent/:equipmentId" element={<QuickRentPage />} />
+            <Route path="/quick-return/:equipmentId" element={<QuickReturnPage />} />
+            
+            {/* Auth Routes */}
             <Route path="/login" element={<LoginPage />} />
             <Route path="/verify" element={<VerifyOtpPage />} />
+            
+            {/* Protected Routes */}
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/customers" element={<ProtectedRoute><CustomersPage /></ProtectedRoute>} />
             <Route path="/employees" element={<ProtectedRoute><EmployeesPage /></ProtectedRoute>} />
