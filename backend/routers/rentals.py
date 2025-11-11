@@ -73,7 +73,7 @@ async def get_rental_summary(rental_id: str, db: AsyncIOMotorDatabase = Depends(
 
 @router.post("", response_model=RentalContract)
 async def create_rental(rental: RentalContractCreate, db: AsyncIOMotorDatabase = Depends(get_db)):
-    """Create new rental contract (draft status)"""
+    """Create new rental contract (active status immediately)"""
     # Validate customer exists
     customer = await db.customers.find_one({"id": rental.customer_id})
     if not customer:
@@ -83,6 +83,13 @@ async def create_rental(rental: RentalContractCreate, db: AsyncIOMotorDatabase =
     equipment = await db.equipment.find_one({"id": rental.equipment_id})
     if not equipment:
         raise HTTPException(status_code=404, detail="Equipment not found")
+    
+    # Check equipment is available
+    if equipment["status"] != "available":
+        raise HTTPException(
+            status_code=400,
+            detail="المعدة غير متاحة حالياً"
+        )
     
     # Check for overlapping rentals
     overlapping = await db.rental_contracts.find_one({
@@ -99,20 +106,26 @@ async def create_rental(rental: RentalContractCreate, db: AsyncIOMotorDatabase =
             detail="Equipment is not available for the selected dates"
         )
     
-    # Create rental contract
+    # Create rental contract as ACTIVE immediately
     rental_doc = rental.model_dump()
     rental_doc["id"] = str(uuid.uuid4())
     rental_doc["contract_no"] = generate_contract_no()
     rental_doc["daily_rate_snap"] = equipment["daily_rate"]
-    rental_doc["status"] = RentalStatus.draft
+    rental_doc["status"] = RentalStatus.active  # Active immediately
     rental_doc["actual_return_date"] = None
     rental_doc["created_at"] = datetime.now(timezone.utc).isoformat()
     
     await db.rental_contracts.insert_one(rental_doc)
     
-    # Send notification to manager
+    # Update equipment status to rented
+    await db.equipment.update_one(
+        {"id": rental.equipment_id},
+        {"$set": {"status": EquipmentStatus.rented}}
+    )
+    
+    # Send notification to customer and manager
     notification_service = NotificationService(db)
-    await notification_service.notify_rental_created(rental_doc, customer, equipment)
+    await notification_service.notify_rental_activated(rental_doc, customer, equipment)
     
     return RentalContract(**rental_doc)
 
