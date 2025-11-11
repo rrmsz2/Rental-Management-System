@@ -161,7 +161,11 @@ const VerifyOtpPage = () => {
             </div>
           </CardContent>
         </Card>
+        </div>
       </div>
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 };
