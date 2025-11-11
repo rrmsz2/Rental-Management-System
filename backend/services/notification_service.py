@@ -172,3 +172,45 @@ class NotificationService:
                 "invoice_no": invoice["invoice_no"]
             }
         )
+    
+    async def notify_return_reminder(self, rental: Dict, customer: Dict, equipment: Dict):
+        """Send return reminder to customer (1 day before end date)"""
+        shop_phone = self.manager_phone or "+96800000000"
+        return await self.send_notification(
+            to_phone=customer["phone"],
+            template_key="return_reminder_customer",
+            payload={
+                "equipment": equipment["name"],
+                "end": rental["end_date"],
+                "shop_phone": shop_phone
+            }
+        )
+    
+    async def notify_overdue(self, rental: Dict, customer: Dict, equipment: Dict):
+        """Notify customer of overdue rental"""
+        return await self.send_notification(
+            to_phone=customer["phone"],
+            template_key="overdue_customer",
+            payload={
+                "equipment": equipment["name"]
+            }
+        )
+    
+    async def send_daily_overdue_summary(self, overdue_rentals: list):
+        """Send daily summary of overdue rentals to manager"""
+        if not overdue_rentals:
+            return {"ok": True, "log_id": None}
+        
+        # Find the most overdue rental
+        most_overdue = max(overdue_rentals, key=lambda r: r["days_late"])
+        
+        return await self.send_notification(
+            to_phone=self.manager_phone,
+            template_key="daily_overdue_manager",
+            payload={
+                "count": str(len(overdue_rentals)),
+                "contract_no": most_overdue["contract_no"],
+                "days": str(most_overdue["days_late"])
+            },
+            check_opt_in=False
+        )
