@@ -87,13 +87,13 @@ const Layout = ({ children }) => {
         {/* Sidebar */}
         <aside
           className={`
-            fixed lg:sticky top-16 left-0 h-[calc(100vh-4rem)] w-64 bg-white border-r border-teal-100 
-            transform transition-transform duration-300 ease-in-out z-30 glass
+            fixed lg:sticky top-16 left-0 h-[calc(100vh-4rem)] w-64 bg-white border-r border-slate-200 
+            transform transition-transform duration-300 ease-in-out z-30 shadow-sm
             ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
           `}
           data-testid="sidebar"
         >
-          <nav className="p-4 space-y-2">
+          <nav className="p-3 space-y-1">
             {menuItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
@@ -101,12 +101,12 @@ const Layout = ({ children }) => {
                 <Button
                   key={item.path}
                   data-testid={item.testId}
-                  variant={isActive ? 'default' : 'ghost'}
+                  variant="ghost"
                   className={`
-                    w-full justify-start text-right h-12
+                    w-full justify-start text-right h-11 rounded-xl font-medium transition-all
                     ${isActive 
-                      ? 'bg-gradient-to-r from-teal-600 to-emerald-600 text-white' 
-                      : 'text-gray-700 hover:bg-teal-50 hover:text-teal-700'
+                      ? 'sidebar-active' 
+                      : 'text-slate-700 hover:bg-slate-100'
                     }
                   `}
                   onClick={() => {
@@ -115,7 +115,7 @@ const Layout = ({ children }) => {
                   }}
                 >
                   <Icon size={20} className="ml-3" />
-                  <span className="flex-1 text-right">{item.label}</span>
+                  <span className="flex-1 text-right text-sm">{item.label}</span>
                 </Button>
               );
             })}
@@ -123,7 +123,7 @@ const Layout = ({ children }) => {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 p-4 lg:p-6" data-testid="main-content">
+        <main className="flex-1 p-6 lg:p-8" data-testid="main-content">
           {children}
         </main>
       </div>
