@@ -76,7 +76,7 @@ class RentalContractBase(BaseModel):
     customer_id: str
     equipment_id: str
     start_date: str
-    end_date: str
+    end_date: Optional[str] = None
     deposit: float = 0.0
     notes: Optional[str] = None
 
