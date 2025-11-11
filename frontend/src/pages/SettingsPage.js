@@ -100,15 +100,45 @@ const SettingsPage = () => {
             <CardContent className="space-y-4">
               <div>
                 <Label htmlFor="header_logo">شعار الهيدر</Label>
-                <div className="mt-2 flex items-center gap-4">
+                <div className="mt-2 space-y-3">
+                  {/* Logo Preview */}
                   {settings.header_logo && (
-                    <img 
-                      src={settings.header_logo} 
-                      alt="Logo" 
-                      className="h-16 w-16 object-contain border border-teal-200 rounded p-1"
-                    />
+                    <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg border border-slate-200">
+                      <img 
+                        src={settings.header_logo} 
+                        alt="Logo" 
+                        className="h-16 w-16 object-contain bg-white border border-slate-200 rounded p-1"
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                          toast.error('فشل في تحميل الصورة. تحقق من الرابط');
+                        }}
+                      />
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-slate-700">الشعار الحالي</p>
+                        <p className="text-xs text-slate-500 truncate">{settings.header_logo}</p>
+                      </div>
+                    </div>
                   )}
-                  <div className="flex-1">
+                  
+                  {/* Logo URL Input */}
+                  <div>
+                    <Label htmlFor="header_logo_url" className="text-sm text-slate-600">رابط الشعار (URL)</Label>
+                    <Input
+                      id="header_logo_url"
+                      type="url"
+                      placeholder="https://example.com/logo.png"
+                      value={settings.header_logo || ''}
+                      onChange={(e) => setSettings({...settings, header_logo: e.target.value})}
+                      className="mt-1 h-11 border-slate-200"
+                    />
+                    <p className="text-xs text-slate-500 mt-1">
+                      أدخل رابط مباشر للصورة (يفضل PNG أو SVG للشفافية)
+                    </p>
+                  </div>
+
+                  {/* Upload Alternative */}
+                  <div className="pt-2 border-t border-slate-200">
+                    <p className="text-xs text-slate-600 mb-2">أو ارفع صورة:</p>
                     <input
                       type="file"
                       id="logo-upload"
@@ -119,9 +149,11 @@ const SettingsPage = () => {
                     <Button
                       type="button"
                       variant="outline"
+                      size="sm"
                       onClick={() => document.getElementById('logo-upload').click()}
                       disabled={uploading}
                       data-testid="upload-logo-button"
+                      className="w-full sm:w-auto"
                     >
                       {uploading ? (
                         <>
@@ -131,11 +163,11 @@ const SettingsPage = () => {
                       ) : (
                         <>
                           <Upload className="ml-2" size={16} />
-                          رفع شعار جديد
+                          رفع شعار من الجهاز
                         </>
                       )}
                     </Button>
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs text-slate-400 mt-1">
                       PNG, JPG, WebP, SVG (الحد الأقصى 2 ميجابايت)
                     </p>
                   </div>
