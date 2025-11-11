@@ -224,9 +224,16 @@ async def close_rental(
     # Calculate late fee if applicable
     late_fee = 0.0
     actual_return_dt = datetime.fromisoformat(actual_return)
-    expected_return = datetime.fromisoformat(rental["end_date"])
-    if actual_return_dt > expected_return:
-        days_late = (actual_return_dt - expected_return).days
+    expected_return_dt = datetime.fromisoformat(rental["end_date"])
+    
+    # Ensure both datetimes are timezone-aware for comparison
+    if actual_return_dt.tzinfo is None:
+        actual_return_dt = actual_return_dt.replace(tzinfo=timezone.utc)
+    if expected_return_dt.tzinfo is None:
+        expected_return_dt = expected_return_dt.replace(tzinfo=timezone.utc)
+    
+    if actual_return_dt > expected_return_dt:
+        days_late = (actual_return_dt - expected_return_dt).days
         late_fee = days_late * rental["daily_rate_snap"] * 1.2
     
     subtotal = base_cost + late_fee - rental.get("deposit", 0)
