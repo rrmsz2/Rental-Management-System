@@ -167,9 +167,9 @@ const SettingsPage = () => {
           </Card>
 
           {/* Footer Settings */}
-          <Card className="border-2 border-teal-100">
+          <Card className="modern-card border-0">
             <CardHeader>
-              <CardTitle className="text-teal-700">إعدادات الفوتر</CardTitle>
+              <CardTitle className="text-slate-800">إعدادات الفوتر</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
