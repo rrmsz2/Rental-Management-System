@@ -42,6 +42,14 @@ const Dashboard = () => {
       testId: 'stat-customers'
     },
     {
+      title: 'إجمالي الموظفين',
+      value: stats.total_employees,
+      subtitle: `${stats.active_employees} نشط`,
+      icon: Users,
+      color: 'from-cyan-500 to-cyan-600',
+      testId: 'stat-employees'
+    },
+    {
       title: 'إجمالي المعدات',
       value: stats.total_equipment,
       subtitle: `${stats.rented_equipment} مؤجرة | ${stats.available_equipment} متاحة`,
