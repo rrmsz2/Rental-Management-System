@@ -17,14 +17,14 @@ const ProtectedRoute = ({ children }) => {
   
   if (loading) {
     return (
-      <div className=\"flex items-center justify-center min-h-screen\">
-        <div className=\"text-teal-600 text-xl\">جاري التحميل...</div>
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-teal-600 text-xl">جاري التحميل...</div>
       </div>
     );
   }
   
   if (!user) {
-    return <Navigate to=\"/login\" replace />;
+    return <Navigate to="/login" replace />;
   }
   
   return children;
