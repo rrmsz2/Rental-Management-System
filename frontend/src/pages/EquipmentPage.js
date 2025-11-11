@@ -425,6 +425,78 @@ const EquipmentPage = () => {
             <p className="text-slate-500">لا يوجد معدات بعد. ابدأ بإضافة معدة جديدة!</p>
           </div>
         )}
+
+        {/* QR Code Dialog */}
+        <Dialog open={qrDialogOpen} onOpenChange={setQrDialogOpen}>
+          <DialogContent className="max-w-md bg-white">
+            <DialogHeader>
+              <DialogTitle className="text-2xl text-slate-800 font-bold flex items-center gap-2">
+                <QrCode className="text-cyan-600" size={28} />
+                رمز QR للتأجير السريع
+              </DialogTitle>
+            </DialogHeader>
+            {selectedEquipmentForQR && (
+              <div className="space-y-4 mt-4">
+                {/* Equipment Info */}
+                <div className="p-4 bg-gradient-to-br from-cyan-50 to-blue-50 rounded-xl border border-cyan-200">
+                  <h3 className="text-lg font-bold text-slate-800 mb-2">{selectedEquipmentForQR.name}</h3>
+                  <div className="space-y-1 text-sm">
+                    <p className="text-slate-600">
+                      <span className="font-medium">الفئة:</span> {selectedEquipmentForQR.category}
+                    </p>
+                    <p className="text-slate-600">
+                      <span className="font-medium">السعر:</span> {selectedEquipmentForQR.daily_rate} ريال/يوم
+                    </p>
+                    {selectedEquipmentForQR.serial_no && (
+                      <p className="text-slate-600">
+                        <span className="font-medium">الرقم التسلسلي:</span> {selectedEquipmentForQR.serial_no}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* QR Code */}
+                <div ref={qrRef} className="flex justify-center p-6 bg-white border-2 border-slate-200 rounded-xl">
+                  <QRCodeCanvas
+                    value={`${window.location.origin}/quick-rent/${selectedEquipmentForQR.id}`}
+                    size={220}
+                    level="H"
+                    includeMargin={true}
+                  />
+                </div>
+
+                {/* Instructions */}
+                <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                  <p className="text-sm text-blue-800 font-medium mb-2">📱 كيفية الاستخدام:</p>
+                  <ol className="text-xs text-blue-700 space-y-1 mr-4 list-decimal">
+                    <li>اطبع هذا الرمز والصقه على المعدة</li>
+                    <li>عند التأجير، امسح الرمز بالكاميرا</li>
+                    <li>أدخل بيانات العميل وأبرم العقد فوراً</li>
+                    <li>يصل إشعار WhatsApp للعميل تلقائياً</li>
+                  </ol>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex gap-3">
+                  <Button
+                    onClick={handlePrintQR}
+                    className="flex-1 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700"
+                  >
+                    <Printer size={16} className="ml-1" />
+                    طباعة QR Code
+                  </Button>
+                  <Button
+                    onClick={() => setQrDialogOpen(false)}
+                    variant="outline"
+                    className="px-6"
+                  >
+                    إغلاق
+                  </Button>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </Layout>
   );
