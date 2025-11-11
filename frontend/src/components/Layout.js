@@ -43,7 +43,10 @@ const Layout = ({ children }) => {
   ];
 
   return (
-    <div className="min-h-screen" data-testid="layout-container">
+    <div className="min-h-screen flex flex-col" data-testid="layout-container">
+      {/* Header */}
+      <Header />
+      
       {/* Top Navigation Bar */}
       <nav className="bg-white border-b border-teal-100 sticky top-0 z-40 glass">
         <div className="px-4 h-16 flex items-center justify-between">
@@ -57,9 +60,6 @@ const Layout = ({ children }) => {
             >
               {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
             </Button>
-            <h1 className="text-xl font-bold text-teal-700">
-              نظام إدارة التأجير
-            </h1>
           </div>
           <div className="flex items-center gap-3">
             <div className="text-right hidden sm:block">
@@ -76,7 +76,7 @@ const Layout = ({ children }) => {
               data-testid="logout-button"
               className="border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300"
             >
-              <LogOut size={18} className="ml-2" />
+              <LogOut size={18} className="mr-2" />
               تسجيل الخروج
             </Button>
           </div>
