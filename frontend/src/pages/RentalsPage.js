@@ -33,7 +33,7 @@ const RentalsPage = () => {
     equipment_id: '',
     start_date: new Date().toISOString().split('T')[0],
     end_date: '',
-    deposit: '',
+    deposit: '0',
     notes: ''
   });
 
