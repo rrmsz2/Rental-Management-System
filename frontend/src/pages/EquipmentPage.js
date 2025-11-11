@@ -14,7 +14,10 @@ const EquipmentPage = () => {
   const [equipment, setEquipment] = useState([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [qrDialogOpen, setQrDialogOpen] = useState(false);
+  const [selectedEquipmentForQR, setSelectedEquipmentForQR] = useState(null);
   const [editingEquipment, setEditingEquipment] = useState(null);
+  const qrRef = useRef(null);
   const [formData, setFormData] = useState({
     name: '',
     category: '',
