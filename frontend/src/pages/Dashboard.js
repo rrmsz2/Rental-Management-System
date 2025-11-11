@@ -128,8 +128,8 @@ const Dashboard = () => {
               <div
                 key={index}
                 data-testid={stat.testId}
-                className={`stat-card p-5 ${
-                  stat.highlight ? 'bg-red-50 border-2 border-red-200' : ''
+                className={`modern-card p-5 rounded-xl transform hover:scale-105 transition-all duration-300 ${
+                  stat.highlight ? 'ring-2 ring-red-400 bg-red-50/90' : ''
                 }`}
               >
                 <div className="flex items-start justify-between mb-3">
@@ -137,11 +137,11 @@ const Dashboard = () => {
                     <p className="text-sm font-medium text-slate-600 mb-1">
                       {stat.title}
                     </p>
-                    <div className="text-3xl font-bold text-slate-900">
+                    <div className="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
                       {stat.value}
                     </div>
                   </div>
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-md">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg">
                     <Icon size={24} className="text-white" />
                   </div>
                 </div>
