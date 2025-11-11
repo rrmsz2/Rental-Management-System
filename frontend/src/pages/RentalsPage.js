@@ -434,6 +434,133 @@ const RentalsPage = () => {
             )}
           </DialogContent>
         </Dialog>
+
+        {/* Close Rental Dialog */}
+        <Dialog open={closeDialogOpen} onOpenChange={setCloseDialogOpen}>
+          <DialogContent className="max-w-md bg-white">
+            <DialogHeader>
+              <DialogTitle className="text-2xl text-slate-800 font-bold">
+                إغلاق العقد وإنشاء الفاتورة
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 mt-4">
+              <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <p className="text-sm text-blue-800">
+                  سيتم إنشاء فاتورة تلقائياً عند إغلاق العقد. الرجاء تحديد نسبة الضريبة والخصم إن وجد.
+                </p>
+              </div>
+
+              <div>
+                <Label htmlFor="tax_rate" className="text-slate-700 font-medium text-sm mb-2 block">
+                  نسبة الضريبة (%)
+                </Label>
+                <Input
+                  id="tax_rate"
+                  type="number"
+                  step="0.01"
+                  value={closeFormData.tax_rate}
+                  onChange={(e) => setCloseFormData({...closeFormData, tax_rate: e.target.value})}
+                  className="h-11 border-slate-200 bg-slate-50/50 focus:bg-white"
+                  placeholder="0.05 = 5%"
+                />
+                <p className="text-xs text-slate-500 mt-1">مثال: 0.05 تعني 5%</p>
+              </div>
+
+              <div>
+                <Label htmlFor="discount_amount" className="text-slate-700 font-medium text-sm mb-2 block">
+                  مبلغ الخصم (ريال)
+                </Label>
+                <Input
+                  id="discount_amount"
+                  type="number"
+                  step="0.01"
+                  value={closeFormData.discount_amount}
+                  onChange={(e) => setCloseFormData({...closeFormData, discount_amount: e.target.value})}
+                  className="h-11 border-slate-200 bg-slate-50/50 focus:bg-white"
+                  placeholder="0.00"
+                />
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <Button
+                  onClick={() => setCloseDialogOpen(false)}
+                  variant="outline"
+                  className="flex-1"
+                >
+                  إلغاء
+                </Button>
+                <Button
+                  onClick={handleClose}
+                  className="flex-1 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700"
+                >
+                  <CheckCircle size={16} className="ml-1" />
+                  إغلاق وإنشاء الفاتورة
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Invoice Created Dialog */}
+        <Dialog open={invoiceDialogOpen} onOpenChange={setInvoiceDialogOpen}>
+          <DialogContent className="max-w-lg bg-white">
+            <DialogHeader>
+              <DialogTitle className="text-2xl text-slate-800 font-bold flex items-center gap-2">
+                <CheckCircle className="text-green-600" size={28} />
+                تم إنشاء الفاتورة بنجاح
+              </DialogTitle>
+            </DialogHeader>
+            {createdInvoice && (
+              <div className="space-y-4 mt-4">
+                <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+                  <p className="text-sm text-green-800 mb-2">
+                    ✓ تم إغلاق العقد بنجاح
+                  </p>
+                  <p className="text-sm text-green-800">
+                    ✓ تم إنشاء الفاتورة رقم: <span className="font-bold">{createdInvoice.invoice_no}</span>
+                  </p>
+                </div>
+
+                <div className="space-y-2 p-4 bg-slate-50 rounded-xl">
+                  <div className="flex justify-between py-2 border-b border-slate-200">
+                    <span className="text-slate-600">المبلغ الأساسي</span>
+                    <span className="font-semibold text-slate-800">{createdInvoice.subtotal?.toFixed(2)} ريال</span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b border-slate-200">
+                    <span className="text-slate-600">الضريبة ({(createdInvoice.tax_rate * 100).toFixed(0)}%)</span>
+                    <span className="font-semibold text-slate-800">{createdInvoice.tax_amount?.toFixed(2)} ريال</span>
+                  </div>
+                  {createdInvoice.discount_amount > 0 && (
+                    <div className="flex justify-between py-2 border-b border-slate-200">
+                      <span className="text-green-600">الخصم</span>
+                      <span className="font-semibold text-green-600">- {createdInvoice.discount_amount?.toFixed(2)} ريال</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between py-3 bg-cyan-600 px-4 rounded-lg mt-2">
+                    <span className="font-bold text-white">المبلغ الإجمالي</span>
+                    <span className="font-bold text-white text-xl">{createdInvoice.total?.toFixed(2)} ريال</span>
+                  </div>
+                </div>
+
+                <div className="bg-blue-50 p-3 rounded-lg">
+                  <p className="text-xs text-blue-700">
+                    💡 يمكنك الآن الانتقال إلى صفحة الفواتير لطباعة أو تحديث حالة الدفع
+                  </p>
+                </div>
+
+                <Button
+                  onClick={() => {
+                    setInvoiceDialogOpen(false);
+                    setCreatedInvoice(null);
+                  }}
+                  className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700"
+                >
+                  حسناً
+                </Button>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </Layout>
   );
