@@ -43,7 +43,14 @@ const Layout = ({ children }) => {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50" data-testid="layout-container">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-50 via-blue-50/30 to-cyan-50/40 relative overflow-hidden" data-testid="layout-container" dir="rtl">
+      {/* Decorative Background Pattern */}
+      <div className="fixed inset-0 pointer-events-none opacity-30">
+        <div className="absolute top-0 -right-40 w-80 h-80 bg-gradient-to-br from-cyan-200/40 to-blue-200/40 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 -left-40 w-96 h-96 bg-gradient-to-tr from-blue-200/30 to-purple-200/30 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-r from-cyan-100/20 to-blue-100/20 rounded-full blur-3xl"></div>
+      </div>
+
       {/* Header */}
       <Header />
       
