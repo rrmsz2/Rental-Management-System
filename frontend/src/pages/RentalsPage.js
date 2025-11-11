@@ -34,6 +34,21 @@ const RentalsPage = () => {
     notes: ''
   });
 
+  // Helper function to extract error message
+  const getErrorMessage = (error, defaultMessage) => {
+    const errorDetail = error.response?.data?.detail;
+    
+    if (typeof errorDetail === 'string') {
+      return errorDetail;
+    } else if (Array.isArray(errorDetail)) {
+      return errorDetail.map(err => err.msg || err).join(', ');
+    } else if (typeof errorDetail === 'object' && errorDetail?.message) {
+      return errorDetail.message;
+    }
+    
+    return defaultMessage;
+  };
+
   useEffect(() => {
     fetchData();
   }, []);
