@@ -46,6 +46,7 @@ api_router.include_router(reports.router)
 api_router.include_router(employees.router)
 api_router.include_router(settings.router)
 api_router.include_router(reminders.router)
+api_router.include_router(quick_rental.router)
 
 # Include the API router in the main app
 app.include_router(api_router)
