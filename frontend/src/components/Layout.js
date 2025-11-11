@@ -43,31 +43,31 @@ const Layout = ({ children }) => {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col" data-testid="layout-container">
+    <div className="min-h-screen flex flex-col bg-slate-50" data-testid="layout-container">
       {/* Header */}
       <Header />
       
       {/* Top Navigation Bar */}
-      <nav className="bg-white border-b border-teal-100 sticky top-0 z-40 glass">
-        <div className="px-4 h-16 flex items-center justify-between">
+      <nav className="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+        <div className="px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Button
               variant="ghost"
               size="icon"
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="lg:hidden text-teal-600"
+              className="lg:hidden text-slate-600 hover:bg-slate-100"
               data-testid="menu-toggle"
             >
               {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
             </Button>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="text-right hidden sm:block">
-              <p className="text-sm font-medium text-gray-700" data-testid="user-phone">
+          <div className="flex items-center gap-4">
+            <div className="text-right hidden sm:block bg-slate-50 px-3 py-2 rounded-lg">
+              <p className="text-sm font-medium text-slate-700" data-testid="user-phone">
                 {user?.phone}
               </p>
               {user?.is_manager && (
-                <span className="text-xs text-teal-600 font-semibold">مدير</span>
+                <span className="text-xs text-cyan-600 font-semibold">مدير</span>
               )}
             </div>
             <Button
