@@ -94,15 +94,15 @@ const CustomersPage = () => {
       <div className="space-y-6 fade-in" data-testid="customers-page">
         <div className="flex justify-between items-center">
           <div>
-            <h2 className="text-3xl font-bold text-teal-700">العملاء</h2>
-            <p className="text-gray-600 mt-1">إدارة قاعدة بيانات العملاء</p>
+            <h2 className="text-3xl font-bold text-slate-800">العملاء</h2>
+            <p className="text-slate-600 mt-2">إدارة قاعدة بيانات العملاء</p>
           </div>
           <Dialog open={dialogOpen} onOpenChange={(open) => {
             setDialogOpen(open);
             if (!open) resetForm();
           }}>
             <DialogTrigger asChild>
-              <Button data-testid="add-customer-button" className="bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700">
+              <Button data-testid="add-customer-button" className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 shadow-md">
                 <Plus className="ml-2" size={20} />
                 إضافة عميل جديد
               </Button>
