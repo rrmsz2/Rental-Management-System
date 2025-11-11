@@ -357,13 +357,70 @@ const RentalsPage = () => {
           </Dialog>
         </div>
 
+        {/* Search and Filter Bar */}
+        <div className="modern-card p-4 rounded-xl">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Search */}
+            <div className="md:col-span-2">
+              <Label htmlFor="search" className="text-slate-700 font-medium text-sm mb-2 block">
+                البحث
+              </Label>
+              <Input
+                id="search"
+                type="text"
+                placeholder="ابحث برقم العقد، اسم العميل، رقم الهاتف، أو المعدة..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="h-11 border-slate-200 bg-slate-50/50 focus:bg-white"
+              />
+            </div>
+
+            {/* Status Filter */}
+            <div>
+              <Label htmlFor="status-filter" className="text-slate-700 font-medium text-sm mb-2 block">
+                الحالة
+              </Label>
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="h-11 border-slate-200 bg-slate-50/50">
+                  <SelectValue placeholder="اختر الحالة" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="active">نشط فقط</SelectItem>
+                  <SelectItem value="closed">مغلق فقط</SelectItem>
+                  <SelectItem value="cancelled">ملغي فقط</SelectItem>
+                  <SelectItem value="draft">مسودة فقط</SelectItem>
+                  <SelectItem value="all">الكل</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* Results Count */}
+          <div className="mt-3 pt-3 border-t border-slate-200">
+            <p className="text-sm text-slate-600">
+              عرض <span className="font-semibold text-cyan-600">{filteredRentals.length}</span> من أصل <span className="font-semibold">{rentals.length}</span> عقد
+              {statusFilter !== 'all' && (
+                <span className="mr-2 text-slate-500">
+                  ({statusFilter === 'active' ? 'النشطة' : statusFilter === 'closed' ? 'المغلقة' : statusFilter === 'cancelled' ? 'الملغية' : 'المسودات'})
+                </span>
+              )}
+            </p>
+          </div>
+        </div>
+
         {loading ? (
           <div className="flex justify-center py-12">
             <Loader2 className="h-12 w-12 animate-spin text-cyan-600" />
           </div>
+        ) : filteredRentals.length === 0 ? (
+          <div className="modern-card p-12 text-center">
+            <FileText size={48} className="mx-auto text-slate-400 mb-4" />
+            <p className="text-slate-500 text-lg mb-2">لا توجد عقود مطابقة</p>
+            <p className="text-slate-400 text-sm">جرّب تغيير معايير البحث أو الفلترة</p>
+          </div>
         ) : (
           <div className="grid grid-cols-1 gap-4">
-            {rentals.map((rental) => {
+            {filteredRentals.map((rental) => {
               const statusInfo = getStatusInfo(rental.status);
               const StatusIcon = statusInfo.icon;
               
