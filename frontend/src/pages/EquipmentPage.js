@@ -458,7 +458,7 @@ const EquipmentPage = () => {
                 {/* QR Code */}
                 <div ref={qrRef} className="flex justify-center p-6 bg-white border-2 border-slate-200 rounded-xl">
                   <QRCodeCanvas
-                    value={`${window.location.origin}/quick-rent/${selectedEquipmentForQR.id}`}
+                    value={`${window.location.origin}/qr-login/${selectedEquipmentForQR.id}`}
                     size={220}
                     level="H"
                     includeMargin={true}
