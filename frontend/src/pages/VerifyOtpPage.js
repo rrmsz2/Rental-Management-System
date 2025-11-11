@@ -69,14 +69,14 @@ const VerifyOtpPage = () => {
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-slate-50 via-cyan-50/30 to-blue-50/30" data-testid="verify-page">
       <div className="w-full max-w-md fade-in">
         <Card className="modern-card shadow-xl border-0" data-testid="verify-card">
-          <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold text-center text-teal-700">
+          <CardHeader className="space-y-1 pb-6">
+            <CardTitle className="text-2xl font-bold text-center text-slate-800">
               التحقق من الرمز
             </CardTitle>
-            <CardDescription className="text-center text-gray-600">
+            <CardDescription className="text-center text-slate-600">
               أدخل الرمز المرسل إلى
               <br />
-              <span className="font-semibold text-teal-600" dir="ltr">{phone}</span>
+              <span className="font-semibold text-cyan-600" dir="ltr">{phone}</span>
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -89,12 +89,12 @@ const VerifyOtpPage = () => {
                   data-testid="otp-input"
                 >
                   <InputOTPGroup>
-                    <InputOTPSlot index={0} className="h-14 w-12 text-lg border-teal-300" />
-                    <InputOTPSlot index={1} className="h-14 w-12 text-lg border-teal-300" />
-                    <InputOTPSlot index={2} className="h-14 w-12 text-lg border-teal-300" />
-                    <InputOTPSlot index={3} className="h-14 w-12 text-lg border-teal-300" />
-                    <InputOTPSlot index={4} className="h-14 w-12 text-lg border-teal-300" />
-                    <InputOTPSlot index={5} className="h-14 w-12 text-lg border-teal-300" />
+                    <InputOTPSlot index={0} className="h-14 w-12 text-lg border-slate-200 bg-slate-50/50" />
+                    <InputOTPSlot index={1} className="h-14 w-12 text-lg border-slate-200 bg-slate-50/50" />
+                    <InputOTPSlot index={2} className="h-14 w-12 text-lg border-slate-200 bg-slate-50/50" />
+                    <InputOTPSlot index={3} className="h-14 w-12 text-lg border-slate-200 bg-slate-50/50" />
+                    <InputOTPSlot index={4} className="h-14 w-12 text-lg border-slate-200 bg-slate-50/50" />
+                    <InputOTPSlot index={5} className="h-14 w-12 text-lg border-slate-200 bg-slate-50/50" />
                   </InputOTPGroup>
                 </InputOTP>
               </div>
@@ -102,7 +102,7 @@ const VerifyOtpPage = () => {
               <Button
                 type="submit"
                 data-testid="verify-button"
-                className="w-full h-12 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white font-semibold btn-primary"
+                className="w-full h-12 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-semibold btn-primary"
                 disabled={loading || code.length !== 6}
               >
                 {loading ? (
@@ -117,7 +117,7 @@ const VerifyOtpPage = () => {
 
               <div className="text-center">
                 {resendCooldown > 0 ? (
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-slate-500">
                     يمكنك إعادة الإرسال بعد {resendCooldown} ثانية
                   </p>
                 ) : (
@@ -126,7 +126,7 @@ const VerifyOtpPage = () => {
                     variant="ghost"
                     onClick={handleResend}
                     data-testid="resend-button"
-                    className="text-teal-600 hover:text-teal-700 hover:bg-teal-50"
+                    className="text-cyan-600 hover:text-cyan-700 hover:bg-cyan-50"
                   >
                     إعادة إرسال الرمز
                   </Button>
@@ -139,7 +139,7 @@ const VerifyOtpPage = () => {
                 variant="link"
                 onClick={() => navigate('/login')}
                 data-testid="back-to-login-button"
-                className="text-gray-600 hover:text-teal-600"
+                className="text-slate-600 hover:text-cyan-600"
               >
                 <ArrowRight className="ml-2 h-4 w-4" />
                 العودة لتسجيل الدخول
