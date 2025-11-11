@@ -33,6 +33,26 @@
   }
 }
 
+/* Enhanced Card Styles */
+@layer components {
+  .modern-card {
+    @apply bg-white/80 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300 border border-white/50;
+  }
+  
+  .glass-card {
+    @apply bg-white/60 backdrop-blur-md shadow-xl border border-white/60;
+  }
+  
+  .gradient-border {
+    @apply relative;
+  }
+  
+  .gradient-border::before {
+    content: '';
+    @apply absolute inset-0 rounded-lg bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 opacity-20 blur-sm;
+  }
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
