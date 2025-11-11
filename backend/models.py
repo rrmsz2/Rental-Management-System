@@ -150,3 +150,58 @@ class User(BaseModel):
     customer_id: Optional[str] = None
     is_manager: bool = False
     created_at: str
+
+# Employee Models
+class EmployeeBase(BaseModel):
+    full_name: str
+    phone: str
+    email: Optional[str] = None
+    national_id: Optional[str] = None
+    position: str
+    salary: Optional[float] = None
+    hire_date: str
+    is_active: bool = True
+    notes: Optional[str] = None
+
+class EmployeeCreate(EmployeeBase):
+    pass
+
+class EmployeeUpdate(BaseModel):
+    full_name: Optional[str] = None
+    phone: Optional[str] = None
+    email: Optional[str] = None
+    national_id: Optional[str] = None
+    position: Optional[str] = None
+    salary: Optional[float] = None
+    hire_date: Optional[str] = None
+    is_active: Optional[bool] = None
+    notes: Optional[str] = None
+
+class Employee(EmployeeBase):
+    model_config = ConfigDict(extra="ignore")
+    id: str
+    created_at: str
+
+# Settings Models
+class SettingsBase(BaseModel):
+    header_logo: Optional[str] = None
+    header_title: str = "نظام إدارة التأجير"
+    header_subtitle: str = "Rental Management System"
+    footer_text: str = "جميع الحقوق محفوظة © 2025"
+    footer_phone: Optional[str] = None
+    footer_email: Optional[str] = None
+    footer_address: Optional[str] = None
+
+class SettingsUpdate(BaseModel):
+    header_logo: Optional[str] = None
+    header_title: Optional[str] = None
+    header_subtitle: Optional[str] = None
+    footer_text: Optional[str] = None
+    footer_phone: Optional[str] = None
+    footer_email: Optional[str] = None
+    footer_address: Optional[str] = None
+
+class Settings(SettingsBase):
+    model_config = ConfigDict(extra="ignore")
+    id: str
+    updated_at: str
