@@ -56,6 +56,47 @@ const RentalsPage = () => {
     fetchData();
   }, []);
 
+  // Filter and search rentals
+  useEffect(() => {
+    if (!rentals.length) {
+      setFilteredRentals([]);
+      return;
+    }
+
+    let filtered = [...rentals];
+
+    // Sort by created_at (newest first)
+    filtered.sort((a, b) => {
+      const dateA = new Date(a.created_at || 0);
+      const dateB = new Date(b.created_at || 0);
+      return dateB - dateA; // Descending order
+    });
+
+    // Filter by status
+    if (statusFilter && statusFilter !== 'all') {
+      filtered = filtered.filter(rental => rental.status === statusFilter);
+    }
+
+    // Search filter
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      filtered = filtered.filter(rental => {
+        const customer = customers.find(c => c.id === rental.customer_id);
+        const equip = equipment.find(e => e.id === rental.equipment_id);
+        
+        return (
+          rental.contract_no?.toLowerCase().includes(term) ||
+          customer?.full_name?.toLowerCase().includes(term) ||
+          customer?.phone?.toLowerCase().includes(term) ||
+          equip?.name?.toLowerCase().includes(term) ||
+          equip?.category?.toLowerCase().includes(term)
+        );
+      });
+    }
+
+    setFilteredRentals(filtered);
+  }, [rentals, searchTerm, statusFilter, customers, equipment]);
+
   const fetchData = async () => {
     try {
       const [rentalsRes, customersRes, equipmentRes] = await Promise.all([
