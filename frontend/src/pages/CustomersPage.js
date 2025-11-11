@@ -203,20 +203,27 @@ const CustomersPage = () => {
             <Loader2 className="h-12 w-12 animate-spin text-teal-600" />
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {customers.map((customer) => (
-              <Card key={customer.id} data-testid={`customer-card-${customer.id}`} className="p-4 card-hover border-2 border-teal-100">
-                <div className="space-y-2">
-                  <h3 className="text-lg font-bold text-teal-700">{customer.full_name}</h3>
-                  <p className="text-sm text-gray-600" dir="ltr">{customer.phone}</p>
-                  {customer.email && <p className="text-sm text-gray-500">{customer.email}</p>}
-                  {customer.national_id && <p className="text-sm text-gray-500">الرقم الوطني: {customer.national_id}</p>}
-                  <div className="flex gap-2 mt-4">
+              <div key={customer.id} data-testid={`customer-card-${customer.id}`} className="modern-card p-5">
+                <div className="space-y-3">
+                  <div className="flex items-start justify-between">
+                    <h3 className="text-lg font-bold text-slate-800">{customer.full_name}</h3>
+                    <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center">
+                      <Users size={20} className="text-white" />
+                    </div>
+                  </div>
+                  <div className="space-y-2 text-sm">
+                    <p className="text-slate-600" dir="ltr">{customer.phone}</p>
+                    {customer.email && <p className="text-slate-500">{customer.email}</p>}
+                    {customer.national_id && <p className="text-slate-500">الرقم الوطني: {customer.national_id}</p>}
+                  </div>
+                  <div className="flex gap-2 mt-4 pt-4 border-t border-slate-100">
                     <Button
                       data-testid={`edit-customer-${customer.id}`}
                       size="sm"
                       onClick={() => handleEdit(customer)}
-                      className="flex-1 bg-blue-600 hover:bg-blue-700"
+                      className="flex-1 bg-slate-100 text-slate-700 hover:bg-slate-200"
                     >
                       <Edit size={16} className="ml-1" />
                       تحرير
@@ -226,12 +233,13 @@ const CustomersPage = () => {
                       size="sm"
                       variant="destructive"
                       onClick={() => handleDelete(customer.id)}
+                      className="bg-red-50 text-red-600 hover:bg-red-100 border-0"
                     >
                       <Trash2 size={16} />
                     </Button>
                   </div>
                 </div>
-              </Card>
+              </div>
             ))}
           </div>
         )}
