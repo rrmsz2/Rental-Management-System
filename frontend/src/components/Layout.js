@@ -83,13 +83,13 @@ const Layout = ({ children }) => {
         </div>
       </nav>
 
-      <div className="flex">
+      <div className="flex flex-1">
         {/* Sidebar */}
         <aside
           className={`
-            fixed lg:sticky top-16 right-0 h-[calc(100vh-4rem)] w-64 bg-white border-l border-teal-100 
+            fixed lg:sticky top-16 left-0 h-[calc(100vh-4rem)] w-64 bg-white border-r border-teal-100 
             transform transition-transform duration-300 ease-in-out z-30 glass
-            ${sidebarOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'}
+            ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
           `}
           data-testid="sidebar"
         >
@@ -103,7 +103,7 @@ const Layout = ({ children }) => {
                   data-testid={item.testId}
                   variant={isActive ? 'default' : 'ghost'}
                   className={`
-                    w-full justify-end text-right h-12
+                    w-full justify-start text-right h-12
                     ${isActive 
                       ? 'bg-gradient-to-r from-teal-600 to-emerald-600 text-white' 
                       : 'text-gray-700 hover:bg-teal-50 hover:text-teal-700'
@@ -114,8 +114,8 @@ const Layout = ({ children }) => {
                     setSidebarOpen(false);
                   }}
                 >
+                  <Icon size={20} className="ml-3" />
                   <span className="flex-1 text-right">{item.label}</span>
-                  <Icon size={20} className="mr-3" />
                 </Button>
               );
             })}
@@ -127,6 +127,9 @@ const Layout = ({ children }) => {
           {children}
         </main>
       </div>
+
+      {/* Footer */}
+      <Footer />
 
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
