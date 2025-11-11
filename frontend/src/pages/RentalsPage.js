@@ -138,7 +138,7 @@ const RentalsPage = () => {
       
       fetchData();
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'فشل في إغلاق العقد');
+      toast.error(getErrorMessage(error, 'فشل في إغلاق العقد'));
     }
   };
 
@@ -150,7 +150,7 @@ const RentalsPage = () => {
       toast.success('تم إلغاء العقد بنجاح');
       fetchData();
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'فشل في إلغاء العقد');
+      toast.error(getErrorMessage(error, 'فشل في إلغاء العقد'));
     }
   };
 
