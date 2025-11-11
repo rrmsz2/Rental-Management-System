@@ -102,6 +102,120 @@ const EquipmentPage = () => {
     });
   };
 
+  const handleShowQR = (equip) => {
+    setSelectedEquipmentForQR(equip);
+    setQrDialogOpen(true);
+  };
+
+  const handlePrintQR = () => {
+    if (!qrRef.current) return;
+    
+    const canvas = qrRef.current.querySelector('canvas');
+    if (!canvas) return;
+
+    // Create print window
+    const printWindow = window.open('', '_blank');
+    const qrUrl = canvas.toDataURL('image/png');
+    
+    printWindow.document.write(`
+      <html dir="rtl">
+        <head>
+          <title>طباعة QR Code - ${selectedEquipmentForQR.name}</title>
+          <style>
+            body {
+              font-family: 'Tajawal', Arial, sans-serif;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              min-height: 100vh;
+              margin: 0;
+              padding: 20px;
+            }
+            .container {
+              text-align: center;
+              border: 3px solid #0891b2;
+              border-radius: 16px;
+              padding: 30px;
+              max-width: 400px;
+              box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            }
+            h1 {
+              color: #0f172a;
+              font-size: 24px;
+              margin: 0 0 10px 0;
+            }
+            h2 {
+              color: #0891b2;
+              font-size: 28px;
+              margin: 0 0 20px 0;
+              font-weight: bold;
+            }
+            img {
+              width: 250px;
+              height: 250px;
+              margin: 20px 0;
+            }
+            .info {
+              background: #f1f5f9;
+              padding: 15px;
+              border-radius: 8px;
+              margin: 15px 0;
+            }
+            .info p {
+              margin: 5px 0;
+              font-size: 16px;
+              color: #475569;
+            }
+            .info strong {
+              color: #0f172a;
+            }
+            .instructions {
+              background: #dbeafe;
+              padding: 15px;
+              border-radius: 8px;
+              margin-top: 20px;
+              font-size: 14px;
+              color: #1e40af;
+            }
+            @media print {
+              body {
+                padding: 0;
+              }
+              .container {
+                border: 2px solid #0891b2;
+                box-shadow: none;
+              }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <h1>نظام إدارة التأجير</h1>
+            <h2>${selectedEquipmentForQR.name}</h2>
+            <img src="${qrUrl}" alt="QR Code" />
+            <div class="info">
+              <p><strong>الفئة:</strong> ${selectedEquipmentForQR.category}</p>
+              <p><strong>السعر اليومي:</strong> ${selectedEquipmentForQR.daily_rate} ريال</p>
+              ${selectedEquipmentForQR.serial_no ? `<p><strong>الرقم التسلسلي:</strong> ${selectedEquipmentForQR.serial_no}</p>` : ''}
+            </div>
+            <div class="instructions">
+              <strong>📱 للتأجير:</strong> امسح الكود ضوئياً
+            </div>
+          </div>
+          <script>
+            window.onload = () => {
+              setTimeout(() => {
+                window.print();
+              }, 500);
+            };
+          </script>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+  };
+
   const getStatusInfo = (status) => {
     switch (status) {
       case 'available':
