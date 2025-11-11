@@ -107,7 +107,7 @@ const RentalsPage = () => {
       toast.success('تم تفعيل العقد بنجاح');
       fetchData();
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'فشل في تفعيل العقد');
+      toast.error(getErrorMessage(error, 'فشل في تفعيل العقد'));
     }
   };
 
