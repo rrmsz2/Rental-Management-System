@@ -42,10 +42,12 @@ function App() {
             <Route path="/verify" element={<VerifyOtpPage />} />
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/customers" element={<ProtectedRoute><CustomersPage /></ProtectedRoute>} />
+            <Route path="/employees" element={<ProtectedRoute><EmployeesPage /></ProtectedRoute>} />
             <Route path="/equipment" element={<ProtectedRoute><EquipmentPage /></ProtectedRoute>} />
             <Route path="/rentals" element={<ProtectedRoute><RentalsPage /></ProtectedRoute>} />
             <Route path="/invoices" element={<ProtectedRoute><InvoicesPage /></ProtectedRoute>} />
             <Route path="/reports" element={<ProtectedRoute><ReportsPage /></ProtectedRoute>} />
+            <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
           </Routes>
         </BrowserRouter>
