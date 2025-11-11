@@ -89,12 +89,12 @@ const VerifyOtpPage = () => {
                   data-testid="otp-input"
                 >
                   <InputOTPGroup>
-                    <InputOTPSlot index={0} className="h-14 w-12 text-lg border-slate-200 bg-slate-50/50" />
-                    <InputOTPSlot index={1} className="h-14 w-12 text-lg border-slate-200 bg-slate-50/50" />
-                    <InputOTPSlot index={2} className="h-14 w-12 text-lg border-slate-200 bg-slate-50/50" />
-                    <InputOTPSlot index={3} className="h-14 w-12 text-lg border-slate-200 bg-slate-50/50" />
-                    <InputOTPSlot index={4} className="h-14 w-12 text-lg border-slate-200 bg-slate-50/50" />
-                    <InputOTPSlot index={5} className="h-14 w-12 text-lg border-slate-200 bg-slate-50/50" />
+                    <InputOTPSlot index={0} data-testid="otp-slot-0" className="h-14 w-12 text-lg border-slate-200 bg-slate-50/50" />
+                    <InputOTPSlot index={1} data-testid="otp-slot-1" className="h-14 w-12 text-lg border-slate-200 bg-slate-50/50" />
+                    <InputOTPSlot index={2} data-testid="otp-slot-2" className="h-14 w-12 text-lg border-slate-200 bg-slate-50/50" />
+                    <InputOTPSlot index={3} data-testid="otp-slot-3" className="h-14 w-12 text-lg border-slate-200 bg-slate-50/50" />
+                    <InputOTPSlot index={4} data-testid="otp-slot-4" className="h-14 w-12 text-lg border-slate-200 bg-slate-50/50" />
+                    <InputOTPSlot index={5} data-testid="otp-slot-5" className="h-14 w-12 text-lg border-slate-200 bg-slate-50/50" />
                   </InputOTPGroup>
                 </InputOTP>
               </div>
