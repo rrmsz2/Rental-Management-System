@@ -14,6 +14,8 @@ import ReportsPage from './pages/ReportsPage';
 import SettingsPage from './pages/SettingsPage';
 import QuickRentPage from './pages/QuickRentPage';
 import QuickReturnPage from './pages/QuickReturnPage';
+import QRScanLoginPage from './pages/QRScanLoginPage';
+import QRScanPage from './pages/QRScanPage';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
