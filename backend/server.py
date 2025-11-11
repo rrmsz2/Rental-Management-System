@@ -25,7 +25,7 @@ app = FastAPI(title="Rental Management System", version="1.0.0")
 api_router = APIRouter(prefix="/api")
 
 # Import routers
-from routers import auth, customers, equipment, rentals, invoices, reports
+from routers import auth, customers, equipment, rentals, invoices, reports, employees, settings
 
 # Add routes to API router
 @api_router.get("/")
@@ -43,6 +43,8 @@ api_router.include_router(equipment.router)
 api_router.include_router(rentals.router)
 api_router.include_router(invoices.router)
 api_router.include_router(reports.router)
+api_router.include_router(employees.router)
+api_router.include_router(settings.router)
 
 # Include the API router in the main app
 app.include_router(api_router)
