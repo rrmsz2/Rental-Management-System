@@ -16,8 +16,15 @@ const RentalsPage = () => {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
+  const [closeDialogOpen, setCloseDialogOpen] = useState(false);
+  const [invoiceDialogOpen, setInvoiceDialogOpen] = useState(false);
   const [selectedRental, setSelectedRental] = useState(null);
   const [rentalSummary, setRentalSummary] = useState(null);
+  const [createdInvoice, setCreatedInvoice] = useState(null);
+  const [closeFormData, setCloseFormData] = useState({
+    tax_rate: '0.05',
+    discount_amount: '0'
+  });
   const [formData, setFormData] = useState({
     customer_id: '',
     equipment_id: '',
