@@ -69,7 +69,18 @@ const RentalsPage = () => {
       fetchData();
       resetForm();
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'فشل في إنشاء العقد');
+      const errorDetail = error.response?.data?.detail;
+      let errorMessage = 'فشل في إنشاء العقد';
+      
+      if (typeof errorDetail === 'string') {
+        errorMessage = errorDetail;
+      } else if (Array.isArray(errorDetail)) {
+        errorMessage = errorDetail.map(err => err.msg || err).join(', ');
+      } else if (typeof errorDetail === 'object' && errorDetail?.message) {
+        errorMessage = errorDetail.message;
+      }
+      
+      toast.error(errorMessage);
     }
   };
 
