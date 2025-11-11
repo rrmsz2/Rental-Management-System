@@ -1,0 +1,162 @@
+<analysis>**original_problem_statement:**
+المستخدم طلب بناء نظام لإدارة الإيجارات لمحل معدات مع الميزات التالية:
+- **المكدس التقني المطلوب:** Flask, SQLite, HTMX, TailwindCSS.
+- **المصادقة:** تسجيل الدخول عبر رقم الهاتف ورمز OTP يُرسل عبر WhatsApp باستخدام TextMeBot.
+- **الوحدات الأساسية:** إدارة العملاء، المعدات، عقود الإيجار، والفواتير.
+- **التكامل:** إرسال إشعارات WhatsApp للعملاء والمدير لأحداث مختلفة (إنشاء عقد، تذكير بالإرجاع، تأخير، إصدار فاتورة).
+- **قواعد العمل:** منطق لحساب رسوم التأخير، منع تداخل حجوزات المعدات، وتفعيل العقود.
+- **لغة الإشعارات:** العربية.
+- **هيكل المشروع:** تم تقديم هيكل مقترح للملفات والمجلدات.
+
+**ملاحظة هامة:** تم تغيير المكدس التقني إلى **FastAPI (للخلفية) و React (للوجهة الأمامية) و MongoDB (لقاعدة البيانات)** بناءً على موافقة المستخدم، لأن المكدس المطلوب في البداية غير مدعوم.
+
+**what currently exists?**
+يوجد الآن تطبيق ويب متكامل يعمل بالمكدس التقني (FastAPI, React, MongoDB). التطبيق يتميز بالآتي:
+- **واجهة مستخدم احترافية وحديثة** تدعم اللغة العربية والتنسيق من اليمين إلى اليسار (RTL) مع استخدام خط Tajawal.
+- **نظام مصادقة كامل** عبر رقم الهاتف ورمز OTP يُرسل عبر WhatsApp (باستخدام TextMeBot).
+- **لوحة تحكم** تحتوي على صفحات لإدارة (العملاء، الموظفين، المعدات، عقود الإيجار، الفواتير، والإعدادات).
+- **منطق عمل مخصص** مثل تفعيل العقود تلقائياً عند إنشائها، وإنشاء الفواتير تلقائياً عند إغلاق العقد.
+- **هيدر وفوتر** ديناميكي يمكن تعديله من صفحة الإعدادات.
+
+**Last working item**:
+- **Last item agent was working:** كان الوكيل يعمل على تنفيذ ميزة إنشاء الفاتورة تلقائيًا عند إغلاق عقد الإيجار. هذا تضمن:
+    1.  **في الخلفية:** تعديل نقطة النهاية  في  لتقوم بإنشاء سجل فاتورة جديد مرتبط بالعقد المغلق.
+    2.  **في الواجهة الأمامية:** تعديل صفحة  لإظهار مربع حوار (dialog) عند إغلاق العقد، يسمح للمستخدم بإدخال نسبة الضريبة ومبلغ الخصم، ثم يستدعي نقطة النهاية في الخلفية.
+- **Status:** IN PROGRESS
+- **Agent Testing Done:** N
+- **Which testing method agent to use?** both
+- **User Testing Done:** N
+
+**All Pending/In progress Issue list**:
+- **Issue 1:** (P0) اختبار ميزة إنشاء الفاتورة التلقائي.
+- **Issue 2:** (P1) استكمال إشعارات WhatsApp المتبقية.
+- **Issue 3:** (P2) استكمال صفحات التقارير والموظفين.
+- **Issue 4:** (P3) إصلاح إمكانية التنقل في اختبارات لقطة الشاشة.
+
+**Issues Detail:**
+- **Issue 1:**
+    - **Attempted fixes:** تمت كتابة الكود اللازم في الواجهة الخلفية والأمامية ولكن لم يتم اختباره.
+    - **Next debug checklist:**
+        1.  استخدام  لاختبار نقطة النهاية  في الخلفية والتأكد من أنها تنشئ فاتورة في قاعدة البيانات.
+        2.  استخدام أداة لقطة الشاشة (screenshot tool) لتسجيل الدخول، الانتقال إلى صفحة العقود، النقر على زر إغلاق العقد، ملء النموذج، والتأكد من أن الفاتورة تظهر للمستخدم أو يتم توجيهه إليها.
+    - **Why fix this issue and what will be achieved with the fix?** هذا الإصلاح يكمل دورة حياة عقد الإيجار بالكامل، مما يجعل النظام مؤتمتًا وسهل الاستخدام.
+    - **Status:** IN PROGRESS
+    - **Is recurring issue?** N
+    - **Should Test frontend/backend/both after fix?** both
+    - **Blocked on other issue:** None
+
+- **Issue 2:**
+    - **Next debug checklist:**
+        1.  مراجعة  لجميع الإجراءات التي تتطلب إشعارًا (مثل تفعيل العقد، تذكير بالإرجاع، تأخير).
+        2.  تنفيذ منطق إرسال الإشعارات باستخدام  في  لهذه الإجراءات.
+        3.  التأكد من تسجيل كل إشعار مرسل في جدول .
+    - **Why fix this issue and what will be achieved with the fix?** تفعيل نظام الإشعارات بالكامل هو أحد المتطلبات الأساسية للمشروع لضمان التواصل الفعال مع العملاء والمدير.
+    - **Status:** NOT STARTED
+    - **Is recurring issue?** N
+    - **Should Test frontend/backend/both after fix?** backend
+    - **Blocked on other issue:** None
+
+- **Issue 3:**
+    - **Next debug checklist:**
+        1.  تنفيذ منطق الواجهة الخلفية في  لتجميع البيانات (مثل الإيرادات اليومية، استخدام المعدات).
+        2.  عرض هذه البيانات في .
+        3.  استكمال وظائف إضافة/تعديل الموظفين بشكل كامل في .
+    - **Why fix this issue and what will be achieved with the fix?** يوفر رؤى إدارية هامة ويسمح بإدارة المستخدمين الداخليين.
+    - **Status:** NOT STARTED
+    - **Is recurring issue?** N
+    - **Should Test frontend/backend/both after fix?** both
+    - **Blocked on other issue:** None
+
+- **Issue 4:**
+    - **Attempted fixes:** فشلت أداة لقطة الشاشة في التنقل بين الصفحات بعد تسجيل الدخول.
+    - **Next debug checklist:**
+        1.  عند استخدام أداة لقطة الشاشة، قم بتضمين خطوات تسجيل الدخول أولاً.
+        2.  أضف أوامر انتظار صريحة (e.g., ) بعد كل إجراء تنقل للتأكد من تحميل الصفحة بالكامل قبل المتابعة.
+    - **Why fix this issue and what will be achieved with the fix?** إصلاح هذا سيسمح باختبار الواجهة الأمامية بشكل موثوق والتحقق من التغييرات بصريًا.
+    - **Status:** IN PROGRESS
+    - **Is recurring issue?** Y
+    - **Should Test frontend/backend/both after fix?** frontend
+    - **Blocked on other issue:** None
+
+**In progress Task List**:
+- **Task 1:** بناء نظام إدارة الإيجارات
+    - **Where to resume:** البدء باختبار ميزة إنشاء الفاتورة التلقائي عند إغلاق العقد.
+    - **What will be achieved with this?** إكمال الوظائف الأساسية لنظام الإيجار.
+    - **Status:** IN PROGRESS
+    - **Should Test frontend/backend/both after fix?** both
+    - **Blocked on something:** None
+
+**Upcoming and Future Tasks**
+- **Upcoming Tasks:**
+    - (P1) تنفيذ أوامر CLI (المكافئة لـ ) لإرسال ملخصات يومية للمدير.
+    - (P2) إنشاء Webhook لاستقبال الرسائل الواردة من WhatsApp والرد عليها.
+- **Future Tasks:**
+    - (P3) إضافة اختبارات آلية (, ) للخلفية والأمامية.
+
+**Completed work in this session**
+- تم تغيير المكدس التقني من Flask/HTMX إلى FastAPI/React.
+- تم بناء هيكل الواجهة الخلفية والأمامية بالكامل.
+- تم تنفيذ نظام تسجيل الدخول الكامل باستخدام رقم الهاتف وOTP عبر WhatsApp.
+- تم إعادة تصميم واجهة المستخدم بالكامل لتكون عصرية واحترافية.
+- تم إضافة دعم اللغة العربية والتنسيق من اليمين لليسار (RTL).
+- تم إنشاء صفحات لإدارة العملاء، الموظفين، المعدات، العقود، الفواتير، والإعدادات.
+- تم تنفيذ منطق العمل لجعل العقود نشطة تلقائيًا عند الحفظ.
+- تم تنفيذ الواجهة الخلفية والأمامية لإنشاء الفواتير تلقائيًا عند إغلاق العقد (تحتاج إلى اختبار).
+
+**Code Architecture**
+
+
+**Key Technical Concepts**
+- **Backend:** FastAPI, MongoDB (via ), Pydantic models.
+- **Frontend:** React, React Router, Axios, TailwindCSS, Context API for auth.
+- **Authentication:** JWT-based sessions initiated by OTP verification.
+- **Integrations:** TextMeBot API for sending WhatsApp messages.
+
+**key DB schema**
+- : {full_name, phone, whatsapp_opt_in, ...}
+- : {name, category, daily_rate, status, ...}
+- : {contract_no, customer_id, equipment_id, start_date, end_date, status, ...}
+- : {invoice_no, contract_id, total, paid, ...}
+- : {phone, code, expires_at, is_used, ...}
+- : {to_phone, status, provider_message_id, ...}
+- : {name, phone, role, ...}
+- : {key, value} (e.g., for header/footer content)
+
+**changes in tech stack**
+- تم التحول من (Flask, SQLite, HTMX) إلى (FastAPI, React, MongoDB).
+
+**All files**
+- تم إنشاء أو تحديث جميع الملفات تقريبًا في  و  لتنفيذ الميزات المذكورة. الملفات الأكثر أهمية هي  التي تحتوي على منطق العمل، و  التي تشكل واجهات المستخدم.
+
+**Critical Info for New Agent**
+- تم تغيير المكدس التقني بالكامل عن الطلب الأصلي. يجب أن يستمر العمل باستخدام FastAPI, React, MongoDB.
+- مفتاح TextMeBot API وبيانات الاعتماد موجودة في .
+- منطق العمل الآن يجعل العقود نشطة تلقائيًا، وينشئ الفواتير تلقائيًا. يجب أخذ هذا في الاعتبار عند أي تعديلات مستقبلية.
+- الواجهة تدعم RTL بالكامل. أي مكونات جديدة يجب أن تكون متوافقة مع هذا التنسيق.
+
+**Last 5 User Messages and any pending user messages**
+1.  **اضافة موظف واضافة عميل لا زال بالستايل السابق:** (مكتمل) طلب تحديث تصميم نماذج الإضافة، وتم تنفيذه.
+2.  **دعنا نكمل صفحة المعدات ثم عقود التأجير:** (مكتمل) طلب استكمال صفحات المعدات والعقود، وتم تنفيذه.
+3.  **عند كتابة العقد وحفظه يجب ان يكون ساري مباشرة. ماذا عن الفوترة وعندما يرجع العميل المعدة؟:** (مكتمل) طلب تغيير منطق العمل لجعل العقد نشطًا فورًا، وتم تنفيذه.
+4.  **عند اغلاق العقد يجب ان تظهر الفاتورة مباشرة ويتم انشاؤها تلقائيا:** (قيد التنفيذ) طلب أتمتة إنشاء الفواتير عند إغلاق العقد. تم كتابة الكود ولكن لم يتم اختباره.
+5.  **رسالة مستخدم معلقة:** لا يوجد. الوكيل كان على وشك اختبار آخر طلب.
+
+**Project Health Check:**
+- **Broken:** لا شيء معروف.
+- **Mocked:** إرسال إشعارات WhatsApp (بخلاف OTP) لم يتم تنفيذه بعد.
+
+**Testing status**
+- **Testing agent used after significant changes:** NO
+- **Troubleshoot agent used after agent stuck in loop:** NO
+- **Test files created:** None
+- **Known regressions:** None
+
+**Credentials to test flow:**
+- **Phone Number:** 
+- **OTP:** يتم إنشاؤه ديناميكيًا ويمكن العثور عليه في سجلات الخلفية (أو من خلال  API call).
+
+**What agent forgot to execute**
+- لم يقم الوكيل بتنفيذ معظم إشعارات WhatsApp المحددة في الطلب الأصلي (تذكير بالإرجاع، ملخصات للمدير، إلخ).
+- لم يقم بتنفيذ أوامر CLI (مثل ).
+- لم يقم بتنفيذ صفحة التقارير بشكل كامل.
+- لم يقم بإنشاء Webhook للرسائل الواردة.</analysis>
