@@ -115,62 +115,60 @@ const Dashboard = () => {
 
   return (
     <Layout>
-      <div className="space-y-6 fade-in" data-testid="dashboard-page">
+      <div className="space-y-8 fade-in" data-testid="dashboard-page">
         <div>
-          <h2 className="text-3xl font-bold text-teal-700">لوحة التحكم</h2>
-          <p className="text-gray-600 mt-1">نظرة عامة على العمليات</p>
+          <h2 className="text-3xl font-bold text-slate-800">لوحة التحكم</h2>
+          <p className="text-slate-600 mt-2">نظرة عامة شاملة على العمليات والإحصائيات</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
           {statCards.map((stat, index) => {
             const Icon = stat.icon;
             return (
-              <Card
+              <div
                 key={index}
                 data-testid={stat.testId}
-                className={`card-hover border-2 ${
-                  stat.highlight ? 'border-red-200 bg-red-50' : 'border-teal-100'
+                className={`stat-card p-5 ${
+                  stat.highlight ? 'bg-red-50 border-2 border-red-200' : ''
                 }`}
               >
-                <CardHeader className="pb-2">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-sm font-medium text-gray-600">
+                <div className="flex items-start justify-between mb-3">
+                  <div>
+                    <p className="text-sm font-medium text-slate-600 mb-1">
                       {stat.title}
-                    </CardTitle>
-                    <div
-                      className={`p-2 rounded-lg bg-gradient-to-br ${stat.color} text-white`}
-                    >
-                      <Icon size={20} />
+                    </p>
+                    <div className="text-3xl font-bold text-slate-900">
+                      {stat.value}
                     </div>
                   </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-gray-900">
-                    {stat.value}
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-md">
+                    <Icon size={24} className="text-white" />
                   </div>
-                  {stat.subtitle && (
-                    <p className="text-xs text-gray-500 mt-1">{stat.subtitle}</p>
-                  )}
-                </CardContent>
-              </Card>
+                </div>
+                {stat.subtitle && (
+                  <p className="text-sm text-slate-500 mt-2">{stat.subtitle}</p>
+                )}
+              </div>
             );
           })}
         </div>
 
         {stats?.overdue_rentals > 0 && (
-          <Card className="border-2 border-red-200 bg-red-50" data-testid="overdue-alert">
-            <CardHeader>
-              <CardTitle className="text-red-700 flex items-center gap-2">
-                <AlertCircle size={24} />
-                تنبيه: عقود متأخرة
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-red-600">
-                هناك {stats.overdue_rentals} عقد متأخر. الرجاء متابعة الإرجاع مع العملاء.
-              </p>
-            </CardContent>
-          </Card>
+          <div className="modern-card bg-gradient-to-r from-red-50 to-orange-50 border-2 border-red-200 p-6" data-testid="overdue-alert">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-xl bg-red-100 flex items-center justify-center">
+                <AlertCircle size={24} className="text-red-600" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-bold text-red-800 mb-1">
+                  تنبيه: عقود متأخرة
+                </h3>
+                <p className="text-red-700">
+                  هناك {stats.overdue_rentals} عقد متأخر. الرجاء متابعة الإرجاع مع العملاء.
+                </p>
+              </div>
+            </div>
+          </div>
         )}
       </div>
     </Layout>
