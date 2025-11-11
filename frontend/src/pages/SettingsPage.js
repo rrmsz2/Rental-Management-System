@@ -99,46 +99,50 @@ const SettingsPage = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <Label htmlFor="header_logo">شعار الهيدر</Label>
+                <Label htmlFor="header_logo">صورة البانر (Banner)</Label>
                 <div className="mt-2 space-y-3">
-                  {/* Logo Preview */}
+                  {/* Banner Preview */}
                   {settings.header_logo && (
-                    <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg border border-slate-200">
-                      <img 
-                        src={settings.header_logo} 
-                        alt="Logo" 
-                        className="h-16 w-16 object-contain bg-white border border-slate-200 rounded p-1"
-                        onError={(e) => {
-                          e.target.style.display = 'none';
-                          toast.error('فشل في تحميل الصورة. تحقق من الرابط');
-                        }}
-                      />
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-slate-700">الشعار الحالي</p>
-                        <p className="text-xs text-slate-500 truncate">{settings.header_logo}</p>
+                    <div className="overflow-hidden rounded-lg border-2 border-slate-200">
+                      <div className="relative h-32 sm:h-40">
+                        <img 
+                          src={settings.header_logo} 
+                          alt="Banner Preview" 
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                            toast.error('فشل في تحميل الصورة. تحقق من الرابط');
+                          }}
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-b from-black/40 to-black/60 flex items-center justify-center">
+                          <div className="text-center text-white">
+                            <p className="text-lg font-bold">معاينة البانر</p>
+                            <p className="text-sm opacity-90">سيظهر بعرض الصفحة الكامل</p>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   )}
                   
-                  {/* Logo URL Input */}
+                  {/* Banner URL Input */}
                   <div>
-                    <Label htmlFor="header_logo_url" className="text-sm text-slate-600">رابط الشعار (URL)</Label>
+                    <Label htmlFor="header_logo_url" className="text-sm text-slate-600">رابط صورة البانر (URL)</Label>
                     <Input
                       id="header_logo_url"
                       type="url"
-                      placeholder="https://example.com/logo.png"
+                      placeholder="https://example.com/banner.jpg"
                       value={settings.header_logo || ''}
                       onChange={(e) => setSettings({...settings, header_logo: e.target.value})}
                       className="mt-1 h-11 border-slate-200"
                     />
                     <p className="text-xs text-slate-500 mt-1">
-                      أدخل رابط مباشر للصورة (يفضل PNG أو SVG للشفافية)
+                      يُفضل صورة بأبعاد 1920×400 بكسل أو أكبر (نسبة 16:3 تقريباً)
                     </p>
                   </div>
 
                   {/* Upload Alternative */}
                   <div className="pt-2 border-t border-slate-200">
-                    <p className="text-xs text-slate-600 mb-2">أو ارفع صورة:</p>
+                    <p className="text-xs text-slate-600 mb-2">أو ارفع صورة من جهازك:</p>
                     <input
                       type="file"
                       id="logo-upload"
@@ -163,13 +167,48 @@ const SettingsPage = () => {
                       ) : (
                         <>
                           <Upload className="ml-2" size={16} />
-                          رفع شعار من الجهاز
+                          رفع صورة من الجهاز
                         </>
                       )}
                     </Button>
                     <p className="text-xs text-slate-400 mt-1">
-                      PNG, JPG, WebP, SVG (الحد الأقصى 2 ميجابايت)
+                      JPG, PNG, WebP (الحد الأقصى 2 ميجابايت)
                     </p>
+                  </div>
+
+                  {/* Suggested Images */}
+                  <div className="pt-2 border-t border-slate-200">
+                    <p className="text-xs text-slate-600 mb-2">أو اختر من الصور المقترحة:</p>
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setSettings({...settings, header_logo: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1920&h=400&fit=crop'})}
+                        className="text-xs text-cyan-600 hover:text-cyan-700 underline text-left"
+                      >
+                        مباني حديثة
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setSettings({...settings, header_logo: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=1920&h=400&fit=crop'})}
+                        className="text-xs text-cyan-600 hover:text-cyan-700 underline text-left"
+                      >
+                        مكتب عصري
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setSettings({...settings, header_logo: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=1920&h=400&fit=crop'})}
+                        className="text-xs text-cyan-600 hover:text-cyan-700 underline text-left"
+                      >
+                        أعمال احترافية
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setSettings({...settings, header_logo: 'https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?w=1920&h=400&fit=crop'})}
+                        className="text-xs text-cyan-600 hover:text-cyan-700 underline text-left"
+                      >
+                        أدوات ومعدات
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
