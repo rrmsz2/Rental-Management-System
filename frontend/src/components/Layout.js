@@ -2,13 +2,17 @@ import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Button } from './ui/button';
+import Header from './Header';
+import Footer from './Footer';
 import { 
   LayoutDashboard, 
   Users, 
   Package, 
   FileText, 
   Receipt, 
-  BarChart3, 
+  BarChart3,
+  UserCog,
+  Settings,
   LogOut,
   Menu,
   X
@@ -30,10 +34,12 @@ const Layout = ({ children }) => {
   const menuItems = [
     { icon: LayoutDashboard, label: 'لوحة التحكم', path: '/dashboard', testId: 'nav-dashboard' },
     { icon: Users, label: 'العملاء', path: '/customers', testId: 'nav-customers' },
+    { icon: UserCog, label: 'الموظفين', path: '/employees', testId: 'nav-employees' },
     { icon: Package, label: 'المعدات', path: '/equipment', testId: 'nav-equipment' },
     { icon: FileText, label: 'عقود التأجير', path: '/rentals', testId: 'nav-rentals' },
     { icon: Receipt, label: 'الفواتير', path: '/invoices', testId: 'nav-invoices' },
     { icon: BarChart3, label: 'التقارير', path: '/reports', testId: 'nav-reports' },
+    { icon: Settings, label: 'الإعدادات', path: '/settings', testId: 'nav-settings' },
   ];
 
   return (
