@@ -119,27 +119,27 @@ const EmployeesPage = () => {
                 إضافة موظف جديد
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-white">
               <DialogHeader>
-                <DialogTitle className="text-2xl text-teal-700">
+                <DialogTitle className="text-2xl text-slate-800 font-bold">
                   {editingEmployee ? 'تحرير الموظف' : 'إضافة موظف جديد'}
                 </DialogTitle>
               </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4" data-testid="employee-form">
-                <div className="grid grid-cols-2 gap-4">
+              <form onSubmit={handleSubmit} className="space-y-5 mt-4" data-testid="employee-form">
+                <div className="grid grid-cols-2 gap-5">
                   <div className="col-span-2">
-                    <Label htmlFor="full_name">الاسم الكامل *</Label>
+                    <Label htmlFor="full_name" className="text-slate-700 font-medium text-sm mb-2 block">الاسم الكامل *</Label>
                     <Input
                       id="full_name"
                       data-testid="input-full-name"
                       value={formData.full_name}
                       onChange={(e) => setFormData({...formData, full_name: e.target.value})}
                       required
-                      className="mt-1"
+                      className="h-11 border-slate-200 bg-slate-50/50 focus:bg-white"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="phone">رقم الهاتف *</Label>
+                    <Label htmlFor="phone" className="text-slate-700 font-medium text-sm mb-2 block">رقم الهاتف *</Label>
                     <Input
                       id="phone"
                       data-testid="input-phone"
@@ -148,43 +148,43 @@ const EmployeesPage = () => {
                       onChange={(e) => setFormData({...formData, phone: e.target.value})}
                       required
                       dir="ltr"
-                      className="mt-1"
+                      className="h-11 border-slate-200 bg-slate-50/50 focus:bg-white"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="email">البريد الإلكتروني</Label>
+                    <Label htmlFor="email" className="text-slate-700 font-medium text-sm mb-2 block">البريد الإلكتروني</Label>
                     <Input
                       id="email"
                       data-testid="input-email"
                       type="email"
                       value={formData.email}
                       onChange={(e) => setFormData({...formData, email: e.target.value})}
-                      className="mt-1"
+                      className="h-11 border-slate-200 bg-slate-50/50 focus:bg-white"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="national_id">الرقم الوطني</Label>
+                    <Label htmlFor="national_id" className="text-slate-700 font-medium text-sm mb-2 block">الرقم الوطني</Label>
                     <Input
                       id="national_id"
                       data-testid="input-national-id"
                       value={formData.national_id}
                       onChange={(e) => setFormData({...formData, national_id: e.target.value})}
-                      className="mt-1"
+                      className="h-11 border-slate-200 bg-slate-50/50 focus:bg-white"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="position">المنصب *</Label>
+                    <Label htmlFor="position" className="text-slate-700 font-medium text-sm mb-2 block">المنصب *</Label>
                     <Input
                       id="position"
                       data-testid="input-position"
                       value={formData.position}
                       onChange={(e) => setFormData({...formData, position: e.target.value})}
                       required
-                      className="mt-1"
+                      className="h-11 border-slate-200 bg-slate-50/50 focus:bg-white"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="salary">الراتب (ريال)</Label>
+                    <Label htmlFor="salary" className="text-slate-700 font-medium text-sm mb-2 block">الراتب (ريال)</Label>
                     <Input
                       id="salary"
                       data-testid="input-salary"
@@ -192,11 +192,11 @@ const EmployeesPage = () => {
                       step="0.01"
                       value={formData.salary}
                       onChange={(e) => setFormData({...formData, salary: e.target.value})}
-                      className="mt-1"
+                      className="h-11 border-slate-200 bg-slate-50/50 focus:bg-white"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="hire_date">تاريخ التوظيف *</Label>
+                    <Label htmlFor="hire_date" className="text-slate-700 font-medium text-sm mb-2 block">تاريخ التوظيف *</Label>
                     <Input
                       id="hire_date"
                       data-testid="input-hire-date"
@@ -204,21 +204,21 @@ const EmployeesPage = () => {
                       value={formData.hire_date}
                       onChange={(e) => setFormData({...formData, hire_date: e.target.value})}
                       required
-                      className="mt-1"
+                      className="h-11 border-slate-200 bg-slate-50/50 focus:bg-white"
                     />
                   </div>
                   <div className="col-span-2">
-                    <Label htmlFor="notes">ملاحظات</Label>
+                    <Label htmlFor="notes" className="text-slate-700 font-medium text-sm mb-2 block">ملاحظات</Label>
                     <Input
                       id="notes"
                       data-testid="input-notes"
                       value={formData.notes}
                       onChange={(e) => setFormData({...formData, notes: e.target.value})}
-                      className="mt-1"
+                      className="h-11 border-slate-200 bg-slate-50/50 focus:bg-white"
                     />
                   </div>
-                  <div className="col-span-2 flex items-center justify-between">
-                    <Label htmlFor="is_active">نشط</Label>
+                  <div className="col-span-2 flex items-center justify-between bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <Label htmlFor="is_active" className="text-slate-700 font-medium text-sm">حالة النشاط</Label>
                     <Switch
                       id="is_active"
                       data-testid="switch-active"
@@ -227,8 +227,8 @@ const EmployeesPage = () => {
                     />
                   </div>
                 </div>
-                <Button type="submit" data-testid="submit-employee" className="w-full bg-teal-600 hover:bg-teal-700">
-                  {editingEmployee ? 'تحديث' : 'إضافة'}
+                <Button type="submit" data-testid="submit-employee" className="w-full h-12 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 shadow-md">
+                  {editingEmployee ? 'تحديث الموظف' : 'إضافة الموظف'}
                 </Button>
               </form>
             </DialogContent>
