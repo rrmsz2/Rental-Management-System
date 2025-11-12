@@ -71,21 +71,22 @@ const Layout = ({ children }) => {
           </div>
           <div className="flex items-center gap-4">
             <div className="text-right hidden sm:block bg-slate-50 px-3 py-2 rounded-lg">
-              <p className="text-sm font-medium text-slate-700" data-testid="user-phone">
+              <p className="text-xs text-slate-500 mb-0.5">مرحباً بك</p>
+              <p className="text-sm font-bold text-slate-800" data-testid="user-phone">
                 {user?.full_name || user?.phone}
               </p>
               {user?.role && (
-                <span className={`text-xs font-semibold ${
-                  user.role === 'admin' ? 'text-red-600' :
-                  user.role === 'employee' ? 'text-blue-600' :
-                  'text-green-600'
+                <span className={`inline-block mt-1 px-2 py-0.5 rounded-full text-xs font-semibold ${
+                  user.role === 'admin' ? 'bg-red-100 text-red-700' :
+                  user.role === 'employee' ? 'bg-blue-100 text-blue-700' :
+                  'bg-green-100 text-green-700'
                 }`}>
                   {user.role === 'admin' ? 'مدير' : 
                    user.role === 'employee' ? 'موظف' : 'محاسب'}
                 </span>
               )}
               {user?.is_manager && !user?.role && (
-                <span className="text-xs text-cyan-600 font-semibold">مدير</span>
+                <span className="inline-block mt-1 px-2 py-0.5 rounded-full text-xs bg-cyan-100 text-cyan-700 font-semibold">مدير</span>
               )}
             </div>
             <Button
