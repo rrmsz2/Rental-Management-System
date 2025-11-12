@@ -3,7 +3,8 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from datetime import datetime, timedelta, timezone
 import os
 import jwt
-from models import LoginRequest, VerifyOtpRequest, TokenResponse
+from models import LoginRequest, VerifyOtpRequest, TokenResponse, UserRole
+import uuid
 from services.otp_service import OtpService
 from services.notification_service import NotificationService
 import re
