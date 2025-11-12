@@ -99,10 +99,17 @@ async def verify_otp(request: VerifyOtpRequest, db: AsyncIOMotorDatabase = Depen
     
     if not user:
         # Create new user
+        is_manager = request.phone == os.getenv("MANAGER_PHONE")
+        
         user_doc = {
+            "id": str(uuid.uuid4()),
             "phone": request.phone,
+            "full_name": request.phone,  # سيتم تحديثه لاحقاً
+            "role": UserRole.admin.value if is_manager else UserRole.employee.value,
+            "email": None,
+            "is_active": True,
             "customer_id": None,
-            "is_manager": request.phone == os.getenv("MANAGER_PHONE"),
+            "is_manager": is_manager,  # للتوافق مع النظام القديم
             "created_at": datetime.now(timezone.utc).isoformat()
         }
         
@@ -116,7 +123,9 @@ async def verify_otp(request: VerifyOtpRequest, db: AsyncIOMotorDatabase = Depen
     
     # Create access token
     token_data = {
+        "user_id": user.get("id", user["phone"]),  # استخدام ID إذا كان موجود
         "phone": user["phone"],
+        "role": user.get("role", UserRole.admin.value if user.get("is_manager") else UserRole.employee.value),
         "customer_id": user.get("customer_id"),
         "is_manager": user.get("is_manager", False)
     }
