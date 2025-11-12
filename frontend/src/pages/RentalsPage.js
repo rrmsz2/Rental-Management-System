@@ -159,7 +159,10 @@ const RentalsPage = () => {
 
   const handleOpenCloseDialog = async (rental) => {
     setSelectedRental(rental);
+    // Set default return date to today
+    const today = new Date().toISOString().split('T')[0];
     setCloseFormData({
+      return_date: today,
       tax_rate: '0.05',
       discount_amount: '0',
       paid: false,
