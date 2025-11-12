@@ -47,8 +47,7 @@ const ReportsPageNew = () => {
 
   const downloadInvoicePDF = async (invoiceId) => {
     try {
-      const res = await axios.get(`${API_URL}/exports/invoice/${invoiceId}/pdf`, {
-        headers,
+      const res = await axios.get(`/exports/invoice/${invoiceId}/pdf`, {
         responseType: 'blob'
       });
       
