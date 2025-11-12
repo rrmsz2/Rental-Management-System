@@ -63,7 +63,6 @@ function App() {
             <Route path="/rentals" element={<ProtectedRoute><RentalsPage /></ProtectedRoute>} />
             <Route path="/invoices" element={<ProtectedRoute><InvoicesPage /></ProtectedRoute>} />
             <Route path="/reports" element={<ProtectedRoute><ReportsPageNew /></ProtectedRoute>} />
-            <Route path="/reports-old" element={<ProtectedRoute><ReportsPage /></ProtectedRoute>} />
             <Route path="/users" element={<ProtectedRoute><UsersPage /></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
