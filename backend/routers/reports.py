@@ -135,6 +135,69 @@ async def get_revenue_report(
         "start_date": start_date,
         "end_date": end_date,
         "total_invoices": len(invoices),
+
+
+# ========== New Advanced Reports ==========
+
+@router.get("/dashboard/v2")
+async def get_dashboard_stats_v2(
+    current_user: dict = Depends(require_any_role),
+    db: AsyncIOMotorDatabase = Depends(get_db)
+):
+    """إحصائيات لوحة التحكم المتقدمة"""
+    reports_service = ReportsService(db)
+    return await reports_service.get_dashboard_stats()
+
+@router.get("/revenue/chart")
+async def get_revenue_chart(
+    period: str = Query("year", enum=["year", "month"]),
+    current_user: dict = Depends(require_any_role),
+    db: AsyncIOMotorDatabase = Depends(get_db)
+):
+    """بيانات الرسم البياني للإيرادات"""
+    reports_service = ReportsService(db)
+    return await reports_service.get_revenue_chart_data(period)
+
+@router.get("/rentals/chart")
+async def get_rentals_chart(
+    current_user: dict = Depends(require_any_role),
+    db: AsyncIOMotorDatabase = Depends(get_db)
+):
+    """بيانات الرسم البياني للعقود"""
+    reports_service = ReportsService(db)
+    return await reports_service.get_rentals_chart_data()
+
+@router.get("/equipment/performance")
+async def get_equipment_performance(
+    limit: int = Query(10, ge=1, le=50),
+    current_user: dict = Depends(require_any_role),
+    db: AsyncIOMotorDatabase = Depends(get_db)
+):
+    """أداء المعدات - الأكثر إيجاراً"""
+    reports_service = ReportsService(db)
+    return await reports_service.get_equipment_performance(limit)
+
+@router.get("/customers/report")
+async def get_customers_report(
+    limit: int = Query(50, ge=1, le=200),
+    current_user: dict = Depends(require_any_role),
+    db: AsyncIOMotorDatabase = Depends(get_db)
+):
+    """تقرير العملاء - الأكثر نشاطاً والمتأخرين"""
+    reports_service = ReportsService(db)
+    return await reports_service.get_customers_report(limit)
+
+@router.get("/revenue/detailed")
+async def get_revenue_detailed(
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None,
+    current_user: dict = Depends(require_any_role),
+    db: AsyncIOMotorDatabase = Depends(get_db)
+):
+    """تقرير الإيرادات المفصل"""
+    reports_service = ReportsService(db)
+    return await reports_service.get_revenue_report(start_date, end_date)
+
         "total_revenue": round(total_revenue, 2),
         "total_tax": round(total_tax, 2),
         "total_discount": round(total_discount, 2),
