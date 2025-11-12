@@ -221,27 +221,35 @@ async def close_rental(
     )
     
     # Auto-create invoice
-    from routers.invoices import generate_invoice_no, calculate_rental_days
+    from routers.invoices import generate_invoice_no
     
-    # Calculate amounts
-    rental_days = calculate_rental_days(rental["start_date"], rental["end_date"])
-    base_cost = rental_days * rental["daily_rate_snap"]
-    
-    # Calculate late fee if applicable
-    late_fee = 0.0
-    days_late = 0
+    # Parse dates
+    start_dt = datetime.fromisoformat(rental["start_date"])
     actual_return_dt = datetime.fromisoformat(actual_return)
     expected_return_dt = datetime.fromisoformat(rental["end_date"])
     
-    # Ensure both datetimes are timezone-aware for comparison
+    # Ensure all datetimes are timezone-aware
+    if start_dt.tzinfo is None:
+        start_dt = start_dt.replace(tzinfo=timezone.utc)
     if actual_return_dt.tzinfo is None:
         actual_return_dt = actual_return_dt.replace(tzinfo=timezone.utc)
     if expected_return_dt.tzinfo is None:
         expected_return_dt = expected_return_dt.replace(tzinfo=timezone.utc)
     
+    # Calculate actual rental days (from start to actual return)
+    rental_days = (actual_return_dt.date() - start_dt.date()).days
+    if rental_days < 1:
+        rental_days = 1  # Minimum 1 day
+    
+    base_cost = rental_days * rental["daily_rate_snap"]
+    
+    # Calculate late fee if returned after expected date
+    late_fee = 0.0
+    days_late = 0
+    
     if actual_return_dt > expected_return_dt:
-        days_late = (actual_return_dt - expected_return_dt).days
-        late_fee = days_late * rental["daily_rate_snap"] * 1.2
+        days_late = (actual_return_dt.date() - expected_return_dt.date()).days
+        late_fee = days_late * rental["daily_rate_snap"] * 1.2  # 120% penalty
     
     subtotal = base_cost + late_fee - rental.get("deposit", 0)
     tax_amount = subtotal * tax_rate
