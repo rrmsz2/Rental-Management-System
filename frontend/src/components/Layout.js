@@ -113,6 +113,11 @@ const Layout = ({ children }) => {
         >
           <nav className="p-3 space-y-1">
             {menuItems.map((item) => {
+              // Role-based access control
+              if (item.adminOnly && user?.role !== 'admin' && !user?.is_manager) {
+                return null; // Hide admin-only items for non-admins
+              }
+              
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
               return (
