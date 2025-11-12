@@ -20,10 +20,17 @@ import {
 import { toast } from 'sonner';
 
 const Layout = ({ children }) => {
-  const { user, logout } = useAuth();
+  const { user, logout, refreshUser } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
+
+  // Refresh user data on mount
+  React.useEffect(() => {
+    if (user) {
+      refreshUser();
+    }
+  }, []);
 
   const handleLogout = () => {
     logout();
