@@ -134,7 +134,10 @@ async def verify_otp(request: VerifyOtpRequest, db: AsyncIOMotorDatabase = Depen
     return TokenResponse(
         access_token=access_token,
         user={
+            "id": user.get("id", user["phone"]),
             "phone": user["phone"],
+            "full_name": user.get("full_name", user["phone"]),
+            "role": user.get("role", UserRole.admin.value if user.get("is_manager") else UserRole.employee.value),
             "customer_id": user.get("customer_id"),
             "is_manager": user.get("is_manager", False)
         }
