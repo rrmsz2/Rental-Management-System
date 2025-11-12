@@ -189,6 +189,7 @@ async def close_rental(
     discount_amount: float = 0.0,
     paid: bool = False,
     payment_method: str = None,
+    current_user: dict = Depends(require_any_role),
     db: AsyncIOMotorDatabase = Depends(get_db)
 ):
     """Close rental contract and auto-create invoice with payment status"""
