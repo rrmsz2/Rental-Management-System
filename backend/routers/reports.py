@@ -1,7 +1,9 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from datetime import datetime, timezone, timedelta
-from typing import Dict
+from typing import Dict, Optional
+from services.reports_service import ReportsService
+from middleware.permissions import require_any_role, require_admin
 
 router = APIRouter(prefix="/reports", tags=["Reports"])
 
