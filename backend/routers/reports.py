@@ -201,9 +201,3 @@ async def get_revenue_detailed(
     """تقرير الإيرادات المفصل"""
     reports_service = ReportsService(db)
     return await reports_service.get_revenue_report(start_date, end_date)
-
-        "total_revenue": round(total_revenue, 2),
-        "total_tax": round(total_tax, 2),
-        "total_discount": round(total_discount, 2),
-        "invoices": invoices
-    }
