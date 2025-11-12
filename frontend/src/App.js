@@ -107,17 +107,20 @@ function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/verify" element={<VerifyOtpPage />} />
             
-            {/* Protected Routes */}
-            <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
-            <Route path="/dashboard-old" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-            <Route path="/customers" element={<ProtectedRoute><CustomersPage /></ProtectedRoute>} />
-            <Route path="/employees" element={<ProtectedRoute><EmployeesPage /></ProtectedRoute>} />
-            <Route path="/equipment" element={<ProtectedRoute><EquipmentPage /></ProtectedRoute>} />
-            <Route path="/rentals" element={<ProtectedRoute><RentalsPage /></ProtectedRoute>} />
-            <Route path="/invoices" element={<ProtectedRoute><InvoicesPage /></ProtectedRoute>} />
-            <Route path="/reports" element={<ProtectedRoute><ReportsPageNew /></ProtectedRoute>} />
-            <Route path="/users" element={<ProtectedRoute><UsersPage /></ProtectedRoute>} />
-            <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+            {/* Customer Portal */}
+            <Route path="/customer-portal" element={<CustomerRoute><CustomerPortalPage /></CustomerRoute>} />
+            
+            {/* Staff Routes - Only for Admin, Employee, Accountant */}
+            <Route path="/dashboard" element={<StaffRoute><DashboardPage /></StaffRoute>} />
+            <Route path="/dashboard-old" element={<StaffRoute><Dashboard /></StaffRoute>} />
+            <Route path="/customers" element={<StaffRoute><CustomersPage /></StaffRoute>} />
+            <Route path="/employees" element={<StaffRoute><EmployeesPage /></StaffRoute>} />
+            <Route path="/equipment" element={<StaffRoute><EquipmentPage /></StaffRoute>} />
+            <Route path="/rentals" element={<StaffRoute><RentalsPage /></StaffRoute>} />
+            <Route path="/invoices" element={<StaffRoute><InvoicesPage /></StaffRoute>} />
+            <Route path="/reports" element={<StaffRoute><ReportsPageNew /></StaffRoute>} />
+            <Route path="/users" element={<StaffRoute><UsersPage /></StaffRoute>} />
+            <Route path="/settings" element={<StaffRoute><SettingsPage /></StaffRoute>} />
           </Routes>
         </BrowserRouter>
         <Toaster position="top-center" richColors />
