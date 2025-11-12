@@ -18,8 +18,14 @@ def generate_invoice_no() -> str:
 def calculate_rental_days(start_date: str, end_date: str) -> int:
     """Calculate rental days (minimum 1)"""
     start = datetime.fromisoformat(start_date)
-    end = datetime.fromisoformat(end_date)
-    days = (end - start).days
+    
+    # Handle empty or None end_date
+    if not end_date or end_date == "":
+        end = datetime.now(timezone.utc)
+    else:
+        end = datetime.fromisoformat(end_date)
+    
+    days = (end.date() - start.date()).days
     return max(1, days)
 
 @router.get("", response_model=List[Invoice])
