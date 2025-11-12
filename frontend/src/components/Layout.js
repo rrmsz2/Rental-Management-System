@@ -72,9 +72,19 @@ const Layout = ({ children }) => {
           <div className="flex items-center gap-4">
             <div className="text-right hidden sm:block bg-slate-50 px-3 py-2 rounded-lg">
               <p className="text-sm font-medium text-slate-700" data-testid="user-phone">
-                {user?.phone}
+                {user?.full_name || user?.phone}
               </p>
-              {user?.is_manager && (
+              {user?.role && (
+                <span className={`text-xs font-semibold ${
+                  user.role === 'admin' ? 'text-red-600' :
+                  user.role === 'employee' ? 'text-blue-600' :
+                  'text-green-600'
+                }`}>
+                  {user.role === 'admin' ? 'مدير' : 
+                   user.role === 'employee' ? 'موظف' : 'محاسب'}
+                </span>
+              )}
+              {user?.is_manager && !user?.role && (
                 <span className="text-xs text-cyan-600 font-semibold">مدير</span>
               )}
             </div>
