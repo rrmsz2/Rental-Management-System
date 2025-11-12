@@ -624,6 +624,41 @@ const RentalsPage = () => {
                 />
               </div>
 
+              <div className="border-t border-slate-200 pt-4 mt-4">
+                <div className="flex items-center gap-3 mb-3">
+                  <input
+                    id="paid_checkbox"
+                    type="checkbox"
+                    checked={closeFormData.paid}
+                    onChange={(e) => setCloseFormData({...closeFormData, paid: e.target.checked})}
+                    className="w-5 h-5 text-green-600 border-slate-300 rounded focus:ring-green-500"
+                  />
+                  <Label htmlFor="paid_checkbox" className="text-slate-700 font-medium cursor-pointer">
+                    تم الدفع الآن
+                  </Label>
+                </div>
+
+                {closeFormData.paid && (
+                  <div>
+                    <Label htmlFor="payment_method" className="text-slate-700 font-medium text-sm mb-2 block">
+                      طريقة الدفع
+                    </Label>
+                    <select
+                      id="payment_method"
+                      value={closeFormData.payment_method}
+                      onChange={(e) => setCloseFormData({...closeFormData, payment_method: e.target.value})}
+                      className="w-full h-11 px-3 border border-slate-200 rounded-lg bg-slate-50/50 focus:bg-white focus:ring-2 focus:ring-green-500"
+                    >
+                      <option value="">اختر طريقة الدفع</option>
+                      <option value="نقدي">نقدي</option>
+                      <option value="بطاقة">بطاقة</option>
+                      <option value="تحويل بنكي">تحويل بنكي</option>
+                      <option value="شيك">شيك</option>
+                    </select>
+                  </div>
+                )}
+              </div>
+
               <div className="flex gap-3 pt-4">
                 <Button
                   onClick={() => setCloseDialogOpen(false)}
