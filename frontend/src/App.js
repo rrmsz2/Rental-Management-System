@@ -7,6 +7,7 @@ import LoginPage from './pages/LoginPage';
 import VerifyOtpPage from './pages/VerifyOtpPage';
 import Dashboard from './pages/Dashboard';
 import DashboardPage from './pages/DashboardPage';
+import CustomerPortalPage from './pages/CustomerPortalPage';
 import CustomersPage from './pages/CustomersPage';
 import EmployeesPage from './pages/EmployeesPage';
 import EquipmentPage from './pages/EquipmentPage';
@@ -20,7 +21,55 @@ import QuickReturnPage from './pages/QuickReturnPage';
 import QRScanLoginPage from './pages/QRScanLoginPage';
 import QRScanPage from './pages/QRScanPage';
 
-// Protected Route Component
+// Protected Route for Staff Only (Admin, Employee, Accountant)
+const StaffRoute = ({ children }) => {
+  const { user, loading } = useAuth();
+  
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-teal-600 text-xl">جاري التحميل...</div>
+      </div>
+    );
+  }
+  
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+  
+  // Redirect customers to their portal
+  if (user.is_customer_only || user.role === 'customer') {
+    return <Navigate to="/customer-portal" replace />;
+  }
+  
+  return children;
+};
+
+// Protected Route for Customers
+const CustomerRoute = ({ children }) => {
+  const { user, loading } = useAuth();
+  
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-teal-600 text-xl">جاري التحميل...</div>
+      </div>
+    );
+  }
+  
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+  
+  // Redirect staff to dashboard
+  if (!user.is_customer_only && user.role !== 'customer') {
+    return <Navigate to="/dashboard" replace />;
+  }
+  
+  return children;
+};
+
+// General Protected Route (for both staff and customers)
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
   
