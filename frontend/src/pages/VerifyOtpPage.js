@@ -41,9 +41,16 @@ const VerifyOtpPage = () => {
 
     setLoading(true);
     try {
-      await verifyOtp(phone, code);
+      const response = await verifyOtp(phone, code);
       toast.success('تم تسجيل الدخول بنجاح');
-      navigate('/dashboard');
+      
+      // Redirect based on user type
+      const userData = response?.user || JSON.parse(localStorage.getItem('user') || '{}');
+      if (userData.is_customer_only || userData.role === 'customer') {
+        navigate('/customer-portal');
+      } else {
+        navigate('/dashboard');
+      }
     } catch (error) {
       const errorMsg = error.response?.data?.detail?.message || 'رمز خاطئ';
       toast.error(errorMsg);
