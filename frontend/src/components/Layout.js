@@ -28,6 +28,7 @@ const Layout = ({ children }) => {
   // Refresh user data on mount
   React.useEffect(() => {
     if (user) {
+      console.log('Current user data:', user);
       refreshUser();
     }
   }, []);
