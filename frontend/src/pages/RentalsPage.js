@@ -173,8 +173,12 @@ const RentalsPage = () => {
 
   const handleClose = async () => {
     try {
+      // Convert return_date to ISO format with time
+      const returnDateTime = new Date(closeFormData.return_date).toISOString();
+      
       const response = await axios.post(`/rentals/${selectedRental.id}/close`, null, {
         params: {
+          return_date: returnDateTime,
           tax_rate: parseFloat(closeFormData.tax_rate),
           discount_amount: parseFloat(closeFormData.discount_amount),
           paid: closeFormData.paid,
