@@ -5,6 +5,7 @@ from typing import List
 import uuid
 from models import RentalContract, RentalContractCreate, RentalContractUpdate, RentalStatus, EquipmentStatus
 from services.notification_service import NotificationService
+from middleware.permissions import require_any_role
 
 router = APIRouter(prefix="/rentals", tags=["Rentals"])
 
