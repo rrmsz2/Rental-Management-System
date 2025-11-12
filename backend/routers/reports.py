@@ -10,7 +10,10 @@ router = APIRouter(prefix="/reports", tags=["Reports"])
 from server import get_db
 
 @router.get("/dashboard")
-async def get_dashboard_stats(db: AsyncIOMotorDatabase = Depends(get_db)) -> Dict:
+async def get_dashboard_stats(
+    current_user: dict = Depends(require_any_role),
+    db: AsyncIOMotorDatabase = Depends(get_db)
+) -> Dict:
     """Get dashboard statistics"""
     # Total customers
     total_customers = await db.customers.count_documents({})
