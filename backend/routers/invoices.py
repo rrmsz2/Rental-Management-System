@@ -66,17 +66,32 @@ async def create_invoice(invoice_create: InvoiceCreate, db: AsyncIOMotorDatabase
     if existing_invoice:
         raise HTTPException(status_code=400, detail="Invoice already exists for this contract")
     
-    # Calculate amounts
-    rental_days = calculate_rental_days(rental["start_date"], rental["end_date"])
+    # Calculate amounts based on actual return date
+    actual_return_date = rental.get("actual_return_date")
+    if actual_return_date:
+        # Use actual return date for calculation
+        rental_days = calculate_rental_days(rental["start_date"], actual_return_date)
+    else:
+        # Fallback to end_date or current date
+        end_date = rental.get("end_date") or datetime.now(timezone.utc).isoformat()
+        rental_days = calculate_rental_days(rental["start_date"], end_date)
+    
     base_cost = rental_days * rental["daily_rate_snap"]
     
     # Calculate late fee if applicable
     late_fee = 0.0
-    if rental.get("actual_return_date"):
+    if rental.get("actual_return_date") and rental.get("end_date") and rental["end_date"]:
         actual_return = datetime.fromisoformat(rental["actual_return_date"])
         expected_return = datetime.fromisoformat(rental["end_date"])
+        
+        # Ensure timezone-aware
+        if actual_return.tzinfo is None:
+            actual_return = actual_return.replace(tzinfo=timezone.utc)
+        if expected_return.tzinfo is None:
+            expected_return = expected_return.replace(tzinfo=timezone.utc)
+            
         if actual_return > expected_return:
-            days_late = (actual_return - expected_return).days
+            days_late = (actual_return.date() - expected_return.date()).days
             late_fee = days_late * rental["daily_rate_snap"] * 1.2
     
     subtotal = base_cost + late_fee - rental.get("deposit", 0)
