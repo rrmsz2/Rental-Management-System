@@ -595,9 +595,23 @@ const RentalsPage = () => {
             </DialogHeader>
             <div className="space-y-4 mt-4">
               <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                <p className="text-sm text-blue-800">
-                  سيتم إنشاء فاتورة تلقائياً عند إغلاق العقد. الرجاء تحديد نسبة الضريبة والخصم إن وجد.
-                </p>
+                <div className="flex items-start gap-2">
+                  <CheckCircle className="text-blue-600 flex-shrink-0 mt-0.5" size={20} />
+                  <div>
+                    <p className="text-sm text-blue-800 font-semibold mb-1">
+                      سيتم إنشاء الفاتورة تلقائياً
+                    </p>
+                    <p className="text-xs text-blue-700">
+                      عند الضغط على "إغلاق وإنشاء الفاتورة"، سيتم:
+                    </p>
+                    <ul className="text-xs text-blue-700 mt-1 mr-4 list-disc space-y-0.5">
+                      <li>حساب عدد أيام الإيجار من تاريخ الإرجاع</li>
+                      <li>حساب غرامات التأخير (إن وجدت)</li>
+                      <li>إنشاء الفاتورة تلقائياً وعرضها</li>
+                      <li>إرسال إشعار للعميل عبر WhatsApp</li>
+                    </ul>
+                  </div>
+                </div>
               </div>
 
               <div>
