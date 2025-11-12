@@ -135,7 +135,11 @@ async def get_revenue_report(
         "start_date": start_date,
         "end_date": end_date,
         "total_invoices": len(invoices),
-
+        "total_revenue": round(total_revenue, 2),
+        "total_tax": round(total_tax, 2),
+        "total_discount": round(total_discount, 2),
+        "invoices": invoices
+    }
 
 # ========== New Advanced Reports ==========
 
