@@ -417,7 +417,7 @@ const ReportsPageNew = () => {
           </div>
         </div>
       </div>
-    </div>
+    </Layout>
   );
 };
 
