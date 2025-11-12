@@ -148,20 +148,34 @@ class NotificationService:
             check_opt_in=False
         )
     
-    async def notify_invoice_issued(self, invoice: Dict, customer: Dict):
-        """Notify customer of invoice issuance"""
+    async def notify_invoice_issued(self, invoice: Dict, customer: Dict, rental: Dict = None, equipment: Dict = None):
+        """Notify customer of invoice issuance with rental details"""
         app_url = os.getenv("APP_BASE_URL", "http://localhost:3000")
         invoice_url = f"{app_url}/invoices/{invoice['invoice_no']}"
         
-        return await self.send_notification(
-            to_phone=customer["phone"],
-            template_key="invoice_issued_customer",
-            payload={
-                "invoice_no": invoice["invoice_no"],
-                "total": str(invoice["total"]),
-                "url": invoice_url
-            }
-        )
+        # Build message with equipment details if available
+        if rental and equipment:
+            message = f"✅ تم إغلاق عقد الإيجار #{rental.get('contract_no', '')}\n\n"
+            message += f"📦 المعدة: {equipment.get('name', '')}\n"
+            message += f"📄 رقم الفاتورة: {invoice['invoice_no']}\n"
+            message += f"💰 المبلغ الإجمالي: {invoice['total']} ر.ع\n\n"
+            message += f"شكراً لتعاملكم معنا! 🙏"
+            
+            return await self.send_notification(
+                to_phone=customer["phone"],
+                message=message
+            )
+        else:
+            # Fallback to template
+            return await self.send_notification(
+                to_phone=customer["phone"],
+                template_key="invoice_issued_customer",
+                payload={
+                    "invoice_no": invoice["invoice_no"],
+                    "total": str(invoice["total"]),
+                    "url": invoice_url
+                }
+            )
     
     async def notify_payment_received(self, invoice: Dict, customer: Dict):
         """Notify customer of payment receipt"""
