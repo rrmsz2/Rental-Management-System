@@ -65,7 +65,7 @@ const ReportsPageNew = () => {
   };
 
   const downloadRentalsExcel = async (status = null) => {
-    try:
+    try {
       const url = `/exports/rentals/excel${status ? `?status=${status}` : ''}`;
       const res = await axios.get(url, {
         responseType: 'blob'
