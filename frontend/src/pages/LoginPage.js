@@ -89,22 +89,26 @@ const LoginPage = () => {
                 <Label htmlFor="phone" className="text-slate-700 font-medium text-sm">
                   رقم الهاتف
                 </Label>
-                <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-cyan-500" size={20} />
+                <div className="relative flex items-center gap-2">
+                  <div className="flex items-center gap-2 px-4 h-12 bg-gray-100 border border-slate-200 rounded-lg text-gray-700 font-medium">
+                    <Phone className="text-cyan-500" size={20} />
+                    <span dir="ltr">+968</span>
+                  </div>
                   <Input
                     id="phone"
                     data-testid="phone-input"
                     type="tel"
-                    placeholder="+968XXXXXXXX"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    className="pl-10 h-12 border-slate-200 bg-slate-50/50 focus:bg-white"
+                    placeholder="12345678"
+                    value={phoneNumber}
+                    onChange={handlePhoneChange}
+                    maxLength={8}
+                    className="flex-1 h-12 border-slate-200 bg-slate-50/50 focus:bg-white text-center text-lg tracking-wider"
                     dir="ltr"
                     required
                   />
                 </div>
                 <p className="text-xs text-slate-500 text-right">
-                  مثال: +96894780842
+                  أدخل 8 أرقام بعد +968
                 </p>
               </div>
 
