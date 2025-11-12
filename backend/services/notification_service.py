@@ -39,12 +39,13 @@ class NotificationService:
     async def send_notification(
         self,
         to_phone: str,
-        template_key: str,
-        payload: Dict,
+        template_key: str = None,
+        payload: Dict = None,
+        message: str = None,
         check_opt_in: bool = True
     ) -> Dict:
         """
-        Send WhatsApp notification using template.
+        Send WhatsApp notification using template or direct message.
         Returns: {ok: bool, log_id: str}
         """
         # Check if customer has opted in (if checking)
@@ -54,17 +55,24 @@ class NotificationService:
                 logger.info(f"Customer {to_phone} has opted out of WhatsApp notifications")
                 return {"ok": False, "log_id": None, "error": "Customer opted out"}
         
-        # Get template and format message
-        template = MESSAGE_TEMPLATES.get(template_key, "")
-        if not template:
-            logger.error(f"Template {template_key} not found")
-            return {"ok": False, "log_id": None, "error": "Template not found"}
-        
-        try:
-            message = template.format(**payload)
-        except KeyError as e:
-            logger.error(f"Missing template variable: {e}")
-            return {"ok": False, "log_id": None, "error": f"Missing variable: {e}"}
+        # Use direct message or template
+        if message:
+            # Direct message provided
+            final_message = message
+            template_key = template_key or "direct_message"
+            payload = payload or {}
+        else:
+            # Get template and format message
+            template = MESSAGE_TEMPLATES.get(template_key, "")
+            if not template:
+                logger.error(f"Template {template_key} not found")
+                return {"ok": False, "log_id": None, "error": "Template not found"}
+            
+            try:
+                final_message = template.format(**payload)
+            except KeyError as e:
+                logger.error(f"Missing template variable: {e}")
+                return {"ok": False, "log_id": None, "error": f"Missing variable: {e}"}
         
         # Create notification log
         log_doc = {
