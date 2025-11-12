@@ -276,19 +276,34 @@ async def close_rental(
     if paid:
         await notification_service.notify_payment_received(invoice_doc, customer)
     
-    # Send notification to customer
-    customer = await db.customers.find_one({"id": rental["customer_id"]}, {"_id": 0})
-    from services.notification_service import NotificationService
-    notification_service = NotificationService(db)
-    await notification_service.notify_invoice_issued(invoice_doc, customer)
-    
-    # Remove _id from invoice_doc before returning
-    invoice_response = {k: v for k, v in invoice_doc.items() if k != '_id'}
-    
+    # Return detailed response with rental summary
     return {
         "message": "Rental closed successfully and invoice created",
-        "actual_return_date": actual_return,
-        "invoice": invoice_response
+        "rental": {
+            "id": rental_id,
+            "contract_no": rental["contract_no"],
+            "customer_name": customer["full_name"],
+            "equipment_name": equipment["name"],
+            "daily_rate": rental["daily_rate_snap"],
+            "rental_days": rental_days,
+            "base_cost": round(base_cost, 2),
+            "late_days": days_late,
+            "late_fee": round(late_fee, 2),
+            "deposit": rental.get("deposit", 0),
+            "actual_return_date": actual_return
+        },
+        "invoice": {
+            "id": invoice_doc["id"],
+            "invoice_no": invoice_doc["invoice_no"],
+            "subtotal": invoice_doc["subtotal"],
+            "tax_rate": invoice_doc["tax_rate"],
+            "tax_amount": invoice_doc["tax_amount"],
+            "discount_amount": invoice_doc["discount_amount"],
+            "total": invoice_doc["total"],
+            "paid": invoice_doc["paid"],
+            "payment_method": invoice_doc["payment_method"],
+            "issue_date": invoice_doc["issue_date"]
+        }
     }
 
 @router.post("/{rental_id}/cancel")
