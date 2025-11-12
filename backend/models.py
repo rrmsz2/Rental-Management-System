@@ -213,6 +213,20 @@ class SettingsBase(BaseModel):
     footer_phone: Optional[str] = None
     footer_email: Optional[str] = None
     footer_address: Optional[str] = None
+    # Landing page content
+    landing_title: Optional[str] = "نظام إدارة الإيجارات"
+    landing_subtitle: Optional[str] = "حل متكامل لإدارة تأجير المعدات بكفاءة واحترافية"
+    about_business: Optional[str] = None
+    feature1_title: Optional[str] = "إدارة المعدات"
+    feature1_description: Optional[str] = "نظام شامل لإدارة جميع معداتك وتتبع حالتها"
+    feature2_title: Optional[str] = "إدارة العملاء"
+    feature2_description: Optional[str] = "تنظيم بيانات العملاء ومتابعة عقودهم"
+    feature3_title: Optional[str] = "تقارير متقدمة"
+    feature3_description: Optional[str] = "احصل على رؤى شاملة عن أداء أعمالك"
+    benefit1: Optional[str] = "سهولة في الاستخدام"
+    benefit2: Optional[str] = "أمان وحماية البيانات"
+    benefit3: Optional[str] = "إشعارات تلقائية"
+    benefit4: Optional[str] = "دعم فني متواصل"
 
 class SettingsUpdate(BaseModel):
     header_logo: Optional[str] = None
@@ -222,6 +236,19 @@ class SettingsUpdate(BaseModel):
     footer_phone: Optional[str] = None
     footer_email: Optional[str] = None
     footer_address: Optional[str] = None
+    landing_title: Optional[str] = None
+    landing_subtitle: Optional[str] = None
+    about_business: Optional[str] = None
+    feature1_title: Optional[str] = None
+    feature1_description: Optional[str] = None
+    feature2_title: Optional[str] = None
+    feature2_description: Optional[str] = None
+    feature3_title: Optional[str] = None
+    feature3_description: Optional[str] = None
+    benefit1: Optional[str] = None
+    benefit2: Optional[str] = None
+    benefit3: Optional[str] = None
+    benefit4: Optional[str] = None
 
 class Settings(SettingsBase):
     model_config = ConfigDict(extra="ignore")
