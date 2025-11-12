@@ -39,6 +39,7 @@ const Layout = ({ children }) => {
     { icon: FileText, label: 'عقود التأجير', path: '/rentals', testId: 'nav-rentals' },
     { icon: Receipt, label: 'الفواتير', path: '/invoices', testId: 'nav-invoices' },
     { icon: BarChart3, label: 'التقارير', path: '/reports', testId: 'nav-reports' },
+    { icon: Users, label: 'المستخدمين', path: '/users', testId: 'nav-users', adminOnly: true },
     { icon: Settings, label: 'الإعدادات', path: '/settings', testId: 'nav-settings' },
   ];
 
