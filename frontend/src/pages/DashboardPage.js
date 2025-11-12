@@ -48,28 +48,20 @@ const DashboardPage = () => {
 
   const fetchDashboardData = async () => {
     try {
-      const token = localStorage.getItem('access_token');
-      if (!token) {
-        console.error('No access token found');
-        setLoading(false);
-        return;
-      }
-      const headers = { Authorization: `Bearer ${token}` };
-
-      // Fetch dashboard stats
-      const statsRes = await axios.get(`${API_URL}/reports/dashboard/v2`, { headers });
+      // Fetch dashboard stats (axios interceptor will add token automatically)
+      const statsRes = await axios.get('/reports/dashboard/v2');
       setStats(statsRes.data);
 
       // Fetch revenue chart data
-      const revenueRes = await axios.get(`${API_URL}/reports/revenue/chart?period=${period}`, { headers });
+      const revenueRes = await axios.get(`/reports/revenue/chart?period=${period}`);
       setRevenueData(revenueRes.data);
 
       // Fetch rentals chart data
-      const rentalsRes = await axios.get(`${API_URL}/reports/rentals/chart`, { headers });
+      const rentalsRes = await axios.get('/reports/rentals/chart');
       setRentalsData(rentalsRes.data.by_status);
 
       // Fetch equipment performance
-      const equipmentRes = await axios.get(`${API_URL}/reports/equipment/performance?limit=5`, { headers });
+      const equipmentRes = await axios.get('/reports/equipment/performance?limit=5');
       setEquipmentPerformance(equipmentRes.data);
 
       setLoading(false);
