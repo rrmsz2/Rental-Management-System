@@ -51,6 +51,9 @@ function App() {
             <Route path="/quick-rent/:equipmentId" element={<QuickRentPage />} />
             <Route path="/quick-return/:equipmentId" element={<QuickReturnPage />} />
             
+            {/* Landing Page */}
+            <Route path="/" element={<LandingPage />} />
+            
             {/* Auth Routes */}
             <Route path="/login" element={<LoginPage />} />
             <Route path="/verify" element={<VerifyOtpPage />} />
@@ -66,7 +69,6 @@ function App() {
             <Route path="/reports" element={<ProtectedRoute><ReportsPageNew /></ProtectedRoute>} />
             <Route path="/users" element={<ProtectedRoute><UsersPage /></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
           </Routes>
         </BrowserRouter>
         <Toaster position="top-center" richColors />
