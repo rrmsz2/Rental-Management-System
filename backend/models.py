@@ -143,12 +143,34 @@ class TokenResponse(BaseModel):
     token_type: str = "bearer"
     user: dict
 
-# User Model (for authentication)
-class User(BaseModel):
-    model_config = ConfigDict(extra="ignore")
+# User Role Enum
+class UserRole(str, Enum):
+    admin = "admin"           # صلاحيات كاملة
+    employee = "employee"     # إدارة العقود والعملاء والمعدات
+    accountant = "accountant" # عرض التقارير والفواتير فقط
+
+# User Model (for authentication and authorization)
+class UserBase(BaseModel):
     phone: str
+    full_name: str
+    role: UserRole = UserRole.employee
+    email: Optional[str] = None
+    is_active: bool = True
+
+class UserCreate(UserBase):
+    pass
+
+class UserUpdate(BaseModel):
+    full_name: Optional[str] = None
+    role: Optional[UserRole] = None
+    email: Optional[str] = None
+    is_active: Optional[bool] = None
+
+class User(UserBase):
+    model_config = ConfigDict(extra="ignore")
+    id: str
     customer_id: Optional[str] = None
-    is_manager: bool = False
+    is_manager: bool = False  # للتوافق مع النظام القديم
     created_at: str
 
 # Employee Models
