@@ -79,7 +79,7 @@ const Layout = ({ children }) => {
           <div className="flex items-center gap-4">
             <div className="text-right hidden sm:block bg-slate-50 px-3 py-2 rounded-lg min-w-[160px]">
               <p className="text-sm font-bold text-slate-800 mb-1">
-                مرحباً بك {user?.full_name && user.full_name !== user.phone ? user.full_name : ''}
+                مرحباً بك {user?.full_name && user.full_name !== user.phone && user.full_name.trim() !== '' ? user.full_name : (user?.phone ? '' : '')}
               </p>
               {user?.role && (
                 <p className={`text-xs font-semibold mb-1 ${
