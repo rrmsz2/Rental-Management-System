@@ -173,8 +173,28 @@ const RentalsPage = () => {
 
   const handleClose = async () => {
     try {
+      // Validate return_date
+      if (!closeFormData.return_date) {
+        toast.error('يجب تحديد تاريخ الإرجاع');
+        return;
+      }
+
+      // Validate payment method if paid
+      if (closeFormData.paid && !closeFormData.payment_method) {
+        toast.error('يجب تحديد طريقة الدفع');
+        return;
+      }
+      
       // Convert return_date to ISO format with time
       const returnDateTime = new Date(closeFormData.return_date).toISOString();
+      
+      console.log('Closing rental with data:', {
+        return_date: returnDateTime,
+        tax_rate: closeFormData.tax_rate,
+        discount_amount: closeFormData.discount_amount,
+        paid: closeFormData.paid,
+        payment_method: closeFormData.payment_method
+      });
       
       const response = await axios.post(`/rentals/${selectedRental.id}/close`, null, {
         params: {
