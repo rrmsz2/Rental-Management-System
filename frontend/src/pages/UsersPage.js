@@ -16,16 +16,13 @@ const UsersPage = () => {
     is_active: true
   });
 
-  const token = localStorage.getItem('token');
-  const headers = { Authorization: `Bearer ${token}` };
-
   useEffect(() => {
     fetchUsers();
   }, []);
 
   const fetchUsers = async () => {
     try {
-      const res = await axios.get(`${API_URL}/users`, { headers });
+      const res = await axios.get('/users');
       setUsers(res.data);
       setLoading(false);
     } catch (error) {
@@ -38,9 +35,9 @@ const UsersPage = () => {
     e.preventDefault();
     try {
       if (editingUser) {
-        await axios.put(`${API_URL}/users/${editingUser.id}`, formData, { headers });
+        await axios.put(`/users/${editingUser.id}`, formData);
       } else {
-        await axios.post(`${API_URL}/users`, formData, { headers });
+        await axios.post('/users', formData);
       }
       fetchUsers();
       setDialogOpen(false);
@@ -55,7 +52,7 @@ const UsersPage = () => {
     if (!window.confirm('هل أنت متأكد من حذف هذا المستخدم؟')) return;
     
     try {
-      await axios.delete(`${API_URL}/users/${userId}`, { headers });
+      await axios.delete(`/users/${userId}`);
       fetchUsers();
     } catch (error) {
       console.error('Failed to delete user:', error);
