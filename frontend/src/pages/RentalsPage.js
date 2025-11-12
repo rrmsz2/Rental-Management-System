@@ -679,44 +679,131 @@ const RentalsPage = () => {
           </DialogContent>
         </Dialog>
 
-        {/* Invoice Created Dialog */}
+        {/* Invoice Created Dialog - Mini Invoice */}
         <Dialog open={invoiceDialogOpen} onOpenChange={setInvoiceDialogOpen}>
-          <DialogContent className="max-w-lg bg-white">
+          <DialogContent className="max-w-2xl bg-white">
             <DialogHeader>
               <DialogTitle className="text-2xl text-slate-800 font-bold flex items-center gap-2">
                 <CheckCircle className="text-green-600" size={28} />
-                تم إنشاء الفاتورة بنجاح
+                فاتورة إرجاع المعدة
               </DialogTitle>
             </DialogHeader>
-            {createdInvoice && (
+            {createdInvoice && createdInvoice.rental && (
               <div className="space-y-4 mt-4">
+                {/* Success Messages */}
                 <div className="p-4 bg-green-50 rounded-lg border border-green-200">
-                  <p className="text-sm text-green-800 mb-2">
-                    ✓ تم إغلاق العقد بنجاح
-                  </p>
-                  <p className="text-sm text-green-800">
-                    ✓ تم إنشاء الفاتورة رقم: <span className="font-bold">{createdInvoice.invoice_no}</span>
+                  <div className="flex items-center gap-2 mb-2">
+                    <CheckCircle className="text-green-600" size={20} />
+                    <p className="text-sm text-green-800 font-semibold">
+                      تم إغلاق العقد وإنشاء الفاتورة بنجاح
+                    </p>
+                  </div>
+                  <p className="text-sm text-green-700">
+                    رقم الفاتورة: <span className="font-bold">{createdInvoice.invoice_no}</span> | 
+                    رقم العقد: <span className="font-bold">{createdInvoice.rental.contract_no}</span>
                   </p>
                 </div>
 
-                <div className="space-y-2 p-4 bg-slate-50 rounded-xl">
-                  <div className="flex justify-between py-2 border-b border-slate-200">
-                    <span className="text-slate-600">المبلغ الأساسي</span>
-                    <span className="font-semibold text-slate-800">{createdInvoice.subtotal?.toFixed(2)} ريال</span>
+                {/* Rental Summary - Mini Invoice */}
+                <div className="border-2 border-slate-200 rounded-xl overflow-hidden">
+                  {/* Header */}
+                  <div className="bg-gradient-to-r from-blue-600 to-cyan-600 p-4 text-white">
+                    <h3 className="text-lg font-bold">ملخص الإيجار والفاتورة</h3>
                   </div>
-                  <div className="flex justify-between py-2 border-b border-slate-200">
-                    <span className="text-slate-600">الضريبة ({(createdInvoice.tax_rate * 100).toFixed(0)}%)</span>
-                    <span className="font-semibold text-slate-800">{createdInvoice.tax_amount?.toFixed(2)} ريال</span>
-                  </div>
-                  {createdInvoice.discount_amount > 0 && (
-                    <div className="flex justify-between py-2 border-b border-slate-200">
-                      <span className="text-green-600">الخصم</span>
-                      <span className="font-semibold text-green-600">- {createdInvoice.discount_amount?.toFixed(2)} ريال</span>
+
+                  {/* Content */}
+                  <div className="p-6 space-y-4">
+                    {/* Equipment & Customer Info */}
+                    <div className="grid md:grid-cols-2 gap-4 pb-4 border-b-2 border-slate-200">
+                      <div>
+                        <p className="text-xs text-slate-500 mb-1">المعدة</p>
+                        <p className="text-lg font-bold text-slate-800">{createdInvoice.rental.equipment_name}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-slate-500 mb-1">العميل</p>
+                        <p className="text-lg font-bold text-slate-800">{createdInvoice.rental.customer_name}</p>
+                      </div>
                     </div>
-                  )}
-                  <div className="flex justify-between py-3 bg-cyan-600 px-4 rounded-lg mt-2">
-                    <span className="font-bold text-white">المبلغ الإجمالي</span>
-                    <span className="font-bold text-white text-xl">{createdInvoice.total?.toFixed(2)} ريال</span>
+
+                    {/* Rental Details */}
+                    <div className="bg-blue-50 rounded-lg p-4 space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-sm text-slate-700">قيمة الإيجار اليومي:</span>
+                        <span className="font-semibold text-slate-800">{createdInvoice.rental.daily_rate.toFixed(2)} ر.ع</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm text-slate-700">عدد الأيام:</span>
+                        <span className="font-semibold text-slate-800">{createdInvoice.rental.rental_days} يوم</span>
+                      </div>
+                      <div className="flex justify-between pt-2 border-t border-blue-200">
+                        <span className="text-sm font-semibold text-slate-700">تكلفة الإيجار:</span>
+                        <span className="font-bold text-blue-700">{createdInvoice.rental.base_cost.toFixed(2)} ر.ع</span>
+                      </div>
+                      
+                      {createdInvoice.rental.late_days > 0 && (
+                        <>
+                          <div className="flex justify-between text-red-600">
+                            <span className="text-sm">أيام التأخير:</span>
+                            <span className="font-semibold">{createdInvoice.rental.late_days} يوم</span>
+                          </div>
+                          <div className="flex justify-between text-red-600">
+                            <span className="text-sm">غرامة التأخير:</span>
+                            <span className="font-semibold">{createdInvoice.rental.late_fee.toFixed(2)} ر.ع</span>
+                          </div>
+                        </>
+                      )}
+
+                      {createdInvoice.rental.deposit > 0 && (
+                        <div className="flex justify-between text-green-600">
+                          <span className="text-sm">التأمين المسترد:</span>
+                          <span className="font-semibold">- {createdInvoice.rental.deposit.toFixed(2)} ر.ع</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Financial Summary */}
+                    <div className="space-y-2 p-4 bg-slate-50 rounded-xl">
+                      <div className="flex justify-between py-2">
+                        <span className="text-slate-600">المبلغ الأساسي:</span>
+                        <span className="font-semibold text-slate-800">{createdInvoice.subtotal.toFixed(2)} ر.ع</span>
+                      </div>
+                      <div className="flex justify-between py-2">
+                        <span className="text-slate-600">الضريبة ({(createdInvoice.tax_rate * 100).toFixed(0)}%):</span>
+                        <span className="font-semibold text-slate-800">{createdInvoice.tax_amount.toFixed(2)} ر.ع</span>
+                      </div>
+                      {createdInvoice.discount_amount > 0 && (
+                        <div className="flex justify-between py-2 text-green-600">
+                          <span>الخصم:</span>
+                          <span className="font-semibold">- {createdInvoice.discount_amount.toFixed(2)} ر.ع</span>
+                        </div>
+                      )}
+                      <div className="flex justify-between py-3 bg-gradient-to-r from-cyan-600 to-blue-600 px-4 rounded-lg mt-2">
+                        <span className="font-bold text-white text-lg">المبلغ الإجمالي:</span>
+                        <span className="font-bold text-white text-2xl">{createdInvoice.total.toFixed(2)} ر.ع</span>
+                      </div>
+                    </div>
+
+                    {/* Payment Status */}
+                    {createdInvoice.paid ? (
+                      <div className="bg-green-50 border-2 border-green-200 rounded-lg p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <CheckCircle className="text-green-600" size={24} />
+                          <p className="font-bold text-green-800">تم الدفع ✓</p>
+                        </div>
+                        {createdInvoice.payment_method && (
+                          <p className="text-sm text-green-700">
+                            طريقة الدفع: <span className="font-semibold">{createdInvoice.payment_method}</span>
+                          </p>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="bg-orange-50 border-2 border-orange-200 rounded-lg p-4">
+                        <div className="flex items-center gap-2">
+                          <AlertCircle className="text-orange-600" size={24} />
+                          <p className="font-bold text-orange-800">في انتظار الدفع</p>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
 
