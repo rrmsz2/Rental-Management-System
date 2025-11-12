@@ -315,7 +315,7 @@ const UsersPage = () => {
           </div>
         )}
       </div>
-    </div>
+    </Layout>
   );
 };
 
