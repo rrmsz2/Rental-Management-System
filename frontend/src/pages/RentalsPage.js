@@ -198,7 +198,10 @@ const RentalsPage = () => {
       
       fetchData();
     } catch (error) {
-      toast.error(getErrorMessage(error, 'فشل في إغلاق العقد'));
+      console.error('Close rental error:', error);
+      console.error('Error response:', error.response?.data);
+      const errorMsg = error.response?.data?.detail || error.message || 'فشل في إغلاق العقد';
+      toast.error(errorMsg);
     }
   };
 
