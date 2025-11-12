@@ -601,6 +601,21 @@ const RentalsPage = () => {
               </div>
 
               <div>
+                <Label htmlFor="return_date" className="text-slate-700 font-medium text-sm mb-2 block">
+                  تاريخ الإرجاع الفعلي <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="return_date"
+                  type="date"
+                  value={closeFormData.return_date}
+                  onChange={(e) => setCloseFormData({...closeFormData, return_date: e.target.value})}
+                  className="h-11 border-slate-200 bg-slate-50/50 focus:bg-white"
+                  required
+                />
+                <p className="text-xs text-slate-500 mt-1">سيتم حساب عدد أيام الإيجار بناءً على هذا التاريخ</p>
+              </div>
+
+              <div>
                 <Label htmlFor="tax_rate" className="text-slate-700 font-medium text-sm mb-2 block">
                   نسبة الضريبة (%)
                 </Label>
