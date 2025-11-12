@@ -11,17 +11,14 @@ const ReportsPageNew = () => {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
 
-  const token = localStorage.getItem('token');
-  const headers = { Authorization: `Bearer ${token}` };
-
   const fetchRevenueReport = async () => {
     setLoading(true);
     try {
-      const url = `${API_URL}/reports/revenue/detailed${
+      const url = `/reports/revenue/detailed${
         startDate ? `?start_date=${startDate}` : ''
       }${endDate ? `${startDate ? '&' : '?'}end_date=${endDate}` : ''}`;
       
-      const res = await axios.get(url, { headers });
+      const res = await axios.get(url);
       setRevenueReport(res.data);
     } catch (error) {
       console.error('Failed to fetch revenue report:', error);
@@ -32,7 +29,7 @@ const ReportsPageNew = () => {
   const fetchCustomersReport = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`${API_URL}/reports/customers/report?limit=50`, { headers });
+      const res = await axios.get('/reports/customers/report?limit=50');
       setCustomersReport(res.data);
     } catch (error) {
       console.error('Failed to fetch customers report:', error);
