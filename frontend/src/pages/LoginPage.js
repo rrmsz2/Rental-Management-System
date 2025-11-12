@@ -11,27 +11,36 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 
 const LoginPage = () => {
-  const [phone, setPhone] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
+  const handlePhoneChange = (e) => {
+    const value = e.target.value.replace(/\D/g, ''); // Remove non-digits
+    if (value.length <= 8) {
+      setPhoneNumber(value);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Validate phone format
-    if (!phone.startsWith('+968') || phone.length !== 12) {
+    // Validate phone number (must be 8 digits)
+    if (phoneNumber.length !== 8) {
       toast.error('رقم الهاتف غير صحيح', {
-        description: 'يجب أن يبدأ بـ +968 ويتبعه 8 أرقام'
+        description: 'يجب إدخال 8 أرقام'
       });
       return;
     }
 
+    const fullPhone = `+968${phoneNumber}`;
+    
     setLoading(true);
     try {
-      const response = await login(phone);
+      const response = await login(fullPhone);
       toast.success(response.message || 'تم إرسال رمز التحقق');
-      navigate('/verify', { state: { phone } });
+      navigate('/verify', { state: { phone: fullPhone } });
     } catch (error) {
       const errorMsg = error.response?.data?.detail?.message || 'فشل في إرسال الرمز';
       toast.error(errorMsg);
