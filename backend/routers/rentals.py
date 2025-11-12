@@ -186,15 +186,21 @@ async def close_rental(
     return_date: str = None,
     tax_rate: float = 0.05,
     discount_amount: float = 0.0,
+    paid: bool = False,
+    payment_method: str = None,
     db: AsyncIOMotorDatabase = Depends(get_db)
 ):
-    """Close rental contract and auto-create invoice"""
+    """Close rental contract and auto-create invoice with payment status"""
     rental = await db.rental_contracts.find_one({"id": rental_id})
     if not rental:
         raise HTTPException(status_code=404, detail="Rental contract not found")
     
     if rental["status"] != RentalStatus.active:
         raise HTTPException(status_code=400, detail="Only active rentals can be closed")
+    
+    # Get customer and equipment details
+    customer = await db.customers.find_one({"id": rental["customer_id"]})
+    equipment = await db.equipment.find_one({"id": rental["equipment_id"]})
     
     # Set return date
     actual_return = return_date or datetime.now(timezone.utc).isoformat()
@@ -223,6 +229,7 @@ async def close_rental(
     
     # Calculate late fee if applicable
     late_fee = 0.0
+    days_late = 0
     actual_return_dt = datetime.fromisoformat(actual_return)
     expected_return_dt = datetime.fromisoformat(rental["end_date"])
     
@@ -251,13 +258,23 @@ async def close_rental(
         "tax_amount": round(tax_amount, 2),
         "discount_amount": discount_amount,
         "total": round(total, 2),
-        "paid": False,
-        "payment_method": None,
+        "paid": paid,
+        "payment_method": payment_method if paid else None,
         "notes": "تم إنشاء الفاتورة تلقائياً عند إغلاق العقد",
         "created_at": datetime.now(timezone.utc).isoformat()
     }
     
     await db.invoices.insert_one(invoice_doc)
+    
+    # Send notifications
+    notification_service = NotificationService(db)
+    
+    # Send invoice notification to customer
+    await notification_service.notify_invoice_issued(invoice_doc, customer, rental, equipment)
+    
+    # If paid, send payment confirmation
+    if paid:
+        await notification_service.notify_payment_received(invoice_doc, customer)
     
     # Send notification to customer
     customer = await db.customers.find_one({"id": rental["customer_id"]}, {"_id": 0})
