@@ -26,7 +26,9 @@ const RentalsPage = () => {
   const [statusFilter, setStatusFilter] = useState('active'); // Default: active only
   const [closeFormData, setCloseFormData] = useState({
     tax_rate: '0.05',
-    discount_amount: '0'
+    discount_amount: '0',
+    paid: false,
+    payment_method: ''
   });
   const [formData, setFormData] = useState({
     customer_id: '',
