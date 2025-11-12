@@ -98,28 +98,50 @@ async def verify_otp(request: VerifyOtpRequest, db: AsyncIOMotorDatabase = Depen
     user = await db.users.find_one({"phone": request.phone})
     
     if not user:
-        # Create new user
+        # Check if this is the manager
         is_manager = request.phone == os.getenv("MANAGER_PHONE")
-        
-        user_doc = {
-            "id": str(uuid.uuid4()),
-            "phone": request.phone,
-            "full_name": request.phone,  # سيتم تحديثه لاحقاً
-            "role": UserRole.admin.value if is_manager else UserRole.employee.value,
-            "email": None,
-            "is_active": True,
-            "customer_id": None,
-            "is_manager": is_manager,  # للتوافق مع النظام القديم
-            "created_at": datetime.now(timezone.utc).isoformat()
-        }
         
         # Check if customer exists with this phone
         customer = await db.customers.find_one({"phone": request.phone})
-        if customer:
-            user_doc["customer_id"] = customer["id"]
+        
+        # Only allow login if:
+        # 1. This is the manager phone, OR
+        # 2. This phone is registered as a customer
+        if not is_manager and not customer:
+            raise HTTPException(
+                status_code=403,
+                detail={
+                    "message": "رقم الهاتف غير مسجل في النظام",
+                    "message_en": "Phone number not registered in the system"
+                }
+            )
+        
+        # Create new user
+        user_doc = {
+            "id": str(uuid.uuid4()),
+            "phone": request.phone,
+            "full_name": customer.get("full_name", request.phone) if customer else request.phone,
+            "role": UserRole.admin.value if is_manager else "customer",  # customer role for non-staff
+            "email": customer.get("email") if customer else None,
+            "is_active": True,
+            "customer_id": customer["id"] if customer else None,
+            "is_manager": is_manager,
+            "is_customer_only": bool(customer and not is_manager),  # Flag for customer-only users
+            "created_at": datetime.now(timezone.utc).isoformat()
+        }
         
         await db.users.insert_one(user_doc)
         user = user_doc
+    
+    # Check if user is active
+    if not user.get("is_active", True):
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "message": "الحساب غير نشط. يرجى التواصل مع الإدارة",
+                "message_en": "Account is not active"
+            }
+        )
     
     # Create access token
     token_data = {
