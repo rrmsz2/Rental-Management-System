@@ -145,11 +145,12 @@ async def verify_otp(request: VerifyOtpRequest, db: AsyncIOMotorDatabase = Depen
     
     # Create access token
     token_data = {
-        "user_id": user.get("id", user["phone"]),  # استخدام ID إذا كان موجود
+        "user_id": user.get("id", user["phone"]),
         "phone": user["phone"],
-        "role": user.get("role", UserRole.admin.value if user.get("is_manager") else UserRole.employee.value),
+        "role": user.get("role", "customer"),
         "customer_id": user.get("customer_id"),
-        "is_manager": user.get("is_manager", False)
+        "is_manager": user.get("is_manager", False),
+        "is_customer_only": user.get("is_customer_only", False)
     }
     access_token = create_access_token(token_data)
     
@@ -159,9 +160,10 @@ async def verify_otp(request: VerifyOtpRequest, db: AsyncIOMotorDatabase = Depen
             "id": user.get("id", user["phone"]),
             "phone": user["phone"],
             "full_name": user.get("full_name", user["phone"]),
-            "role": user.get("role", UserRole.admin.value if user.get("is_manager") else UserRole.employee.value),
+            "role": user.get("role", "customer"),
             "customer_id": user.get("customer_id"),
-            "is_manager": user.get("is_manager", False)
+            "is_manager": user.get("is_manager", False),
+            "is_customer_only": user.get("is_customer_only", False)
         }
     )
 
