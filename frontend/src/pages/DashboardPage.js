@@ -77,6 +77,17 @@ const DashboardPage = () => {
       setLoading(false);
     } catch (error) {
       console.error('Failed to fetch dashboard data:', error);
+      console.error('Error details:', error.response?.data);
+      
+      // Set empty data to prevent crashes
+      setStats({
+        revenue: { today: 0, month: 0, year: 0, total: 0 },
+        rentals: { total: 0, active: 0, closed: 0, overdue: 0 },
+        equipment: { total: 0, available: 0, rented: 0, maintenance: 0, occupancy_rate: 0 },
+        customers: { total: 0 },
+        invoices: { unpaid_count: 0, unpaid_amount: 0 }
+      });
+      
       setLoading(false);
     }
   };
