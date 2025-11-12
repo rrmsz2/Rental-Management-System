@@ -161,7 +161,9 @@ const RentalsPage = () => {
     setSelectedRental(rental);
     setCloseFormData({
       tax_rate: '0.05',
-      discount_amount: '0'
+      discount_amount: '0',
+      paid: false,
+      payment_method: ''
     });
     setCloseDialogOpen(true);
   };
@@ -171,15 +173,20 @@ const RentalsPage = () => {
       const response = await axios.post(`/rentals/${selectedRental.id}/close`, null, {
         params: {
           tax_rate: parseFloat(closeFormData.tax_rate),
-          discount_amount: parseFloat(closeFormData.discount_amount)
+          discount_amount: parseFloat(closeFormData.discount_amount),
+          paid: closeFormData.paid,
+          payment_method: closeFormData.paid ? closeFormData.payment_method : null
         }
       });
       
       toast.success('تم إغلاق العقد وإنشاء الفاتورة بنجاح');
       setCloseDialogOpen(false);
       
-      // Show invoice immediately
-      setCreatedInvoice(response.data.invoice);
+      // Show detailed invoice with rental info
+      setCreatedInvoice({
+        ...response.data.invoice,
+        rental: response.data.rental
+      });
       setInvoiceDialogOpen(true);
       
       fetchData();
