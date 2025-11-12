@@ -124,12 +124,11 @@ const ReportsPageNew = () => {
 
   const downloadRevenueReportPDF = async () => {
     try {
-      const url = `${API_URL}/exports/revenue/report/pdf${
+      const url = `/exports/revenue/report/pdf${
         startDate ? `?start_date=${startDate}` : ''
       }${endDate ? `${startDate ? '&' : '?'}end_date=${endDate}` : ''}`;
       
       const res = await axios.get(url, {
-        headers,
         responseType: 'blob'
       });
       
