@@ -50,7 +50,12 @@ const DashboardPage = () => {
 
   const fetchDashboardData = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('access_token');
+      if (!token) {
+        console.error('No access token found');
+        setLoading(false);
+        return;
+      }
       const headers = { Authorization: `Bearer ${token}` };
 
       // Fetch dashboard stats
