@@ -132,6 +132,58 @@ async def verify_otp(request: VerifyOtpRequest, db: AsyncIOMotorDatabase = Depen
         
         await db.users.insert_one(user_doc)
         user = user_doc
+    else:
+        # User exists - check if we need to update missing fields
+        needs_update = False
+        update_fields = {}
+        
+        # Check if this is the manager
+        is_manager = request.phone == os.getenv("MANAGER_PHONE")
+        
+        # Check if customer exists with this phone
+        customer = await db.customers.find_one({"phone": request.phone})
+        
+        # Update role if missing or None
+        if not user.get("role"):
+            if is_manager:
+                update_fields["role"] = UserRole.admin.value
+            elif customer:
+                update_fields["role"] = "customer"
+            elif user.get("is_manager"):
+                update_fields["role"] = UserRole.admin.value
+            else:
+                # Default to employee if not customer or manager
+                update_fields["role"] = "employee"
+            needs_update = True
+        
+        # Update is_customer_only if missing or None
+        if "is_customer_only" not in user or user.get("is_customer_only") is None:
+            update_fields["is_customer_only"] = bool(customer and not is_manager)
+            needs_update = True
+        
+        # Update customer_id if missing and customer exists
+        if not user.get("customer_id") and customer:
+            update_fields["customer_id"] = customer["id"]
+            needs_update = True
+        
+        # Update is_manager if missing
+        if "is_manager" not in user:
+            update_fields["is_manager"] = is_manager
+            needs_update = True
+        
+        # Update full_name if missing and customer exists
+        if not user.get("full_name") and customer:
+            update_fields["full_name"] = customer.get("full_name", request.phone)
+            needs_update = True
+        
+        # Perform update if needed
+        if needs_update:
+            await db.users.update_one(
+                {"phone": request.phone},
+                {"$set": update_fields}
+            )
+            # Refresh user data
+            user = await db.users.find_one({"phone": request.phone})
     
     # Check if user is active
     if not user.get("is_active", True):
