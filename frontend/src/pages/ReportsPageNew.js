@@ -105,8 +105,7 @@ const ReportsPageNew = () => {
 
   const downloadEquipmentExcel = async () => {
     try {
-      const res = await axios.get(`${API_URL}/exports/equipment/excel`, {
-        headers,
+      const res = await axios.get('/exports/equipment/excel', {
         responseType: 'blob'
       });
       
