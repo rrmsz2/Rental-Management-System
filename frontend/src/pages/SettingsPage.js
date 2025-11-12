@@ -293,6 +293,164 @@ const SettingsPage = () => {
             </CardContent>
           </Card>
 
+          {/* Landing Page Content Settings */}
+          <Card className="modern-card border-0">
+            <CardHeader>
+              <CardTitle className="text-slate-800">محتوى الصفحة الرئيسية</CardTitle>
+              <p className="text-sm text-slate-600 mt-2">أضف محتوى تسويقي جذاب للزوار</p>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <Label htmlFor="landing_title">العنوان الرئيسي</Label>
+                <Input
+                  id="landing_title"
+                  value={settings.landing_title || ''}
+                  onChange={(e) => setSettings({...settings, landing_title: e.target.value})}
+                  placeholder="نظام إدارة الإيجارات"
+                  className="mt-1"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="landing_subtitle">العنوان الفرعي</Label>
+                <Input
+                  id="landing_subtitle"
+                  value={settings.landing_subtitle || ''}
+                  onChange={(e) => setSettings({...settings, landing_subtitle: e.target.value})}
+                  placeholder="حل متكامل لإدارة تأجير المعدات"
+                  className="mt-1"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="about_business">نبذة عن الخدمة</Label>
+                <textarea
+                  id="about_business"
+                  value={settings.about_business || ''}
+                  onChange={(e) => setSettings({...settings, about_business: e.target.value})}
+                  placeholder="اكتب نبذة شاملة عن خدماتك وما يميزك..."
+                  className="mt-1 w-full min-h-[120px] px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
+                  rows={5}
+                />
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-4 pt-4 border-t">
+                <div>
+                  <Label htmlFor="feature1_title">الميزة الأولى - العنوان</Label>
+                  <Input
+                    id="feature1_title"
+                    value={settings.feature1_title || ''}
+                    onChange={(e) => setSettings({...settings, feature1_title: e.target.value})}
+                    placeholder="إدارة المعدات"
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="feature1_description">الميزة الأولى - الوصف</Label>
+                  <Input
+                    id="feature1_description"
+                    value={settings.feature1_description || ''}
+                    onChange={(e) => setSettings({...settings, feature1_description: e.target.value})}
+                    placeholder="نظام شامل لإدارة المعدات"
+                    className="mt-1"
+                  />
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="feature2_title">الميزة الثانية - العنوان</Label>
+                  <Input
+                    id="feature2_title"
+                    value={settings.feature2_title || ''}
+                    onChange={(e) => setSettings({...settings, feature2_title: e.target.value})}
+                    placeholder="إدارة العملاء"
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="feature2_description">الميزة الثانية - الوصف</Label>
+                  <Input
+                    id="feature2_description"
+                    value={settings.feature2_description || ''}
+                    onChange={(e) => setSettings({...settings, feature2_description: e.target.value})}
+                    placeholder="تنظيم بيانات العملاء"
+                    className="mt-1"
+                  />
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="feature3_title">الميزة الثالثة - العنوان</Label>
+                  <Input
+                    id="feature3_title"
+                    value={settings.feature3_title || ''}
+                    onChange={(e) => setSettings({...settings, feature3_title: e.target.value})}
+                    placeholder="تقارير متقدمة"
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="feature3_description">الميزة الثالثة - الوصف</Label>
+                  <Input
+                    id="feature3_description"
+                    value={settings.feature3_description || ''}
+                    onChange={(e) => setSettings({...settings, feature3_description: e.target.value})}
+                    placeholder="رؤى شاملة عن الأداء"
+                    className="mt-1"
+                  />
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-4 pt-4 border-t">
+                <div>
+                  <Label htmlFor="benefit1">الفائدة 1</Label>
+                  <Input
+                    id="benefit1"
+                    value={settings.benefit1 || ''}
+                    onChange={(e) => setSettings({...settings, benefit1: e.target.value})}
+                    placeholder="سهولة في الاستخدام"
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="benefit2">الفائدة 2</Label>
+                  <Input
+                    id="benefit2"
+                    value={settings.benefit2 || ''}
+                    onChange={(e) => setSettings({...settings, benefit2: e.target.value})}
+                    placeholder="أمان وحماية البيانات"
+                    className="mt-1"
+                  />
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="benefit3">الفائدة 3</Label>
+                  <Input
+                    id="benefit3"
+                    value={settings.benefit3 || ''}
+                    onChange={(e) => setSettings({...settings, benefit3: e.target.value})}
+                    placeholder="إشعارات تلقائية"
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="benefit4">الفائدة 4</Label>
+                  <Input
+                    id="benefit4"
+                    value={settings.benefit4 || ''}
+                    onChange={(e) => setSettings({...settings, benefit4: e.target.value})}
+                    placeholder="دعم فني متواصل"
+                    className="mt-1"
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           <Button 
             type="submit" 
             data-testid="save-settings-button"
