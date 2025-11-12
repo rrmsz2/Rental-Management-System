@@ -78,7 +78,7 @@ class NotificationService:
         log_doc = {
             "to_phone": to_phone,
             "template_key": template_key,
-            "payload_json": json.dumps(payload, ensure_ascii=False),
+            "payload_json": json.dumps(payload or {}, ensure_ascii=False),
             "status": "queued",
             "provider_message_id": None,
             "error": None,
@@ -89,7 +89,7 @@ class NotificationService:
         log_id = str(result.inserted_id)
         
         # Send via WhatsApp
-        send_result = await self.whatsapp.send(to_phone, message)
+        send_result = await self.whatsapp.send(to_phone, final_message)
         
         # Update log
         await self.db.notification_logs.update_one(
