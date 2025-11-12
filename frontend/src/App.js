@@ -11,7 +11,6 @@ import EmployeesPage from './pages/EmployeesPage';
 import EquipmentPage from './pages/EquipmentPage';
 import RentalsPage from './pages/RentalsPage';
 import InvoicesPage from './pages/InvoicesPage';
-import ReportsPage from './pages/ReportsPage';
 import ReportsPageNew from './pages/ReportsPageNew';
 import UsersPage from './pages/UsersPage';
 import SettingsPage from './pages/SettingsPage';
