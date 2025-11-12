@@ -86,8 +86,7 @@ const ReportsPageNew = () => {
 
   const downloadCustomersExcel = async () => {
     try {
-      const res = await axios.get(`${API_URL}/exports/customers/excel`, {
-        headers,
+      const res = await axios.get('/exports/customers/excel', {
         responseType: 'blob'
       });
       
