@@ -7,7 +7,7 @@ import { Label } from '../components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../components/ui/dialog';
 import { toast } from 'sonner';
-import { FileText, Loader2, Plus, Eye, CheckCircle, XCircle, PlayCircle, AlertCircle } from 'lucide-react';
+import { FileText, Loader2, Plus, Eye, CheckCircle, CheckCircle2, XCircle, PlayCircle, AlertCircle } from 'lucide-react';
 
 const RentalsPage = () => {
   const [rentals, setRentals] = useState([]);
