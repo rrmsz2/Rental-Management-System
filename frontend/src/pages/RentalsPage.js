@@ -434,6 +434,135 @@ const RentalsPage = () => {
             )}
           </DialogContent>
         </Dialog>
+
+        {/* Close Rental Dialog */}
+        <Dialog open={closeDialogOpen} onOpenChange={setCloseDialogOpen}>
+          <DialogContent className="max-w-lg bg-white">
+            <DialogHeader>
+              <DialogTitle className="text-2xl text-slate-800 font-bold">
+                إغلاق العقد وإصدار الفاتورة
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <p className="text-slate-600">
+                سيتم إغلاق العقد #{selectedRental?.contract_no} وإنشاء فاتورة تلقائياً
+              </p>
+              
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="tax_rate" className="text-slate-700 font-medium text-sm mb-2 block">
+                    معدل الضريبة (%)
+                  </Label>
+                  <Input
+                    id="tax_rate"
+                    type="number"
+                    step="0.01"
+                    value={closeFormData.tax_rate}
+                    onChange={(e) => setCloseFormData({...closeFormData, tax_rate: e.target.value})}
+                    className="h-11 border-slate-200 bg-slate-50/50 focus:bg-white"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="discount_amount" className="text-slate-700 font-medium text-sm mb-2 block">
+                    قيمة الخصم (ريال)
+                  </Label>
+                  <Input
+                    id="discount_amount"
+                    type="number"
+                    step="0.01"
+                    value={closeFormData.discount_amount}
+                    onChange={(e) => setCloseFormData({...closeFormData, discount_amount: e.target.value})}
+                    className="h-11 border-slate-200 bg-slate-50/50 focus:bg-white"
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-2 pt-4">
+                <Button
+                  onClick={handleClose}
+                  className="flex-1 h-11 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700"
+                >
+                  <CheckCircle size={18} className="ml-2" />
+                  إغلاق وإصدار الفاتورة
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setCloseDialogOpen(false)}
+                  className="h-11"
+                >
+                  إلغاء
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Invoice Created Dialog */}
+        <Dialog open={invoiceDialogOpen} onOpenChange={setInvoiceDialogOpen}>
+          <DialogContent className="max-w-2xl bg-white">
+            <DialogHeader>
+              <DialogTitle className="text-2xl text-slate-800 font-bold">
+                تم إنشاء الفاتورة #{createdInvoice?.invoice_no}
+              </DialogTitle>
+            </DialogHeader>
+            {createdInvoice && (
+              <div className="space-y-4">
+                <div className="p-4 bg-green-50 rounded-xl border-2 border-green-200 text-center">
+                  <CheckCircle2 className="mx-auto text-green-600 mb-2" size={48} />
+                  <p className="text-green-800 font-semibold">تم إغلاق العقد وإنشاء الفاتورة بنجاح</p>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex justify-between py-2 border-b border-slate-100">
+                    <span className="text-slate-600">رقم الفاتورة</span>
+                    <span className="font-semibold text-slate-800">{createdInvoice.invoice_no}</span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b border-slate-100">
+                    <span className="text-slate-600">تاريخ الإصدار</span>
+                    <span className="font-semibold text-slate-800">
+                      {new Date(createdInvoice.issue_date).toLocaleDateString('ar-SA')}
+                    </span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b border-slate-100">
+                    <span className="text-slate-600">المبلغ الفرعي</span>
+                    <span className="font-semibold text-slate-800">{createdInvoice.subtotal?.toFixed(2)} ريال</span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b border-slate-100">
+                    <span className="text-slate-600">الضريبة</span>
+                    <span className="font-semibold text-slate-800">{createdInvoice.tax_amount?.toFixed(2)} ريال</span>
+                  </div>
+                  {createdInvoice.discount_amount > 0 && (
+                    <div className="flex justify-between py-2 border-b border-slate-100">
+                      <span className="text-green-600">الخصم</span>
+                      <span className="font-semibold text-green-600">- {createdInvoice.discount_amount?.toFixed(2)} ريال</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between py-3 bg-cyan-50 px-4 rounded-lg mt-2">
+                    <span className="font-bold text-slate-800 text-lg">الإجمالي المطلوب</span>
+                    <span className="font-bold text-cyan-600 text-2xl">{createdInvoice.total?.toFixed(2)} ريال</span>
+                  </div>
+                </div>
+
+                <div className="p-4 bg-blue-50 rounded-xl">
+                  <p className="text-sm text-blue-700">
+                    ✓ تم إرسال الفاتورة للعميل عبر واتساب
+                  </p>
+                  <p className="text-sm text-blue-700 mt-1">
+                    ✓ يمكنك الآن استلام الدفع من صفحة الفواتير
+                  </p>
+                </div>
+
+                <Button
+                  onClick={() => setInvoiceDialogOpen(false)}
+                  className="w-full h-11 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700"
+                >
+                  حسناً
+                </Button>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </Layout>
   );
