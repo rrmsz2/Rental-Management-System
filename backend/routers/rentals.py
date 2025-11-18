@@ -258,10 +258,13 @@ async def close_rental(
     notification_service = NotificationService(db)
     await notification_service.notify_invoice_issued(invoice_doc, customer)
     
+    # Remove _id for response (MongoDB adds it after insert)
+    invoice_response = {k: v for k, v in invoice_doc.items() if k != "_id"}
+    
     return {
         "message": "Rental closed successfully and invoice created",
         "actual_return_date": actual_return,
-        "invoice": invoice_doc
+        "invoice": invoice_response
     }
 
 @router.post("/{rental_id}/cancel")
