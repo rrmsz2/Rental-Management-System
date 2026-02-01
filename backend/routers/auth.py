@@ -7,12 +7,114 @@ from models import LoginRequest, VerifyOtpRequest, TokenResponse, UserRole
 import uuid
 from services.otp_service import OtpService
 from services.notification_service import NotificationService
+from services.security import verify_password, get_password_hash
+from pydantic import BaseModel
 import re
+
+class LoginPasswordRequest(BaseModel):
+    username: str
+    password: str
+
+class UpdatePasswordRequest(BaseModel):
+    phone: str
+    password: str
+
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 # Get database dependency
 from server import get_db
+
+@router.post("/login-password", response_model=TokenResponse)
+async def login_password(request: LoginPasswordRequest, db: AsyncIOMotorDatabase = Depends(get_db)):
+    """
+    Login with username and password (Admin/Staff only)
+    """
+    # Lookup by username OR phone (for backward compatibility if needed, but request sends username)
+    user = await db.users.find_one({"username": request.username})
+    
+    # If not found by username, checking phone if the input looks like a phone might be safer, but user asked for username
+    if not user:
+        user = await db.users.find_one({"phone": request.username}) # Fallback if they type phone in username field
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password"
+        )
+    
+    if not user.get("password_hash"):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Password login not set up for this user. Use OTP."
+        )
+    
+    if not verify_password(request.password, user["password_hash"]):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password"
+        )
+        
+    if not user.get("is_active", True):
+        raise HTTPException(status_code=400, detail="Inactive user")
+
+    # Create access token
+    token_data = {
+        "user_id": user.get("id", user["phone"]),
+        "phone": user["phone"],
+        "role": user.get("role", "customer"),
+        "customer_id": user.get("customer_id"),
+        "is_manager": user.get("is_manager", False),
+        "is_customer_only": user.get("is_customer_only", False)
+    }
+    access_token = create_access_token(token_data)
+    
+    return TokenResponse(
+        access_token=access_token,
+        user={
+            "id": user.get("id", user["phone"]),
+            "phone": user["phone"],
+            "full_name": user.get("full_name", user["phone"]),
+            "role": user.get("role", "customer"),
+            "customer_id": user.get("customer_id"),
+            "is_manager": user.get("is_manager", False),
+            "is_customer_only": user.get("is_customer_only", False)
+        }
+    )
+
+@router.post("/set-password")
+async def set_password(request: UpdatePasswordRequest, db: AsyncIOMotorDatabase = Depends(get_db)):
+    """
+    Set password for a user (Development only / or secured by Secret)
+    """
+    # For now, allow setting password for any user to bootstrap
+    # In production, this should be protected
+    user = await db.users.find_one({"phone": request.phone})
+    
+    if not user:
+         # Create if manager phone
+         if request.phone == os.getenv("MANAGER_PHONE", "+96812345678"):
+             user = {
+                "id": str(uuid.uuid4()),
+                "phone": request.phone,
+                "full_name": "Manager",
+                "role": "admin",
+                "is_active": True,
+                "is_manager": True,
+                "created_at": datetime.now(timezone.utc).isoformat()
+            }
+             await db.users.insert_one(user)
+         else:
+            raise HTTPException(status_code=404, detail="User not found")
+
+    hashed_pw = get_password_hash(request.password)
+    await db.users.update_one(
+        {"phone": request.phone},
+        {"$set": {"password_hash": hashed_pw}}
+    )
+    
+    return {"message": "Password set successfully"}
+
 
 # Phone validation regex for Oman
 OMANI_PHONE_REGEX = r'^\+968\d{8}$'

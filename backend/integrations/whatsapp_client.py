@@ -13,17 +13,22 @@ class WhatsAppClient:
         self.base_url = os.getenv("TEXTMEBOT_BASE_URL", "http://api.textmebot.com")
         self.sender = os.getenv("WHATSAPP_SENDER")
         
-    async def send(self, to_phone: str, text: str) -> Dict:
+    async def send(self, to_phone: str, text: str, api_key: str = None) -> Dict:
         """
         Send WhatsApp message via TextMeBot.
         Returns dict with {ok: bool, provider_id: str|None, error: str|None}.
         """
         try:
+            # Determine API Key: supplied > env var
+            final_api_key = api_key or self.api_key
+            if not final_api_key:
+                 return {"ok": False, "provider_id": None, "error": "No API Key configuration"}
+
             # TextMeBot API: GET send.php?recipient=[phone]&apikey=[key]&text=[text]
             url = f"{self.base_url}/send.php"
             params = {
                 "recipient": to_phone,
-                "apikey": self.api_key,
+                "apikey": final_api_key,
                 "text": text
             }
             

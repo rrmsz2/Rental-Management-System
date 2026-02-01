@@ -152,10 +152,12 @@ class UserRole(str, Enum):
 # User Model (for authentication and authorization)
 class UserBase(BaseModel):
     phone: str
+    username: Optional[str] = None
     full_name: str
     role: UserRole = UserRole.employee
     email: Optional[str] = None
     is_active: bool = True
+
 
 class UserCreate(UserBase):
     pass
@@ -227,6 +229,9 @@ class SettingsBase(BaseModel):
     benefit2: Optional[str] = "أمان وحماية البيانات"
     benefit3: Optional[str] = "إشعارات تلقائية"
     benefit4: Optional[str] = "دعم فني متواصل"
+    # WhatsApp Config
+    whatsapp_api_key: Optional[str] = None
+    whatsapp_instance_id: Optional[str] = None
 
 class SettingsUpdate(BaseModel):
     header_logo: Optional[str] = None
@@ -249,6 +254,8 @@ class SettingsUpdate(BaseModel):
     benefit2: Optional[str] = None
     benefit3: Optional[str] = None
     benefit4: Optional[str] = None
+    whatsapp_api_key: Optional[str] = None
+    whatsapp_instance_id: Optional[str] = None
 
 class Settings(SettingsBase):
     model_config = ConfigDict(extra="ignore")

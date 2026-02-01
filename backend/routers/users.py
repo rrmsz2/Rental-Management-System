@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException, Depends
+from typing import List
 from models import User, UserCreate, UserUpdate, UserRole
 from server import get_db
 from middleware.permissions import require_admin, require_any_role
@@ -7,7 +8,7 @@ import uuid
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
-@router.get("/", response_model=list[User])
+@router.get("/", response_model=List[User])
 async def get_users(
     current_user: dict = Depends(require_admin),
     db=Depends(get_db)

@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { Toaster } from './components/ui/sonner';
 import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
+import AdminLoginPage from './pages/AdminLoginPage';
 import VerifyOtpPage from './pages/VerifyOtpPage';
 import Dashboard from './pages/Dashboard';
 import DashboardPage from './pages/DashboardPage';
@@ -24,7 +25,7 @@ import QRScanPage from './pages/QRScanPage';
 // Protected Route for Staff Only (Admin, Employee, Accountant)
 const StaffRoute = ({ children }) => {
   const { user, loading } = useAuth();
-  
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -32,23 +33,23 @@ const StaffRoute = ({ children }) => {
       </div>
     );
   }
-  
+
   if (!user) {
     return <Navigate to="/login" replace />;
   }
-  
+
   // Redirect customers to their portal
   if (user.is_customer_only || user.role === 'customer') {
     return <Navigate to="/customer-portal" replace />;
   }
-  
+
   return children;
 };
 
 // Protected Route for Customers
 const CustomerRoute = ({ children }) => {
   const { user, loading } = useAuth();
-  
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -56,23 +57,23 @@ const CustomerRoute = ({ children }) => {
       </div>
     );
   }
-  
+
   if (!user) {
     return <Navigate to="/login" replace />;
   }
-  
+
   // Redirect staff to dashboard
   if (!user.is_customer_only && user.role !== 'customer') {
     return <Navigate to="/dashboard" replace />;
   }
-  
+
   return children;
 };
 
 // General Protected Route (for both staff and customers)
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
-  
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -80,11 +81,11 @@ const ProtectedRoute = ({ children }) => {
       </div>
     );
   }
-  
+
   if (!user) {
     return <Navigate to="/login" replace />;
   }
-  
+
   return children;
 };
 
@@ -99,17 +100,18 @@ function App() {
             <Route path="/qr-scan/:equipmentId" element={<QRScanPage />} />
             <Route path="/quick-rent/:equipmentId" element={<QuickRentPage />} />
             <Route path="/quick-return/:equipmentId" element={<QuickReturnPage />} />
-            
+
             {/* Landing Page */}
             <Route path="/" element={<LandingPage />} />
-            
+
             {/* Auth Routes */}
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/admin-login" element={<AdminLoginPage />} />
             <Route path="/verify" element={<VerifyOtpPage />} />
-            
+
             {/* Customer Portal */}
             <Route path="/customer-portal" element={<CustomerRoute><CustomerPortalPage /></CustomerRoute>} />
-            
+
             {/* Staff Routes - Only for Admin, Employee, Accountant */}
             <Route path="/dashboard" element={<StaffRoute><DashboardPage /></StaffRoute>} />
             <Route path="/dashboard-old" element={<StaffRoute><Dashboard /></StaffRoute>} />

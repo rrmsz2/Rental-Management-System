@@ -13,6 +13,8 @@ const SettingsPage = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [testingWhatsapp, setTestingWhatsapp] = useState(false);
+  const [testPhone, setTestPhone] = useState('');
 
   useEffect(() => {
     fetchSettings();
@@ -73,6 +75,24 @@ const SettingsPage = () => {
     }
   };
 
+  const handleTestWhatsapp = async () => {
+    if (!testPhone || testPhone.length < 8) {
+      toast.error('أدخل رقم هاتف صحيح');
+      return;
+    }
+
+    setTestingWhatsapp(true);
+    try {
+      const fullPhone = testPhone.startsWith('+') ? testPhone : `+968${testPhone}`;
+      await axios.post('/settings/test-whatsapp', { phone: fullPhone });
+      toast.success('تم إرسال الرسالة التجريبية بنجاح ✅');
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'فشل إرسال الرسالة ❌');
+    } finally {
+      setTestingWhatsapp(false);
+    }
+  };
+
   if (loading) {
     return (
       <Layout>
@@ -105,9 +125,9 @@ const SettingsPage = () => {
                   {settings.header_logo && (
                     <div className="overflow-hidden rounded-lg border-2 border-slate-200">
                       <div className="relative h-32 sm:h-40">
-                        <img 
-                          src={settings.header_logo} 
-                          alt="Banner Preview" 
+                        <img
+                          src={settings.header_logo}
+                          alt="Banner Preview"
                           className="w-full h-full object-cover"
                           onError={(e) => {
                             e.target.style.display = 'none';
@@ -123,7 +143,7 @@ const SettingsPage = () => {
                       </div>
                     </div>
                   )}
-                  
+
                   {/* Banner URL Input */}
                   <div>
                     <Label htmlFor="header_logo_url" className="text-sm text-slate-600">رابط صورة البانر (URL)</Label>
@@ -132,7 +152,7 @@ const SettingsPage = () => {
                       type="url"
                       placeholder="https://example.com/banner.jpg"
                       value={settings.header_logo || ''}
-                      onChange={(e) => setSettings({...settings, header_logo: e.target.value})}
+                      onChange={(e) => setSettings({ ...settings, header_logo: e.target.value })}
                       className="mt-1 h-11 border-slate-200"
                     />
                     <p className="text-xs text-slate-500 mt-1">
@@ -182,28 +202,28 @@ const SettingsPage = () => {
                     <div className="grid grid-cols-2 gap-2">
                       <button
                         type="button"
-                        onClick={() => setSettings({...settings, header_logo: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1920&h=400&fit=crop'})}
+                        onClick={() => setSettings({ ...settings, header_logo: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1920&h=400&fit=crop' })}
                         className="text-xs text-cyan-600 hover:text-cyan-700 underline text-left"
                       >
                         مباني حديثة
                       </button>
                       <button
                         type="button"
-                        onClick={() => setSettings({...settings, header_logo: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=1920&h=400&fit=crop'})}
+                        onClick={() => setSettings({ ...settings, header_logo: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=1920&h=400&fit=crop' })}
                         className="text-xs text-cyan-600 hover:text-cyan-700 underline text-left"
                       >
                         مكتب عصري
                       </button>
                       <button
                         type="button"
-                        onClick={() => setSettings({...settings, header_logo: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=1920&h=400&fit=crop'})}
+                        onClick={() => setSettings({ ...settings, header_logo: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=1920&h=400&fit=crop' })}
                         className="text-xs text-cyan-600 hover:text-cyan-700 underline text-left"
                       >
                         أعمال احترافية
                       </button>
                       <button
                         type="button"
-                        onClick={() => setSettings({...settings, header_logo: 'https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?w=1920&h=400&fit=crop'})}
+                        onClick={() => setSettings({ ...settings, header_logo: 'https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?w=1920&h=400&fit=crop' })}
                         className="text-xs text-cyan-600 hover:text-cyan-700 underline text-left"
                       >
                         أدوات ومعدات
@@ -219,7 +239,7 @@ const SettingsPage = () => {
                   id="header_title"
                   data-testid="input-header-title"
                   value={settings.header_title || ''}
-                  onChange={(e) => setSettings({...settings, header_title: e.target.value})}
+                  onChange={(e) => setSettings({ ...settings, header_title: e.target.value })}
                   className="mt-1"
                 />
               </div>
@@ -230,9 +250,64 @@ const SettingsPage = () => {
                   id="header_subtitle"
                   data-testid="input-header-subtitle"
                   value={settings.header_subtitle || ''}
-                  onChange={(e) => setSettings({...settings, header_subtitle: e.target.value})}
+                  onChange={(e) => setSettings({ ...settings, header_subtitle: e.target.value })}
                   className="mt-1"
                 />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* WhatsApp Settings */}
+          <Card className="modern-card border-0">
+            <CardHeader>
+              <CardTitle className="text-slate-800">إعدادات واتساب</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <Label htmlFor="whatsapp_api_key">API Key</Label>
+                <Input
+                  id="whatsapp_api_key"
+                  value={settings.whatsapp_api_key || ''}
+                  onChange={(e) => setSettings({ ...settings, whatsapp_api_key: e.target.value })}
+                  className="mt-1"
+                  placeholder="أدخل مفتاح API"
+                  type="password"
+                />
+              </div>
+              <div>
+                <Label htmlFor="whatsapp_instance_id">Instance ID</Label>
+                <Input
+                  id="whatsapp_instance_id"
+                  value={settings.whatsapp_instance_id || ''}
+                  onChange={(e) => setSettings({ ...settings, whatsapp_instance_id: e.target.value })}
+                  className="mt-1"
+                  placeholder="أدخل معرف النسخة (Instance ID)"
+                />
+              </div>
+
+              <div className="pt-4 border-t border-slate-100">
+                <p className="text-sm font-medium text-slate-700 mb-3">تجربة الاتصال</p>
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="رقم الهاتف (مثال: 91234567)"
+                    value={testPhone}
+                    onChange={(e) => setTestPhone(e.target.value)}
+                    dir="ltr"
+                    className="max-w-[250px]"
+                  />
+                  <Button
+                    type="button"
+                    onClick={handleTestWhatsapp}
+                    disabled={testingWhatsapp || !settings.whatsapp_api_key}
+                    variant="outline"
+                    className="border-green-500 text-green-600 hover:bg-green-50"
+                  >
+                    {testingWhatsapp ? <Loader2 className="animate-spin h-4 w-4" /> : 'إرسال رسالة تجريبية'}
+                  </Button>
+                </div>
+                <p className="text-xs text-slate-500 mt-2">
+                  سيتم إرسال رسالة "تجربة إعدادات واتساب" إلى الرقم المدخل.
+                </p>
               </div>
             </CardContent>
           </Card>
@@ -249,7 +324,7 @@ const SettingsPage = () => {
                   id="footer_text"
                   data-testid="input-footer-text"
                   value={settings.footer_text || ''}
-                  onChange={(e) => setSettings({...settings, footer_text: e.target.value})}
+                  onChange={(e) => setSettings({ ...settings, footer_text: e.target.value })}
                   className="mt-1"
                 />
               </div>
@@ -262,7 +337,7 @@ const SettingsPage = () => {
                   type="tel"
                   dir="ltr"
                   value={settings.footer_phone || ''}
-                  onChange={(e) => setSettings({...settings, footer_phone: e.target.value})}
+                  onChange={(e) => setSettings({ ...settings, footer_phone: e.target.value })}
                   className="mt-1"
                   placeholder="+968XXXXXXXX"
                 />
@@ -275,7 +350,7 @@ const SettingsPage = () => {
                   data-testid="input-footer-email"
                   type="email"
                   value={settings.footer_email || ''}
-                  onChange={(e) => setSettings({...settings, footer_email: e.target.value})}
+                  onChange={(e) => setSettings({ ...settings, footer_email: e.target.value })}
                   className="mt-1"
                 />
               </div>
@@ -286,7 +361,7 @@ const SettingsPage = () => {
                   id="footer_address"
                   data-testid="input-footer-address"
                   value={settings.footer_address || ''}
-                  onChange={(e) => setSettings({...settings, footer_address: e.target.value})}
+                  onChange={(e) => setSettings({ ...settings, footer_address: e.target.value })}
                   className="mt-1"
                 />
               </div>
@@ -305,7 +380,7 @@ const SettingsPage = () => {
                 <Input
                   id="landing_title"
                   value={settings.landing_title || ''}
-                  onChange={(e) => setSettings({...settings, landing_title: e.target.value})}
+                  onChange={(e) => setSettings({ ...settings, landing_title: e.target.value })}
                   placeholder="نظام إدارة الإيجارات"
                   className="mt-1"
                 />
@@ -316,7 +391,7 @@ const SettingsPage = () => {
                 <Input
                   id="landing_subtitle"
                   value={settings.landing_subtitle || ''}
-                  onChange={(e) => setSettings({...settings, landing_subtitle: e.target.value})}
+                  onChange={(e) => setSettings({ ...settings, landing_subtitle: e.target.value })}
                   placeholder="حل متكامل لإدارة تأجير المعدات"
                   className="mt-1"
                 />
@@ -327,7 +402,7 @@ const SettingsPage = () => {
                 <textarea
                   id="about_business"
                   value={settings.about_business || ''}
-                  onChange={(e) => setSettings({...settings, about_business: e.target.value})}
+                  onChange={(e) => setSettings({ ...settings, about_business: e.target.value })}
                   placeholder="اكتب نبذة شاملة عن خدماتك وما يميزك..."
                   className="mt-1 w-full min-h-[120px] px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
                   rows={5}
@@ -340,7 +415,7 @@ const SettingsPage = () => {
                   <Input
                     id="feature1_title"
                     value={settings.feature1_title || ''}
-                    onChange={(e) => setSettings({...settings, feature1_title: e.target.value})}
+                    onChange={(e) => setSettings({ ...settings, feature1_title: e.target.value })}
                     placeholder="إدارة المعدات"
                     className="mt-1"
                   />
@@ -350,7 +425,7 @@ const SettingsPage = () => {
                   <Input
                     id="feature1_description"
                     value={settings.feature1_description || ''}
-                    onChange={(e) => setSettings({...settings, feature1_description: e.target.value})}
+                    onChange={(e) => setSettings({ ...settings, feature1_description: e.target.value })}
                     placeholder="نظام شامل لإدارة المعدات"
                     className="mt-1"
                   />
@@ -363,7 +438,7 @@ const SettingsPage = () => {
                   <Input
                     id="feature2_title"
                     value={settings.feature2_title || ''}
-                    onChange={(e) => setSettings({...settings, feature2_title: e.target.value})}
+                    onChange={(e) => setSettings({ ...settings, feature2_title: e.target.value })}
                     placeholder="إدارة العملاء"
                     className="mt-1"
                   />
@@ -373,7 +448,7 @@ const SettingsPage = () => {
                   <Input
                     id="feature2_description"
                     value={settings.feature2_description || ''}
-                    onChange={(e) => setSettings({...settings, feature2_description: e.target.value})}
+                    onChange={(e) => setSettings({ ...settings, feature2_description: e.target.value })}
                     placeholder="تنظيم بيانات العملاء"
                     className="mt-1"
                   />
@@ -386,7 +461,7 @@ const SettingsPage = () => {
                   <Input
                     id="feature3_title"
                     value={settings.feature3_title || ''}
-                    onChange={(e) => setSettings({...settings, feature3_title: e.target.value})}
+                    onChange={(e) => setSettings({ ...settings, feature3_title: e.target.value })}
                     placeholder="تقارير متقدمة"
                     className="mt-1"
                   />
@@ -396,7 +471,7 @@ const SettingsPage = () => {
                   <Input
                     id="feature3_description"
                     value={settings.feature3_description || ''}
-                    onChange={(e) => setSettings({...settings, feature3_description: e.target.value})}
+                    onChange={(e) => setSettings({ ...settings, feature3_description: e.target.value })}
                     placeholder="رؤى شاملة عن الأداء"
                     className="mt-1"
                   />
@@ -409,7 +484,7 @@ const SettingsPage = () => {
                   <Input
                     id="benefit1"
                     value={settings.benefit1 || ''}
-                    onChange={(e) => setSettings({...settings, benefit1: e.target.value})}
+                    onChange={(e) => setSettings({ ...settings, benefit1: e.target.value })}
                     placeholder="سهولة في الاستخدام"
                     className="mt-1"
                   />
@@ -419,7 +494,7 @@ const SettingsPage = () => {
                   <Input
                     id="benefit2"
                     value={settings.benefit2 || ''}
-                    onChange={(e) => setSettings({...settings, benefit2: e.target.value})}
+                    onChange={(e) => setSettings({ ...settings, benefit2: e.target.value })}
                     placeholder="أمان وحماية البيانات"
                     className="mt-1"
                   />
@@ -432,7 +507,7 @@ const SettingsPage = () => {
                   <Input
                     id="benefit3"
                     value={settings.benefit3 || ''}
-                    onChange={(e) => setSettings({...settings, benefit3: e.target.value})}
+                    onChange={(e) => setSettings({ ...settings, benefit3: e.target.value })}
                     placeholder="إشعارات تلقائية"
                     className="mt-1"
                   />
@@ -442,7 +517,7 @@ const SettingsPage = () => {
                   <Input
                     id="benefit4"
                     value={settings.benefit4 || ''}
-                    onChange={(e) => setSettings({...settings, benefit4: e.target.value})}
+                    onChange={(e) => setSettings({ ...settings, benefit4: e.target.value })}
                     placeholder="دعم فني متواصل"
                     className="mt-1"
                   />
@@ -451,8 +526,8 @@ const SettingsPage = () => {
             </CardContent>
           </Card>
 
-          <Button 
-            type="submit" 
+          <Button
+            type="submit"
             data-testid="save-settings-button"
             className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 shadow-md h-12"
             disabled={saving}

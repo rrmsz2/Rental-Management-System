@@ -88,8 +88,15 @@ class NotificationService:
         result = await self.db.notification_logs.insert_one(log_doc)
         log_id = str(result.inserted_id)
         
-        # Send via WhatsApp
-        send_result = await self.whatsapp.send(to_phone, final_message)
+        
+        # Fetch WhatsApp Settings
+        settings = await self.db.settings.find_one({})
+        api_key = None
+        if settings:
+             api_key = settings.get("whatsapp_api_key")
+        
+        # Send via WhatsApp with dynamic key
+        send_result = await self.whatsapp.send(to_phone, final_message, api_key=api_key)
         
         # Update log
         await self.db.notification_logs.update_one(

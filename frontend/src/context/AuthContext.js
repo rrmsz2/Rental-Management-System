@@ -11,11 +11,11 @@ export const AuthProvider = ({ children }) => {
     // Check for saved user in localStorage
     const savedUser = localStorage.getItem('user');
     const token = localStorage.getItem('access_token');
-    
+
     if (savedUser && token) {
       setUser(JSON.parse(savedUser));
     }
-    
+
     setLoading(false);
   }, []);
 
@@ -32,16 +32,32 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await axios.post('/auth/verify', { phone, code });
       const { access_token, user: userData } = response.data;
-      
+
       localStorage.setItem('access_token', access_token);
       localStorage.setItem('user', JSON.stringify(userData));
       setUser(userData);
-      
+
       return response.data;
     } catch (error) {
       throw error;
     }
   };
+
+  const loginWithPassword = async (username, password) => {
+    try {
+      const response = await axios.post('/auth/login-password', { username, password });
+      const { access_token, user: userData } = response.data;
+
+      localStorage.setItem('access_token', access_token);
+      localStorage.setItem('user', JSON.stringify(userData));
+      setUser(userData);
+
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  };
+
 
   const logout = () => {
     localStorage.removeItem('access_token');
@@ -58,15 +74,15 @@ export const AuthProvider = ({ children }) => {
     try {
       const token = localStorage.getItem('access_token');
       if (!token) return;
-      
+
       const response = await axios.get('/users/me', {
         headers: { Authorization: `Bearer ${token}` }
       });
-      
+
       const userData = response.data;
       localStorage.setItem('user', JSON.stringify(userData));
       setUser(userData);
-      
+
       return userData;
     } catch (error) {
       console.error('Failed to refresh user data:', error);
@@ -74,7 +90,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, verifyOtp, logout, updateUser, refreshUser }}>
+    <AuthContext.Provider value={{ user, loading, login, verifyOtp, loginWithPassword, logout, updateUser, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );

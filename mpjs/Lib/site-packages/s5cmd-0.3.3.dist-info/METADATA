@@ -1,0 +1,139 @@
+Metadata-Version: 2.1
+Name: s5cmd
+Version: 0.3.3
+Summary: This project provides the infrastructure to build s5cmd Python wheels.
+Author-Email: Jean-Christophe Fillion-Robin <jchris.fillionr@kitware.com>
+License: Copyright 2024 Jean-Christophe Fillion-Robin
+         
+         Permission is hereby granted, free of charge, to any person obtaining a copy of
+         this software and associated documentation files (the "Software"), to deal in
+         the Software without restriction, including without limitation the rights to
+         use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+         of the Software, and to permit persons to whom the Software is furnished to do
+         so, subject to the following conditions:
+         
+         The above copyright notice and this permission notice shall be included in all
+         copies or substantial portions of the Software.
+         
+         THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+         IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+         FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+         AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+         LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+         OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+         SOFTWARE.
+         
+Classifier: Development Status :: 1 - Planning
+Classifier: Intended Audience :: Science/Research
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Scientific/Engineering
+Classifier: Typing :: Typed
+Project-URL: Homepage, https://github.com/jcfr/s5cmd-python-distributions
+Project-URL: Bug Tracker, https://github.com/jcfr/s5cmd-python-distributions/issues
+Project-URL: Discussions, https://github.com/jcfr/s5cmd-python-distributions/discussions
+Project-URL: Changelog, https://github.com/jcfr/s5cmd-python-distributions/releases
+Requires-Python: >=3.8
+Provides-Extra: test
+Requires-Dist: importlib_metadata>=2.0; python_version < "3.10" and extra == "test"
+Requires-Dist: pytest>=6; extra == "test"
+Requires-Dist: pytest-cov>=3; extra == "test"
+Provides-Extra: dev
+Requires-Dist: pytest>=6; extra == "dev"
+Requires-Dist: pytest-cov>=3; extra == "dev"
+Provides-Extra: docs
+Requires-Dist: sphinx>=7.0; extra == "docs"
+Requires-Dist: myst_parser>=0.13; extra == "docs"
+Requires-Dist: sphinx_copybutton; extra == "docs"
+Requires-Dist: sphinx_autodoc_typehints; extra == "docs"
+Requires-Dist: furo>=2023.08.17; extra == "docs"
+Description-Content-Type: text/markdown
+
+# s5cmd Python Distributions
+
+[![Actions Status][actions-badge]][actions-link]
+
+[![PyPI version][pypi-version]][pypi-link]
+[![PyPI platforms][pypi-platforms]][pypi-link]
+
+<!-- SPHINX-START -->
+
+## Overview
+
+`s5cmd` is a very fast S3 and local filesystem execution tool. It comes with
+support for a multitude of operations including tab completion and wildcard
+support for files, which can be very handy for your object storage workflow
+while working with large number of files.
+
+This project provides the infrastructure for building the `s5cmd` Python wheels.
+For more information about `s5cmd`, please refer to
+https://github.com/peak/s5cmd.
+
+The Python wheels provided here contain the official `s5cmd` executable, which
+is sourced from the [GitHub releases](https://github.com/peak/s5cmd/releases).
+Once the wheel is installed, a convenient launcher executable is automatically
+placed in the PATH. This launcher is created during installation by pip,
+leveraging the `[project.scripts]` configuration defined in the `pyproject.toml`
+file.
+
+## Platforms
+
+The following platforms are supported by the binary wheels:
+
+| OS            | Arch                                                                         |
+| ------------- | ---------------------------------------------------------------------------- |
+| Windows       | 64-bit<br>32-bit<br>ARM64                                                    |
+| Linux Intel   | manylinux 64-bit<br>musllinux 64-bit<br>manylinux 32-bit<br>musllinux 32-bit |
+| Linux ARM     | manylinux AArch64<br>musllinux AArch64                                       |
+| Linux PowerPC | manylinux ppc64le<br>musllinux ppc64le                                       |
+| macOS 10.10+  | Intel                                                                        |
+| macOS 11+     | Apple Silicon                                                                |
+
+## License
+
+This project is maintained by Jean-Christophe Fillion-Robin from Kitware Inc. It
+is covered by the OSI-approved MIT License.
+
+`s5cmd` is distributed under the OSI-approved MIT License. For further details
+regarding `s5cmd`, please visit https://github.com/peak/s5cmd.
+
+<!-- prettier-ignore-start -->
+[actions-badge]:            https://github.com/jcfr/s5cmd-python-distributions/workflows/CI/badge.svg
+[actions-link]:             https://github.com/jcfr/s5cmd-python-distributions/actions
+[pypi-link]:                https://pypi.org/project/s5cmd/
+[pypi-platforms]:           https://img.shields.io/pypi/pyversions/s5cmd
+[pypi-version]:             https://img.shields.io/pypi/v/s5cmd
+
+<!-- prettier-ignore-end -->
+
+## Acknowledgments
+
+This software is supported by the Imaging Data Commons (IDC) project, which has
+been funded in whole or in part with Federal funds from the NCI, NIH, under task
+order no. HHSN26110071 under contract no. HHSN261201500003l.
+
+NCI Imaging Data Commons (IDC) (https://imaging.datacommons.cancer.gov/) is a
+cloud-based environment containing publicly available cancer imaging data
+co-located with analysis and exploration tools and resources. IDC is a node
+within the broader NCI Cancer Research Data Commons (CRDC) infrastructure that
+provides secure access to a large, comprehensive, and expanding collection of
+cancer research data.
+
+Learn more about IDC from this publication:
+
+> Fedorov, A., Longabaugh, W. J. R., Pot, D., Clunie, D. A., Pieper, S. D.,
+> Gibbs, D. L., Bridge, C., Herrmann, M. D., Homeyer, A., Lewis, R., Aerts, H.
+> J. W., Krishnaswamy, D., Thiriveedhi, V. K., Ciausu, C., Schacherer, D. P.,
+> Bontempi, D., Pihl, T., Wagner, U., Farahani, K., Kim, E. & Kikinis, R.
+> _National Cancer Institute Imaging Data Commons: Toward Transparency,
+> Reproducibility, and Scalability in Imaging Artificial Intelligence_.
+> RadioGraphics (2023). https://doi.org/10.1148/rg.230180

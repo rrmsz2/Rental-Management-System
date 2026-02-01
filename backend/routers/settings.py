@@ -93,3 +93,29 @@ async def upload_logo(file: UploadFile = File(...), db: AsyncIOMotorDatabase = D
         await db.settings.insert_one(new_settings)
     
     return {"message": "تم رفع الشعار بنجاح", "logo_url": data_url}
+
+@router.post("/test-whatsapp")
+async def test_whatsapp(payload: dict, db: AsyncIOMotorDatabase = Depends(get_db)):
+    """Test WhatsApp configuration"""
+    phone = payload.get("phone")
+    if not phone:
+         raise HTTPException(status_code=400, detail="رقم الهاتف مطلوب")
+
+    # Get settings
+    settings = await db.settings.find_one({})
+    if not settings or not settings.get("whatsapp_api_key"):
+        raise HTTPException(status_code=400, detail="إعدادات واتساب غير مضبوطة")
+        
+    api_key = settings.get("whatsapp_api_key")
+    
+    # Init client
+    from integrations.whatsapp_client import WhatsAppClient
+    client = WhatsAppClient()
+    
+    # Send test message
+    result = await client.send(phone, "تجربة إعدادات واتساب من نظام التأجير ✅", api_key=api_key)
+    
+    if result["ok"]:
+        return {"message": "تم إرسال الرسالة التجريبية بنجاح"}
+    else:
+        raise HTTPException(status_code=500, detail=f"فشل الإرسال: {result.get('error')}")
