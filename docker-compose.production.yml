@@ -1,0 +1,70 @@
+version: '3.8'
+
+# Custom network to avoid conflicts
+networks:
+  rental-internal:
+    name: rental_management_network
+    driver: bridge
+
+volumes:
+  rental_mongodb_data:
+    name: rental_mongodb_data
+    driver: local
+  rental_mongodb_config:
+    name: rental_mongodb_config
+    driver: local
+
+services:
+  # MongoDB - Using custom port to avoid conflicts
+  rental-mongodb:
+    image: mongo:7.0
+    container_name: rental-mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER:-rental_admin}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:-changeme}
+      MONGO_INITDB_DATABASE: rental_management
+    volumes:
+      - rental_mongodb_data:/data/db
+      - rental_mongodb_config:/data/configdb
+    ports:
+      # Using port 27027 to avoid conflict with existing MongoDB if any
+      - "127.0.0.1:27027:27017"
+    networks:
+      - rental-internal
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Application (Backend + Frontend served by FastAPI)
+  rental-app:
+    build:
+      context: .
+      dockerfile: Dockerfile.standalone
+      args:
+        REACT_APP_BACKEND_URL: ${BACKEND_URL:-http://localhost:8001}
+    container_name: rental-app
+    restart: unless-stopped
+    env_file:
+      - .env.production
+    environment:
+      # Override MongoDB connection to use internal network
+      - MONGO_URL=mongodb://rental-mongodb:27017
+      - ENVIRONMENT=production
+    depends_on:
+      rental-mongodb:
+        condition: service_healthy
+    ports:
+      # Using port 8001 for the app (can be proxied by existing Nginx)
+      - "127.0.0.1:8001:8001"
+    networks:
+      - rental-internal
+    volumes:
+      - ./logs:/app/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3

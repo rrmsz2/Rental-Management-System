@@ -8,13 +8,17 @@ import uuid
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
-@router.get("/", response_model=List[User])
+@router.get("/", response_model=List[dict])
 async def get_users(
     current_user: dict = Depends(require_admin),
     db=Depends(get_db)
 ):
     """الحصول على جميع المستخدمين (Admin فقط)"""
     users = await db.users.find().to_list(1000)
+    # Ensure IDs are stringified properly
+    for u in users:
+        if "_id" in u:
+            u["_id"] = str(u["_id"])
     return users
 
 @router.get("/me", response_model=User)
@@ -62,8 +66,14 @@ async def create_user(
         "full_name": user_data.full_name,
         "role": user_data.role.value,
         "email": user_data.email,
+        "national_id": user_data.national_id,
+        "position": user_data.position,
+        "salary": user_data.salary,
+        "hire_date": user_data.hire_date,
+        "notes": user_data.notes,
         "is_active": user_data.is_active,
         "is_manager": user_data.role == UserRole.admin,  # للتوافق
+        "is_customer_only": False,  # Explicitly false for dashboard staff users
         "customer_id": None,
         "created_at": datetime.utcnow().isoformat()
     }
@@ -89,6 +99,8 @@ async def update_user(
     # إذا تم تحديث الدور، تحديث is_manager أيضاً
     if "role" in update_data:
         update_data["is_manager"] = update_data["role"] == UserRole.admin.value
+        if update_data["role"] in ["admin", "sales", "rentals", "viewer"]:
+             update_data["is_customer_only"] = False
     
     if update_data:
         await db.users.update_one(
@@ -130,8 +142,9 @@ async def get_users_summary(
     
     # عدد المستخدمين حسب الدور
     admins = await db.users.count_documents({"role": UserRole.admin.value})
-    employees = await db.users.count_documents({"role": UserRole.employee.value})
-    accountants = await db.users.count_documents({"role": UserRole.accountant.value})
+    sales = await db.users.count_documents({"role": UserRole.sales.value})
+    rentals = await db.users.count_documents({"role": UserRole.rentals.value})
+    viewers = await db.users.count_documents({"role": UserRole.viewer.value})
     
     return {
         "total_users": total_users,
@@ -139,7 +152,8 @@ async def get_users_summary(
         "inactive_users": total_users - active_users,
         "by_role": {
             "admins": admins,
-            "employees": employees,
-            "accountants": accountants
+            "sales": sales,
+            "rentals": rentals,
+            "viewers": viewers
         }
     }

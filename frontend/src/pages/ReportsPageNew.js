@@ -14,10 +14,9 @@ const ReportsPageNew = () => {
   const fetchRevenueReport = async () => {
     setLoading(true);
     try {
-      const url = `/reports/revenue/detailed${
-        startDate ? `?start_date=${startDate}` : ''
-      }${endDate ? `${startDate ? '&' : '?'}end_date=${endDate}` : ''}`;
-      
+      const url = `/reports/revenue/detailed${startDate ? `?start_date=${startDate}` : ''
+        }${endDate ? `${startDate ? '&' : '?'}end_date=${endDate}` : ''}`;
+
       const res = await axios.get(url);
       setRevenueReport(res.data);
     } catch (error) {
@@ -50,7 +49,7 @@ const ReportsPageNew = () => {
       const res = await axios.get(`/exports/invoice/${invoiceId}/pdf`, {
         responseType: 'blob'
       });
-      
+
       const url = window.URL.createObjectURL(new Blob([res.data]));
       const link = document.createElement('a');
       link.href = url;
@@ -70,7 +69,7 @@ const ReportsPageNew = () => {
       const res = await axios.get(url, {
         responseType: 'blob'
       });
-      
+
       const downloadUrl = window.URL.createObjectURL(new Blob([res.data]));
       const link = document.createElement('a');
       link.href = downloadUrl;
@@ -89,7 +88,7 @@ const ReportsPageNew = () => {
       const res = await axios.get('/exports/customers/excel', {
         responseType: 'blob'
       });
-      
+
       const url = window.URL.createObjectURL(new Blob([res.data]));
       const link = document.createElement('a');
       link.href = url;
@@ -108,7 +107,7 @@ const ReportsPageNew = () => {
       const res = await axios.get('/exports/equipment/excel', {
         responseType: 'blob'
       });
-      
+
       const url = window.URL.createObjectURL(new Blob([res.data]));
       const link = document.createElement('a');
       link.href = url;
@@ -124,14 +123,13 @@ const ReportsPageNew = () => {
 
   const downloadRevenueReportPDF = async () => {
     try {
-      const url = `/exports/revenue/report/pdf${
-        startDate ? `?start_date=${startDate}` : ''
-      }${endDate ? `${startDate ? '&' : '?'}end_date=${endDate}` : ''}`;
-      
+      const url = `/exports/revenue/report/pdf${startDate ? `?start_date=${startDate}` : ''
+        }${endDate ? `${startDate ? '&' : '?'}end_date=${endDate}` : ''}`;
+
       const res = await axios.get(url, {
         responseType: 'blob'
       });
-      
+
       const downloadUrl = window.URL.createObjectURL(new Blob([res.data]));
       const link = document.createElement('a');
       link.href = downloadUrl;
@@ -188,22 +186,20 @@ const ReportsPageNew = () => {
             <div className="flex space-x-8 space-x-reverse px-6">
               <button
                 onClick={() => setActiveTab('revenue')}
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === 'revenue'
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'revenue'
                     ? 'border-blue-600 text-blue-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
+                  }`}
               >
                 <DollarSign className="w-5 h-5 inline-block ml-2" />
                 تقرير الإيرادات
               </button>
               <button
                 onClick={() => setActiveTab('customers')}
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === 'customers'
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'customers'
                     ? 'border-blue-600 text-blue-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
+                  }`}
               >
                 <Users className="w-5 h-5 inline-block ml-2" />
                 تقرير العملاء
@@ -312,20 +308,19 @@ const ReportsPageNew = () => {
                                 {new Date(invoice.issue_date).toLocaleDateString('ar')}
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                {invoice.subtotal.toFixed(2)} ر.ع
+                                {(invoice.subtotal || invoice.total || 0).toFixed(2)} ر.ع
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                {invoice.tax_amount.toFixed(2)} ر.ع
+                                {(invoice.tax_amount || 0).toFixed(2)} ر.ع
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-green-600">
-                                {invoice.total.toFixed(2)} ر.ع
+                                {(invoice.total || 0).toFixed(2)} ر.ع
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap">
-                                <span className={`px-2 py-1 text-xs rounded-full ${
-                                  invoice.paid 
-                                    ? 'bg-green-100 text-green-800' 
+                                <span className={`px-2 py-1 text-xs rounded-full ${invoice.paid
+                                    ? 'bg-green-100 text-green-800'
                                     : 'bg-red-100 text-red-800'
-                                }`}>
+                                  }`}>
                                   {invoice.paid ? 'مدفوع' : 'غير مدفوع'}
                                 </span>
                               </td>

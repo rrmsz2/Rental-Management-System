@@ -1,0 +1,74 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info
+dist
+build
+.env
+.env.*
+!.env.production
+venv/
+env/
+ENV/
+.venv/
+backend/venv/
+.pytest_cache
+.coverage
+htmlcov/
+.tox/
+.mypy_cache
+
+# Node
+node_modules/
+frontend/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+frontend/build/
+frontend/dist/
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+error_log.txt
+server.log
+
+# Test files
+test_*.py
+check_*.py
+fix_*.py
+debug_*.py
+backend/test_*.py
+backend/check_*.py
+backend/fix_*.py
+backend/debug_*.py
+
+# Temporary
+*.tmp
+*.bak
+admin_dump.json
+*.db
+
+# Documentation (keep essential ones)
+*.md
+!README.md
+!DEPLOYMENT.md

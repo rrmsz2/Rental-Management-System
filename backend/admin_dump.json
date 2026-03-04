@@ -1,0 +1,34 @@
+[
+  {
+    "_id": {
+      "$oid": "697f2b45751194dcd341b202"
+    },
+    "id": "f83bc2fb-c0a4-4224-a604-ebc63cf44b4a",
+    "phone": "+96812345678",
+    "username": "admin",
+    "full_name": "مدير النظام",
+    "role": "admin",
+    "email": "admin@rental.om",
+    "is_active": true,
+    "is_manager": true,
+    "is_customer_only": false,
+    "password_hash": "$pbkdf2-sha256$29000$HOP8f29tbY0xRsiZE.K8Fw$B9/yUdRz29PDsoTpbjuBa9NaSNCvBRHAGjTS7l8dQpE",
+    "created_at": "2026-02-01T10:30:29.728286+00:00"
+  },
+  {
+    "_id": {
+      "$oid": "69a36c6c898cf30f1d116e95"
+    },
+    "name": "System Admin",
+    "phone": "+96892345218",
+    "username": "admin",
+    "role": "admin",
+    "password": "$pbkdf2-sha256$29000$mNMaY8z5H8MYQ0gphRAiBA$9uV//VqSj1jEeGDXPS4DcsIeqYP2Tv.crbwTfFEvE5k",
+    "password_hash": "$pbkdf2-sha256$29000$mNMaY8z5H8MYQ0gphRAiBA$9uV//VqSj1jEeGDXPS4DcsIeqYP2Tv.crbwTfFEvE5k",
+    "is_active": true,
+    "email": "admin@rental-system.com",
+    "created_at": {
+      "$date": "2026-02-28T22:30:04.296Z"
+    }
+  }
+]

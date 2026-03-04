@@ -5,7 +5,7 @@ from typing import List
 import uuid
 from models import RentalContract, RentalContractCreate, RentalContractUpdate, RentalStatus, EquipmentStatus
 from services.notification_service import NotificationService
-from middleware.permissions import require_any_role
+from middleware.permissions import require_rentals, require_any_role
 
 router = APIRouter(prefix="/rentals", tags=["Rentals"])
 
@@ -16,21 +16,37 @@ def generate_contract_no() -> str:
     timestamp = datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")
     return f"RC-{timestamp}"
 
+def parse_date(date_str: str) -> datetime:
+    """Parse ISO date string, safely handling 'Z' suffix for Python 3.8 compatibility"""
+    if not date_str:
+        return datetime.now(timezone.utc)
+    if date_str.endswith('Z'):
+        date_str = date_str[:-1] + '+00:00'
+    return datetime.fromisoformat(date_str)
+
 def calculate_rental_days(start_date: str, end_date: str) -> int:
     """Calculate rental days (minimum 1)"""
-    start = datetime.fromisoformat(start_date)
-    end = datetime.fromisoformat(end_date)
-    days = (end - start).days
+    start = parse_date(start_date)
+    end = parse_date(end_date) if end_date else datetime.now(timezone.utc)
+    days = (end.date() - start.date()).days
     return max(1, days)
 
+
 @router.get("", response_model=List[RentalContract])
-async def get_rentals(db: AsyncIOMotorDatabase = Depends(get_db)):
+async def get_rentals(
+    db: AsyncIOMotorDatabase = Depends(get_db),
+    current_user: dict = Depends(require_rentals)
+):
     """Get all rental contracts"""
     rentals = await db.rental_contracts.find({}, {"_id": 0}).to_list(1000)
     return rentals
 
 @router.get("/{rental_id}", response_model=RentalContract)
-async def get_rental(rental_id: str, db: AsyncIOMotorDatabase = Depends(get_db)):
+async def get_rental(
+    rental_id: str,
+    db: AsyncIOMotorDatabase = Depends(get_db),
+    current_user: dict = Depends(require_rentals)
+):
     """Get rental contract by ID"""
     rental = await db.rental_contracts.find_one({"id": rental_id}, {"_id": 0})
     if not rental:
@@ -38,7 +54,11 @@ async def get_rental(rental_id: str, db: AsyncIOMotorDatabase = Depends(get_db))
     return rental
 
 @router.get("/{rental_id}/summary")
-async def get_rental_summary(rental_id: str, db: AsyncIOMotorDatabase = Depends(get_db)):
+async def get_rental_summary(
+    rental_id: str,
+    db: AsyncIOMotorDatabase = Depends(get_db),
+    current_user: dict = Depends(require_rentals)
+):
     """Get rental contract summary with customer and equipment details"""
     rental = await db.rental_contracts.find_one({"id": rental_id}, {"_id": 0})
     if not rental:
@@ -55,8 +75,8 @@ async def get_rental_summary(rental_id: str, db: AsyncIOMotorDatabase = Depends(
     late_fee = 0.0
     days_late = 0
     if rental.get("actual_return_date"):
-        actual_return = datetime.fromisoformat(rental["actual_return_date"])
-        expected_return = datetime.fromisoformat(rental["end_date"])
+        actual_return = parse_date(rental["actual_return_date"])
+        expected_return = parse_date(rental["end_date"]) if rental.get("end_date") else datetime.now(timezone.utc)
         if actual_return > expected_return:
             days_late = (actual_return - expected_return).days
             late_fee = days_late * rental["daily_rate_snap"] * 1.2
@@ -73,7 +93,11 @@ async def get_rental_summary(rental_id: str, db: AsyncIOMotorDatabase = Depends(
     }
 
 @router.post("", response_model=RentalContract)
-async def create_rental(rental: RentalContractCreate, db: AsyncIOMotorDatabase = Depends(get_db)):
+async def create_rental(
+    rental: RentalContractCreate,
+    db: AsyncIOMotorDatabase = Depends(get_db),
+    current_user: dict = Depends(require_rentals)
+):
     """Create new rental contract (active status immediately)"""
     # Validate customer exists
     customer = await db.customers.find_one({"id": rental.customer_id})
@@ -181,6 +205,66 @@ async def activate_rental(rental_id: str, db: AsyncIOMotorDatabase = Depends(get
     
     return {"message": "Rental activated successfully"}
 
+@router.get("/{rental_id}/preview-close")
+async def preview_close_rental(
+    rental_id: str, 
+    return_date: str = None,
+    tax_rate: float = 0.05,
+    discount_amount: float = 0.0,
+    db: AsyncIOMotorDatabase = Depends(get_db)
+):
+    """Preview the exact invoice amounts before actually closing the rental"""
+    rental = await db.rental_contracts.find_one({"id": rental_id})
+    if not rental:
+        raise HTTPException(status_code=404, detail="Rental contract not found")
+        
+    actual_return = return_date or datetime.now(timezone.utc).isoformat()
+    start_dt = parse_date(rental["start_date"])
+    actual_return_dt = parse_date(actual_return)
+    
+    if start_dt.tzinfo is None:
+        start_dt = start_dt.replace(tzinfo=timezone.utc)
+    if actual_return_dt.tzinfo is None:
+        actual_return_dt = actual_return_dt.replace(tzinfo=timezone.utc)
+        
+    rental_days = (actual_return_dt.date() - start_dt.date()).days
+    if rental_days < 1:
+        rental_days = 1
+        
+    base_cost = rental_days * rental["daily_rate_snap"]
+    
+    late_fee = 0.0
+    days_late = 0
+    if rental.get("end_date"):
+        expected_return_dt = parse_date(rental["end_date"])
+        if expected_return_dt.tzinfo is None:
+            expected_return_dt = expected_return_dt.replace(tzinfo=timezone.utc)
+        if actual_return_dt.date() > expected_return_dt.date():
+            days_late = (actual_return_dt.date() - expected_return_dt.date()).days
+            late_fee = days_late * rental["daily_rate_snap"] * 1.2
+            
+    deposit = rental.get("deposit", 0.0)
+    subtotal = base_cost + late_fee - deposit
+    if subtotal < 0:
+        subtotal = 0.0
+        
+    tax_amount = subtotal * tax_rate
+    total = subtotal + tax_amount - discount_amount
+    if total < 0:
+        total = 0.0
+        
+    return {
+        "rental_days": rental_days,
+        "base_cost": base_cost,
+        "days_late": days_late,
+        "late_fee": late_fee,
+        "deposit": deposit,
+        "subtotal": subtotal,
+        "tax_amount": tax_amount,
+        "discount_amount": discount_amount,
+        "total": total
+    }
+
 @router.post("/{rental_id}/close")
 async def close_rental(
     rental_id: str, 
@@ -226,8 +310,8 @@ async def close_rental(
     from routers.invoices import generate_invoice_no
     
     # Parse dates
-    start_dt = datetime.fromisoformat(rental["start_date"])
-    actual_return_dt = datetime.fromisoformat(actual_return)
+    start_dt = parse_date(rental["start_date"])
+    actual_return_dt = parse_date(actual_return)
     
     # Ensure datetimes are timezone-aware
     if start_dt.tzinfo is None:
@@ -247,7 +331,7 @@ async def close_rental(
     days_late = 0
     
     if rental.get("end_date") and rental["end_date"]:
-        expected_return_dt = datetime.fromisoformat(rental["end_date"])
+        expected_return_dt = parse_date(rental["end_date"])
         
         if expected_return_dt.tzinfo is None:
             expected_return_dt = expected_return_dt.replace(tzinfo=timezone.utc)
@@ -282,8 +366,11 @@ async def close_rental(
     # Send notifications
     notification_service = NotificationService(db)
     
+    # Send equipment returned notification
+    await notification_service.notify_equipment_returned(rental, customer, equipment)
+    
     # Send invoice notification to customer
-    await notification_service.notify_invoice_issued(invoice_doc, customer, rental, equipment)
+    await notification_service.notify_invoice_issued(invoice_doc, customer)
     
     # If paid, send payment confirmation
     if paid:

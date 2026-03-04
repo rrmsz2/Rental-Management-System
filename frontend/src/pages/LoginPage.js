@@ -102,8 +102,9 @@ const LoginPage = () => {
                     value={phoneNumber}
                     onChange={handlePhoneChange}
                     maxLength={8}
-                    className="flex-1 h-12 border-slate-200 bg-slate-50/50 focus:bg-white text-center text-lg tracking-wider"
+                    className="flex-1 h-12 border-slate-200 bg-slate-50/50 focus:bg-white text-center text-lg tracking-wider font-mono"
                     dir="ltr"
+                    style={{ fontFamily: 'monospace', letterSpacing: '0.1em' }}
                     required
                   />
                 </div>

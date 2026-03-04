@@ -18,7 +18,7 @@ const LandingPage = () => {
 
   const fetchSettings = async () => {
     try {
-      const res = await axios.get(`${API_URL}/settings`);
+      const res = await axios.get(`${API_URL}/settings/public`);
       setSettings(res.data);
     } catch (error) {
       console.error('Failed to fetch settings:', error);

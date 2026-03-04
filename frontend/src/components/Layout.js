@@ -4,12 +4,12 @@ import { useAuth } from '../context/AuthContext';
 import { Button } from './ui/button';
 import Header from './Header';
 import Footer from './Footer';
-import { 
-  LayoutDashboard, 
-  Users, 
-  Package, 
-  FileText, 
-  Receipt, 
+import {
+  LayoutDashboard,
+  Users,
+  Package,
+  FileText,
+  Receipt,
   BarChart3,
   UserCog,
   Settings,
@@ -24,6 +24,19 @@ const Layout = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
+  const [currentTime, setCurrentTime] = React.useState(new Date());
+
+  // Update time every minute
+  React.useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 60000);
+    return () => clearInterval(timer);
+  }, []);
+
+  // Compute greeting
+  const hour = currentTime.getHours();
+  const greeting = hour >= 12 ? 'مساء الخير' : 'صباح الخير';
 
   // Refresh user data on mount
   React.useEffect(() => {
@@ -40,15 +53,14 @@ const Layout = ({ children }) => {
   };
 
   const menuItems = [
-    { icon: LayoutDashboard, label: 'لوحة التحكم', path: '/dashboard', testId: 'nav-dashboard' },
-    { icon: Users, label: 'العملاء', path: '/customers', testId: 'nav-customers' },
-    { icon: UserCog, label: 'الموظفين', path: '/employees', testId: 'nav-employees' },
-    { icon: Package, label: 'المعدات', path: '/equipment', testId: 'nav-equipment' },
-    { icon: FileText, label: 'عقود التأجير', path: '/rentals', testId: 'nav-rentals' },
-    { icon: Receipt, label: 'الفواتير', path: '/invoices', testId: 'nav-invoices' },
-    { icon: BarChart3, label: 'التقارير', path: '/reports', testId: 'nav-reports' },
-    { icon: Users, label: 'المستخدمين', path: '/users', testId: 'nav-users', adminOnly: true },
-    { icon: Settings, label: 'الإعدادات', path: '/settings', testId: 'nav-settings' },
+    { icon: LayoutDashboard, label: 'لوحة التحكم', path: '/dashboard', testId: 'nav-dashboard', allowRoles: ['admin', 'rentals', 'viewer'] },
+    { icon: Users, label: 'العملاء', path: '/customers', testId: 'nav-customers', allowRoles: ['admin'] },
+    { icon: Package, label: 'المعدات', path: '/equipment', testId: 'nav-equipment', allowRoles: ['admin', 'rentals', 'sales'] },
+    { icon: FileText, label: 'عقود التأجير', path: '/rentals', testId: 'nav-rentals', allowRoles: ['admin', 'rentals', 'sales'] },
+    { icon: Receipt, label: 'الفواتير', path: '/invoices', testId: 'nav-invoices', allowRoles: ['admin', 'sales'] },
+    { icon: BarChart3, label: 'التقارير', path: '/reports', testId: 'nav-reports', allowRoles: ['admin', 'rentals', 'viewer'] },
+    { icon: UserCog, label: 'الموظفين والصلاحيات', path: '/users', testId: 'nav-users', allowRoles: ['admin'] },
+    { icon: Settings, label: 'الإعدادات', path: '/settings', testId: 'nav-settings', allowRoles: ['admin'] },
   ];
 
   return (
@@ -62,9 +74,9 @@ const Layout = ({ children }) => {
 
       {/* Header */}
       <Header />
-      
+
       {/* Top Navigation Bar */}
-      <nav className="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+      <nav className="bg-white/80 backdrop-blur-md border-b border-slate-200/50 sticky top-0 z-40 shadow-sm">
         <div className="px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Button
@@ -78,26 +90,39 @@ const Layout = ({ children }) => {
             </Button>
           </div>
           <div className="flex items-center gap-4">
-            <div className="text-right hidden sm:block bg-slate-50 px-3 py-2 rounded-lg min-w-[160px]">
-              <p className="text-sm font-bold text-slate-800 mb-1">
-                مرحباً بك {user?.full_name && user.full_name !== user.phone && user.full_name.trim() !== '' ? user.full_name : (user?.phone ? '' : '')}
-              </p>
-              {user?.role && (
-                <p className={`text-xs font-semibold mb-1 ${
-                  user.role === 'admin' ? 'text-red-600' :
-                  user.role === 'employee' ? 'text-blue-600' :
-                  'text-green-600'
-                }`}>
-                  {user.role === 'admin' ? 'مدير' : 
-                   user.role === 'employee' ? 'موظف' : 'محاسب'}
+            <div className="text-right hidden sm:flex flex-col justify-center bg-gradient-to-br from-white to-slate-50/80 backdrop-blur-sm px-4 py-2.5 rounded-2xl min-w-[220px] shadow-sm border border-slate-200/60">
+              <div className="flex items-center justify-between mb-0.5">
+                <p className="text-[13px] font-extrabold text-slate-800 tracking-tight">
+                  {greeting}، {user?.full_name && user.full_name !== user.phone && user.full_name.trim() !== '' ? user.full_name.split(' ')[0] : 'أهلاً بك'} 👋
                 </p>
-              )}
-              {user?.is_manager && !user?.role && (
-                <p className="text-xs text-cyan-600 font-semibold mb-1">مدير</p>
-              )}
-              <p className="text-xs text-slate-500" data-testid="user-phone" dir="ltr">
-                {user?.phone ? user.phone.replace('+968', '') : ''}
-              </p>
+                <div className="flex items-center justify-center bg-slate-100/80 px-2 py-0.5 rounded-lg border border-slate-200/50">
+                  <span className="text-[11px] font-bold text-slate-600 block pt-[1px]">
+                    {currentTime.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-100/80">
+                <div className="flex items-center gap-1.5">
+                  {user?.role && (
+                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${user.role === 'admin' ? 'bg-red-100 text-red-700' :
+                      user.role === 'sales' ? 'bg-blue-100 text-blue-700' :
+                        user.role === 'rentals' ? 'bg-purple-100 text-purple-700' :
+                          'bg-green-100 text-green-700'
+                      }`}>
+                      {user.role === 'admin' ? 'مدير' :
+                        user.role === 'sales' ? 'مبيعات' :
+                          user.role === 'rentals' ? 'تأجير' : 'فيو'}
+                    </span>
+                  )}
+                  {user?.is_manager && !user?.role && (
+                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-cyan-100 text-cyan-700">مدير</span>
+                  )}
+                </div>
+                <p className="text-[11px] font-medium text-slate-500 tracking-wide" data-testid="user-phone" dir="ltr">
+                  {user?.phone ? user.phone : ''}
+                </p>
+              </div>
             </div>
             <Button
               variant="outline"
@@ -116,7 +141,7 @@ const Layout = ({ children }) => {
         {/* Sidebar */}
         <aside
           className={`
-            fixed lg:sticky top-16 left-0 h-[calc(100vh-4rem)] w-64 bg-white border-r border-slate-200 
+            fixed lg:sticky top-16 left-0 h-[calc(100vh-4rem)] w-64 bg-white/90 backdrop-blur-xl border-r border-slate-200/50 
             transform transition-transform duration-300 ease-in-out z-30 shadow-sm
             ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
           `}
@@ -125,10 +150,10 @@ const Layout = ({ children }) => {
           <nav className="p-3 space-y-1">
             {menuItems.map((item) => {
               // Role-based access control
-              if (item.adminOnly && user?.role !== 'admin' && !user?.is_manager) {
-                return null; // Hide admin-only items for non-admins
+              if (item.allowRoles && !item.allowRoles.includes(user?.role) && !user?.is_manager) {
+                return null; // Hide unauthorized items
               }
-              
+
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
               return (
@@ -138,8 +163,8 @@ const Layout = ({ children }) => {
                   variant="ghost"
                   className={`
                     w-full justify-start text-right h-11 rounded-xl font-medium transition-all
-                    ${isActive 
-                      ? 'sidebar-active' 
+                    ${isActive
+                      ? 'sidebar-active'
                       : 'text-slate-700 hover:bg-slate-100'
                     }
                   `}

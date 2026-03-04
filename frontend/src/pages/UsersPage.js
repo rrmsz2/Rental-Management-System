@@ -11,8 +11,13 @@ const UsersPage = () => {
   const [formData, setFormData] = useState({
     phone: '',
     full_name: '',
-    role: 'employee',
+    role: 'sales',
     email: '',
+    national_id: '',
+    position: '',
+    salary: '',
+    hire_date: new Date().toISOString().split('T')[0],
+    notes: '',
     is_active: true
   });
 
@@ -34,10 +39,24 @@ const UsersPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      if (editingUser) {
-        await axios.put(`/users/${editingUser.id}`, formData);
+      // Sanitize payload to prevent Pydantic 422 errors on backend
+      const payload = { ...formData };
+      if (payload.salary === "" || payload.salary === null) {
+        payload.salary = null;
       } else {
-        await axios.post('/users', formData);
+        payload.salary = Number(payload.salary);
+      }
+
+      // Also ensure empty strings for optional string fields are passed as null
+      // to avoid triggering constraints if they exist
+      ['email', 'national_id', 'position', 'notes'].forEach(key => {
+        if (payload[key] === "") payload[key] = null;
+      });
+
+      if (editingUser) {
+        await axios.put(`/users/${editingUser.id}`, payload);
+      } else {
+        await axios.post('/users', payload);
       }
       fetchUsers();
       setDialogOpen(false);
@@ -50,7 +69,7 @@ const UsersPage = () => {
 
   const handleDelete = async (userId) => {
     if (!window.confirm('هل أنت متأكد من حذف هذا المستخدم؟')) return;
-    
+
     try {
       await axios.delete(`/users/${userId}`);
       fetchUsers();
@@ -64,8 +83,13 @@ const UsersPage = () => {
     setFormData({
       phone: '',
       full_name: '',
-      role: 'employee',
+      role: 'sales',
       email: '',
+      national_id: '',
+      position: '',
+      salary: '',
+      hire_date: new Date().toISOString().split('T')[0],
+      notes: '',
       is_active: true
     });
     setEditingUser(null);
@@ -78,6 +102,11 @@ const UsersPage = () => {
       full_name: user.full_name,
       role: user.role,
       email: user.email || '',
+      national_id: user.national_id || '',
+      position: user.position || '',
+      salary: user.salary ? String(user.salary) : '',
+      hire_date: user.hire_date ? new Date(user.hire_date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+      notes: user.notes || '',
       is_active: user.is_active
     });
     setDialogOpen(true);
@@ -85,11 +114,12 @@ const UsersPage = () => {
 
   const getRoleBadge = (role) => {
     const badges = {
-      admin: { bg: 'bg-red-100', text: 'text-red-800', label: 'مدير' },
-      employee: { bg: 'bg-blue-100', text: 'text-blue-800', label: 'موظف' },
-      accountant: { bg: 'bg-green-100', text: 'text-green-800', label: 'محاسب' }
+      admin: { bg: 'bg-red-100', text: 'text-red-800', label: 'مدير نظام' },
+      sales: { bg: 'bg-blue-100', text: 'text-blue-800', label: 'مبيعات' },
+      rentals: { bg: 'bg-purple-100', text: 'text-purple-800', label: 'تأجير' },
+      viewer: { bg: 'bg-green-100', text: 'text-green-800', label: 'قراءة فقط' }
     };
-    const badge = badges[role] || badges.employee;
+    const badge = badges[role] || badges.sales;
     return (
       <span className={`px-2 py-1 text-xs rounded-full ${badge.bg} ${badge.text}`}>
         {badge.label}
@@ -141,8 +171,11 @@ const UsersPage = () => {
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">رقم الهاتف</th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">البريد الإلكتروني</th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">الدور</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">المسمى الوظيفي</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">الراتب</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">الرقم المدني</th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">الحالة</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">تاريخ الإنشاء</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">تاريخ التعيين</th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">إجراءات</th>
                 </tr>
               </thead>
@@ -168,17 +201,25 @@ const UsersPage = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       {getRoleBadge(user.role)}
                     </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                      {user.position || '-'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                      {user.salary ? `${user.salary} ريال` : '-'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                      {user.national_id || '-'}
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 py-1 text-xs rounded-full ${
-                        user.is_active 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-gray-100 text-gray-800'
-                      }`}>
+                      <span className={`px-2 py-1 text-xs rounded-full ${user.is_active
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-gray-100 text-gray-800'
+                        }`}>
                         {user.is_active ? 'نشط' : 'غير نشط'}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                      {new Date(user.created_at).toLocaleDateString('ar')}
+                      {user.hire_date ? new Date(user.hire_date).toLocaleDateString('ar') : '-'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
                       <div className="flex gap-2">
@@ -215,7 +256,7 @@ const UsersPage = () => {
               <h2 className="text-2xl font-bold text-gray-900 mb-6">
                 {editingUser ? 'تعديل مستخدم' : 'إضافة مستخدم جديد'}
               </h2>
-              
+
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -261,16 +302,60 @@ const UsersPage = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    الدور
+                    المسمى الوظيفي
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.position}
+                    onChange={(e) => setFormData({ ...formData, position: e.target.value })}
+                    placeholder="مثال: مسؤول مبيعات"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 mb-4"
+                  />
+
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    الراتب (ريال)
+                  </label>
+                  <input
+                    type="number"
+                    value={formData.salary}
+                    onChange={(e) => setFormData({ ...formData, salary: e.target.value })}
+                    placeholder="0.00"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 mb-4"
+                  />
+
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    الرقم المدني
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.national_id}
+                    onChange={(e) => setFormData({ ...formData, national_id: e.target.value })}
+                    placeholder="أدخل الرقم المدني"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 mb-4"
+                  />
+
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    تاريخ التعيين
+                  </label>
+                  <input
+                    type="date"
+                    value={formData.hire_date}
+                    onChange={(e) => setFormData({ ...formData, hire_date: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 mb-4"
+                  />
+
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    الصلاحية (الدور النظامي)
                   </label>
                   <select
                     value={formData.role}
                     onChange={(e) => setFormData({ ...formData, role: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                   >
-                    <option value="admin">مدير - صلاحيات كاملة</option>
-                    <option value="employee">موظف - إدارة العقود والعملاء</option>
-                    <option value="accountant">محاسب - عرض التقارير فقط</option>
+                    <option value="admin">مدير نظام - جميع الصلاحيات</option>
+                    <option value="sales">مبيعات - العملاء والفواتير</option>
+                    <option value="rentals">تأجير - المعدات والعقود</option>
+                    <option value="viewer">قراءة فقط - التقارير واللوحة</option>
                   </select>
                 </div>
 

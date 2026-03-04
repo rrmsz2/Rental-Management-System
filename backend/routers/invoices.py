@@ -5,6 +5,7 @@ from typing import List
 import uuid
 from models import Invoice, InvoiceCreate, InvoiceUpdate
 from services.notification_service import NotificationService
+from middleware.permissions import require_sales
 
 router = APIRouter(prefix="/invoices", tags=["Invoices"])
 
@@ -15,27 +16,42 @@ def generate_invoice_no() -> str:
     timestamp = datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")
     return f"INV-{timestamp}"
 
+def parse_date(date_str: str) -> datetime:
+    """Parse ISO date string, safely handling 'Z' suffix for Python 3.8 compatibility"""
+    if not date_str:
+        return datetime.now(timezone.utc)
+    if date_str.endswith('Z'):
+        date_str = date_str[:-1] + '+00:00'
+    return datetime.fromisoformat(date_str)
+
 def calculate_rental_days(start_date: str, end_date: str) -> int:
     """Calculate rental days (minimum 1)"""
-    start = datetime.fromisoformat(start_date)
+    start = parse_date(start_date)
     
     # Handle empty or None end_date
     if not end_date or end_date == "":
         end = datetime.now(timezone.utc)
     else:
-        end = datetime.fromisoformat(end_date)
+        end = parse_date(end_date)
     
     days = (end.date() - start.date()).days
     return max(1, days)
 
 @router.get("", response_model=List[Invoice])
-async def get_invoices(db: AsyncIOMotorDatabase = Depends(get_db)):
+async def get_invoices(
+    db: AsyncIOMotorDatabase = Depends(get_db),
+    current_user: dict = Depends(require_sales)
+):
     """Get all invoices"""
     invoices = await db.invoices.find({}, {"_id": 0}).to_list(1000)
     return invoices
 
 @router.get("/{invoice_id}", response_model=Invoice)
-async def get_invoice(invoice_id: str, db: AsyncIOMotorDatabase = Depends(get_db)):
+async def get_invoice(
+    invoice_id: str,
+    db: AsyncIOMotorDatabase = Depends(get_db),
+    current_user: dict = Depends(require_sales)
+):
     """Get invoice by ID"""
     invoice = await db.invoices.find_one({"id": invoice_id}, {"_id": 0})
     if not invoice:
@@ -43,7 +59,11 @@ async def get_invoice(invoice_id: str, db: AsyncIOMotorDatabase = Depends(get_db
     return invoice
 
 @router.get("/by-invoice-no/{invoice_no}", response_model=Invoice)
-async def get_invoice_by_number(invoice_no: str, db: AsyncIOMotorDatabase = Depends(get_db)):
+async def get_invoice_by_number(
+    invoice_no: str,
+    db: AsyncIOMotorDatabase = Depends(get_db),
+    current_user: dict = Depends(require_sales)
+):
     """Get invoice by invoice number"""
     invoice = await db.invoices.find_one({"invoice_no": invoice_no}, {"_id": 0})
     if not invoice:
@@ -51,7 +71,11 @@ async def get_invoice_by_number(invoice_no: str, db: AsyncIOMotorDatabase = Depe
     return invoice
 
 @router.post("", response_model=Invoice)
-async def create_invoice(invoice_create: InvoiceCreate, db: AsyncIOMotorDatabase = Depends(get_db)):
+async def create_invoice(
+    invoice_create: InvoiceCreate,
+    db: AsyncIOMotorDatabase = Depends(get_db),
+    current_user: dict = Depends(require_sales)
+):
     """Create invoice from rental contract"""
     # Get rental contract
     rental = await db.rental_contracts.find_one({"id": invoice_create.contract_id})
@@ -81,8 +105,8 @@ async def create_invoice(invoice_create: InvoiceCreate, db: AsyncIOMotorDatabase
     # Calculate late fee if applicable
     late_fee = 0.0
     if rental.get("actual_return_date") and rental.get("end_date") and rental["end_date"]:
-        actual_return = datetime.fromisoformat(rental["actual_return_date"])
-        expected_return = datetime.fromisoformat(rental["end_date"])
+        actual_return = parse_date(rental["actual_return_date"])
+        expected_return = parse_date(rental["end_date"])
         
         # Ensure timezone-aware
         if actual_return.tzinfo is None:
@@ -128,7 +152,8 @@ async def create_invoice(invoice_create: InvoiceCreate, db: AsyncIOMotorDatabase
 async def update_invoice(
     invoice_id: str,
     invoice_update: InvoiceUpdate,
-    db: AsyncIOMotorDatabase = Depends(get_db)
+    db: AsyncIOMotorDatabase = Depends(get_db),
+    current_user: dict = Depends(require_sales)
 ):
     """Update invoice"""
     existing = await db.invoices.find_one({"id": invoice_id})
@@ -143,13 +168,18 @@ async def update_invoice(
     return Invoice(**updated_invoice)
 
 @router.post("/{invoice_id}/mark-paid")
-async def mark_invoice_paid(invoice_id: str, payment_method: str = None, db: AsyncIOMotorDatabase = Depends(get_db)):
+async def mark_invoice_paid(
+    invoice_id: str,
+    payment_method: str = None,
+    db: AsyncIOMotorDatabase = Depends(get_db),
+    current_user: dict = Depends(require_sales)
+):
     """Mark invoice as paid"""
     invoice = await db.invoices.find_one({"id": invoice_id})
     if not invoice:
         raise HTTPException(status_code=404, detail="Invoice not found")
     
-    if invoice["paid"]:
+    if invoice.get("paid"):
         raise HTTPException(status_code=400, detail="Invoice is already marked as paid")
     
     # Update invoice

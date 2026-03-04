@@ -145,27 +145,39 @@ class TokenResponse(BaseModel):
 
 # User Role Enum
 class UserRole(str, Enum):
-    admin = "admin"           # صلاحيات كاملة
-    employee = "employee"     # إدارة العقود والعملاء والمعدات
-    accountant = "accountant" # عرض التقارير والفواتير فقط
+    admin = "admin"           # مدير النظام
+    sales = "sales"           # المبيعات
+    rentals = "rentals"       # التأجير
+    viewer = "viewer"         # الفيو - للقراءة فقط
+    customer = "customer"     # زبون خارجي
 
 # User Model (for authentication and authorization)
 class UserBase(BaseModel):
     phone: str
     username: Optional[str] = None
     full_name: str
-    role: UserRole = UserRole.employee
+    role: UserRole = UserRole.sales
     email: Optional[str] = None
+    national_id: Optional[str] = None
+    position: Optional[str] = None
+    salary: Optional[float] = None
+    hire_date: Optional[str] = None
+    notes: Optional[str] = None
     is_active: bool = True
-
 
 class UserCreate(UserBase):
     pass
 
 class UserUpdate(BaseModel):
     full_name: Optional[str] = None
+    phone: Optional[str] = None
     role: Optional[UserRole] = None
     email: Optional[str] = None
+    national_id: Optional[str] = None
+    position: Optional[str] = None
+    salary: Optional[float] = None
+    hire_date: Optional[str] = None
+    notes: Optional[str] = None
     is_active: Optional[bool] = None
 
 class User(UserBase):
@@ -175,36 +187,7 @@ class User(UserBase):
     is_manager: bool = False  # للتوافق مع النظام القديم
     created_at: str
 
-# Employee Models
-class EmployeeBase(BaseModel):
-    full_name: str
-    phone: str
-    email: Optional[str] = None
-    national_id: Optional[str] = None
-    position: str
-    salary: Optional[float] = None
-    hire_date: str
-    is_active: bool = True
-    notes: Optional[str] = None
 
-class EmployeeCreate(EmployeeBase):
-    pass
-
-class EmployeeUpdate(BaseModel):
-    full_name: Optional[str] = None
-    phone: Optional[str] = None
-    email: Optional[str] = None
-    national_id: Optional[str] = None
-    position: Optional[str] = None
-    salary: Optional[float] = None
-    hire_date: Optional[str] = None
-    is_active: Optional[bool] = None
-    notes: Optional[str] = None
-
-class Employee(EmployeeBase):
-    model_config = ConfigDict(extra="ignore")
-    id: str
-    created_at: str
 
 # Settings Models
 class SettingsBase(BaseModel):

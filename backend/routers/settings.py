@@ -5,15 +5,53 @@ import uuid
 import os
 import base64
 from models import Settings, SettingsUpdate
+from middleware.permissions import require_admin, require_any_role
 
 router = APIRouter(prefix="/settings", tags=["Settings"])
 
 from server import get_db
 
+@router.get("/public", response_model=Settings)
+async def get_public_settings(db: AsyncIOMotorDatabase = Depends(get_db)):
+    """Get public settings (without sensitive data) - متاح للجميع"""
+    # إرجاع الإعدادات العامة فقط بدون المفاتيح الحساسة
+    settings = await db.settings.find_one({}, {
+        "_id": 0,
+        "whatsapp_api_key": 0,  # إخفاء مفتاح واتساب
+        "whatsapp_instance_id": 0  # إخفاء معرف واتساب
+    })
+    if not settings:
+        # Create default settings if none exist
+        default_settings = {
+            "id": str(uuid.uuid4()),
+            "header_logo": None,
+            "header_title": "نظام إدارة التأجير",
+            "header_subtitle": "Rental Management System",
+            "footer_text": "جميع الحقوق محفوظة © 2025",
+            "footer_phone": None,
+            "footer_email": None,
+            "footer_address": None,
+            "updated_at": datetime.now(timezone.utc).isoformat()
+        }
+        await db.settings.insert_one(default_settings)
+        return Settings(**default_settings)
+    return Settings(**settings)
+
 @router.get("", response_model=Settings)
-async def get_settings(db: AsyncIOMotorDatabase = Depends(get_db)):
-    """Get system settings"""
-    settings = await db.settings.find_one({}, {"_id": 0})
+async def get_settings(
+    db: AsyncIOMotorDatabase = Depends(get_db),
+    current_user: dict = Depends(require_any_role)  # يتطلب أي مستخدم مسجل
+):
+    """Get system settings - للمستخدمين المسجلين فقط"""
+    # إخفاء المفاتيح الحساسة للمستخدمين غير المدراء
+    if current_user.get("role") != "admin":
+        settings = await db.settings.find_one({}, {
+            "_id": 0,
+            "whatsapp_api_key": 0,  # إخفاء مفتاح واتساب
+            "whatsapp_instance_id": 0  # إخفاء معرف واتساب
+        })
+    else:
+        settings = await db.settings.find_one({}, {"_id": 0})
     if not settings:
         # Create default settings if none exist
         default_settings = {
@@ -34,9 +72,10 @@ async def get_settings(db: AsyncIOMotorDatabase = Depends(get_db)):
 @router.put("", response_model=Settings)
 async def update_settings(
     settings_update: SettingsUpdate,
+    current_user: dict = Depends(require_admin),  # يتطلب صلاحية مدير
     db: AsyncIOMotorDatabase = Depends(get_db)
 ):
-    """Update system settings"""
+    """Update system settings - للمدير فقط"""
     # Get existing settings
     existing = await db.settings.find_one({})
     
@@ -56,8 +95,12 @@ async def update_settings(
     return Settings(**updated_settings)
 
 @router.post("/upload-logo")
-async def upload_logo(file: UploadFile = File(...), db: AsyncIOMotorDatabase = Depends(get_db)):
-    """Upload logo image"""
+async def upload_logo(
+    file: UploadFile = File(...),
+    current_user: dict = Depends(require_admin),  # يتطلب صلاحية مدير
+    db: AsyncIOMotorDatabase = Depends(get_db)
+):
+    """Upload logo image - للمدير فقط"""
     # Validate file type
     allowed_types = ["image/jpeg", "image/png", "image/webp", "image/svg+xml"]
     if file.content_type not in allowed_types:
@@ -95,8 +138,12 @@ async def upload_logo(file: UploadFile = File(...), db: AsyncIOMotorDatabase = D
     return {"message": "تم رفع الشعار بنجاح", "logo_url": data_url}
 
 @router.post("/test-whatsapp")
-async def test_whatsapp(payload: dict, db: AsyncIOMotorDatabase = Depends(get_db)):
-    """Test WhatsApp configuration"""
+async def test_whatsapp(
+    payload: dict,
+    current_user: dict = Depends(require_admin),  # يتطلب صلاحية مدير
+    db: AsyncIOMotorDatabase = Depends(get_db)
+):
+    """Test WhatsApp configuration - للمدير فقط"""
     phone = payload.get("phone")
     if not phone:
          raise HTTPException(status_code=400, detail="رقم الهاتف مطلوب")

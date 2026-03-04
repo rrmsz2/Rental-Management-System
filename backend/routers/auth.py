@@ -8,6 +8,7 @@ import uuid
 from services.otp_service import OtpService
 from services.notification_service import NotificationService
 from services.security import verify_password, get_password_hash
+from middleware.permissions import require_admin
 from pydantic import BaseModel
 import re
 
@@ -30,26 +31,33 @@ async def login_password(request: LoginPasswordRequest, db: AsyncIOMotorDatabase
     """
     Login with username and password (Admin/Staff only)
     """
+    # Debug logging
+    print(f"Login attempt with username: {request.username}")
+
     # Lookup by username OR phone (for backward compatibility if needed, but request sends username)
     user = await db.users.find_one({"username": request.username})
-    
+
     # If not found by username, checking phone if the input looks like a phone might be safer, but user asked for username
     if not user:
+        print(f"User not found by username, trying phone...")
         user = await db.users.find_one({"phone": request.username}) # Fallback if they type phone in username field
 
     if not user:
+        print(f"User not found at all for: {request.username}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password"
         )
     
-    if not user.get("password_hash"):
+    # Check for password field (either password_hash or password)
+    password_field = user.get("password_hash") or user.get("password")
+    if not password_field:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Password login not set up for this user. Use OTP."
         )
-    
-    if not verify_password(request.password, user["password_hash"]):
+
+    if not verify_password(request.password, password_field):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password"
@@ -83,12 +91,15 @@ async def login_password(request: LoginPasswordRequest, db: AsyncIOMotorDatabase
     )
 
 @router.post("/set-password")
-async def set_password(request: UpdatePasswordRequest, db: AsyncIOMotorDatabase = Depends(get_db)):
+async def set_password(
+    request: UpdatePasswordRequest,
+    current_user: dict = Depends(require_admin),  # يتطلب صلاحية مدير
+    db: AsyncIOMotorDatabase = Depends(get_db)
+):
     """
-    Set password for a user (Development only / or secured by Secret)
+    Set password for a user (Admin only)
+    تعيين كلمة مرور للمستخدم - للمدير فقط
     """
-    # For now, allow setting password for any user to bootstrap
-    # In production, this should be protected
     user = await db.users.find_one({"phone": request.phone})
     
     if not user:
@@ -254,8 +265,8 @@ async def verify_otp(request: VerifyOtpRequest, db: AsyncIOMotorDatabase = Depen
             elif user.get("is_manager"):
                 update_fields["role"] = UserRole.admin.value
             else:
-                # Default to employee if not customer or manager
-                update_fields["role"] = "employee"
+                # Default to sales if not customer or manager
+                update_fields["role"] = "sales"
             needs_update = True
         
         # Update is_customer_only if missing or None

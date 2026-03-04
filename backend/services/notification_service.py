@@ -3,7 +3,9 @@ import json
 from datetime import datetime, timezone
 from typing import Dict, Optional
 import logging
+import asyncio
 from integrations.whatsapp_client import WhatsAppClient
+from services.whatsapp_queue import whatsapp_queue
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +21,9 @@ MESSAGE_TEMPLATES = {
     
     "overdue_customer": "تنبيه: تأخر إرجاع {equipment}. قد تُطبق رسوم تأخير. الرجاء التواصل.",
     
-    "invoice_issued_customer": "صدرت فاتورة #{invoice_no} بمبلغ {total} ريال. رابط الفاتورة: {url}",
+    "equipment_returned_customer": "تم إرجاع المعدة {equipment} وإغلاق العقد #{contract_no} بنجاح. شكراً لتعاملكم معنا.",
+    
+    "invoice_issued_customer": "صدرت فاتورة جديدة #{invoice_no} بمبلغ {total} ريال. رابط الفاتورة: {url}",
     
     "payment_received_customer": "تم استلام الدفعة لفاتورة #{invoice_no}. شكرًا لك!",
     
@@ -42,7 +46,8 @@ class NotificationService:
         template_key: str = None,
         payload: Dict = None,
         message: str = None,
-        check_opt_in: bool = True
+        check_opt_in: bool = True,
+        use_queue: bool = True  # Use queue by default except for OTP
     ) -> Dict:
         """
         Send WhatsApp notification using template or direct message.
@@ -94,9 +99,22 @@ class NotificationService:
         api_key = None
         if settings:
              api_key = settings.get("whatsapp_api_key")
-        
+
         # Send via WhatsApp with dynamic key
-        send_result = await self.whatsapp.send(to_phone, final_message, api_key=api_key)
+        # Use queue for non-urgent messages to respect rate limits
+        if use_queue and template_key != "otp_login":
+            # Add to queue for rate-limited sending
+            send_result = await whatsapp_queue.add_to_queue(
+                self.whatsapp.send,
+                to_phone,
+                final_message,
+                api_key=api_key
+            )
+            # For queued messages, mark as queued not sent yet
+            send_result = {"ok": True, "provider_id": None, "queued": True}
+        else:
+            # Send immediately (for OTP or when queue is disabled)
+            send_result = await self.whatsapp.send(to_phone, final_message, api_key=api_key)
         
         # Update log
         await self.db.notification_logs.update_one(
@@ -111,12 +129,13 @@ class NotificationService:
         return {"ok": send_result["ok"], "log_id": log_id}
     
     async def notify_otp(self, phone: str, code: str):
-        """Send OTP code"""
+        """Send OTP code - sent immediately without queue"""
         return await self.send_notification(
             to_phone=phone,
             template_key="otp_login",
             payload={"code": code},
-            check_opt_in=False  # Always send OTP
+            check_opt_in=False,  # Always send OTP
+            use_queue=False  # OTP needs to be sent immediately
         )
     
     async def notify_rental_created(self, rental: Dict, customer: Dict, equipment: Dict):
@@ -163,34 +182,31 @@ class NotificationService:
             check_opt_in=False
         )
     
+    async def notify_equipment_returned(self, rental: Dict, customer: Dict, equipment: Dict):
+        """Notify customer of equipment return"""
+        return await self.send_notification(
+            to_phone=customer["phone"],
+            template_key="equipment_returned_customer",
+            payload={
+                "equipment": equipment["name"],
+                "contract_no": rental.get("contract_no", "")
+            }
+        )
+    
     async def notify_invoice_issued(self, invoice: Dict, customer: Dict, rental: Dict = None, equipment: Dict = None):
-        """Notify customer of invoice issuance with rental details"""
+        """Notify customer of invoice issuance"""
         app_url = os.getenv("APP_BASE_URL", "http://localhost:3000")
         invoice_url = f"{app_url}/invoices/{invoice['invoice_no']}"
         
-        # Build message with equipment details if available
-        if rental and equipment:
-            message = f"✅ تم إغلاق عقد الإيجار #{rental.get('contract_no', '')}\n\n"
-            message += f"📦 المعدة: {equipment.get('name', '')}\n"
-            message += f"📄 رقم الفاتورة: {invoice['invoice_no']}\n"
-            message += f"💰 المبلغ الإجمالي: {invoice['total']} ر.ع\n\n"
-            message += f"شكراً لتعاملكم معنا! 🙏"
-            
-            return await self.send_notification(
-                to_phone=customer["phone"],
-                message=message
-            )
-        else:
-            # Fallback to template
-            return await self.send_notification(
-                to_phone=customer["phone"],
-                template_key="invoice_issued_customer",
-                payload={
-                    "invoice_no": invoice["invoice_no"],
-                    "total": str(invoice["total"]),
-                    "url": invoice_url
-                }
-            )
+        return await self.send_notification(
+            to_phone=customer["phone"],
+            template_key="invoice_issued_customer",
+            payload={
+                "invoice_no": invoice["invoice_no"],
+                "total": str(invoice["total"]),
+                "url": invoice_url
+            }
+        )
     
     async def notify_payment_received(self, invoice: Dict, customer: Dict):
         """Notify customer of payment receipt"""

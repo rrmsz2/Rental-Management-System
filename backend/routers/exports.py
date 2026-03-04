@@ -101,6 +101,11 @@ async def export_revenue_report_pdf(
 ):
     """تصدير تقرير الإيرادات بصيغة PDF"""
     try:
+        if start_date and "T" not in start_date:
+            start_date += "T00:00:00.000Z"
+        if end_date and "T" not in end_date:
+            end_date += "T23:59:59.999Z"
+            
         export_service = ExportService(db)
         pdf_buffer = await export_service.export_revenue_report_pdf(start_date, end_date)
         

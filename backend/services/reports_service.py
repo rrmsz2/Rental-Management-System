@@ -1,6 +1,16 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Any
 from motor.motor_asyncio import AsyncIOMotorDatabase
+
+def parse_date(date_str: str) -> datetime:
+    if not date_str:
+        return datetime.now(timezone.utc)
+    if date_str.endswith('Z'):
+        date_str = date_str[:-1] + '+00:00'
+    dt = datetime.fromisoformat(date_str)
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt
 
 class ReportsService:
     def __init__(self, db: AsyncIOMotorDatabase):
@@ -8,17 +18,17 @@ class ReportsService:
     
     async def get_dashboard_stats(self) -> Dict[str, Any]:
         """إحصائيات لوحة التحكم الرئيسية"""
-        now = datetime.utcnow()
-        today_start = datetime(now.year, now.month, now.day)
-        month_start = datetime(now.year, now.month, 1)
-        year_start = datetime(now.year, 1, 1)
+        now = datetime.now(timezone.utc)
+        today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+        month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        year_start = now.replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
         
         # إحصائيات الإيرادات
         all_invoices = await self.db.invoices.find({"paid": True}).to_list(10000)
         
-        today_revenue = sum(inv["total"] for inv in all_invoices if datetime.fromisoformat(inv["created_at"]) >= today_start)
-        month_revenue = sum(inv["total"] for inv in all_invoices if datetime.fromisoformat(inv["created_at"]) >= month_start)
-        year_revenue = sum(inv["total"] for inv in all_invoices if datetime.fromisoformat(inv["created_at"]) >= year_start)
+        today_revenue = sum(inv["total"] for inv in all_invoices if parse_date(inv.get("issue_date", inv.get("created_at", now.isoformat()))) >= today_start)
+        month_revenue = sum(inv["total"] for inv in all_invoices if parse_date(inv.get("issue_date", inv.get("created_at", now.isoformat()))) >= month_start)
+        year_revenue = sum(inv["total"] for inv in all_invoices if parse_date(inv.get("issue_date", inv.get("created_at", now.isoformat()))) >= year_start)
         total_revenue = sum(inv["total"] for inv in all_invoices)
         
         # إحصائيات العقود
@@ -79,25 +89,25 @@ class ReportsService:
     
     async def get_revenue_chart_data(self, period: str = "year") -> List[Dict[str, Any]]:
         """بيانات الرسم البياني للإيرادات"""
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         
         if period == "year":
             # آخر 12 شهر
             months_data = []
             for i in range(11, -1, -1):
                 month_date = now - timedelta(days=30 * i)
-                month_start = datetime(month_date.year, month_date.month, 1)
+                month_start = month_date.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
                 
                 # حساب نهاية الشهر
-                if month_date.month == 12:
-                    month_end = datetime(month_date.year + 1, 1, 1)
+                if month_start.month == 12:
+                    month_end = month_start.replace(year=month_start.year + 1, month=1)
                 else:
-                    month_end = datetime(month_date.year, month_date.month + 1, 1)
+                    month_end = month_start.replace(month=month_start.month + 1)
                 
                 # الإيرادات في هذا الشهر
                 invoices = await self.db.invoices.find({
                     "paid": True,
-                    "created_at": {
+                    "issue_date": {
                         "$gte": month_start.isoformat(),
                         "$lt": month_end.isoformat()
                     }
@@ -119,12 +129,12 @@ class ReportsService:
             days_data = []
             for i in range(29, -1, -1):
                 day_date = now - timedelta(days=i)
-                day_start = datetime(day_date.year, day_date.month, day_date.day)
+                day_start = day_date.replace(hour=0, minute=0, second=0, microsecond=0)
                 day_end = day_start + timedelta(days=1)
                 
                 invoices = await self.db.invoices.find({
                     "paid": True,
-                    "created_at": {
+                    "issue_date": {
                         "$gte": day_start.isoformat(),
                         "$lt": day_end.isoformat()
                     }
@@ -149,7 +159,7 @@ class ReportsService:
         closed = await self.db.rental_contracts.count_documents({"status": "closed"})
         cancelled = await self.db.rental_contracts.count_documents({"status": "cancelled"})
         
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         overdue = await self.db.rental_contracts.count_documents({
             "status": "active",
             "end_date": {"$lt": now.isoformat()}
@@ -231,7 +241,7 @@ class ReportsService:
             })
             
             # العقود المتأخرة
-            now = datetime.utcnow()
+            now = datetime.now(timezone.utc)
             overdue_rentals = await self.db.rental_contracts.count_documents({
                 "customer_id": customer["id"],
                 "status": "active",
@@ -272,19 +282,24 @@ class ReportsService:
         query = {"paid": True}
         
         if start_date:
-            query["created_at"] = {"$gte": start_date}
+            if "T" not in start_date:
+                start_date += "T00:00:00.000Z"
+            query["issue_date"] = {"$gte": start_date}
+            
         if end_date:
-            if "created_at" in query:
-                query["created_at"]["$lte"] = end_date
+            if "T" not in end_date:
+                end_date += "T23:59:59.999Z"
+            if "issue_date" in query:
+                query["issue_date"]["$lte"] = end_date
             else:
-                query["created_at"] = {"$lte": end_date}
+                query["issue_date"] = {"$lte": end_date}
         
-        invoices = await self.db.invoices.find(query).to_list(10000)
+        invoices = await self.db.invoices.find(query, {"_id": 0}).to_list(10000)
         
-        total_revenue = sum(inv["total"] for inv in invoices)
-        total_subtotal = sum(inv["subtotal"] for inv in invoices)
-        total_tax = sum(inv["tax_amount"] for inv in invoices)
-        total_discount = sum(inv["discount_amount"] for inv in invoices)
+        total_revenue = sum(inv.get("total", 0) for inv in invoices)
+        total_subtotal = sum(inv.get("subtotal", inv.get("total", 0)) for inv in invoices)
+        total_tax = sum(inv.get("tax_amount", 0) for inv in invoices)
+        total_discount = sum(inv.get("discount_amount", 0) for inv in invoices)
         
         # تجميع حسب طريقة الدفع
         by_payment_method = {}

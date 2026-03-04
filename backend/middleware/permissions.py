@@ -51,10 +51,14 @@ def require_admin(current_user: dict = Depends(get_current_user)):
     """يتطلب صلاحية Admin"""
     return require_roles([UserRole.admin])(current_user)
 
-def require_admin_or_employee(current_user: dict = Depends(get_current_user)):
-    """يتطلب صلاحية Admin أو Employee"""
-    return require_roles([UserRole.admin, UserRole.employee])(current_user)
+def require_sales(current_user: dict = Depends(get_current_user)):
+    """يتطلب صلاحية المبيعات أو أعلى"""
+    return require_roles([UserRole.admin, UserRole.sales])(current_user)
+
+def require_rentals(current_user: dict = Depends(get_current_user)):
+    """يتطلب صلاحية التأجير أو المبيعات أو أعلى"""
+    return require_roles([UserRole.admin, UserRole.rentals, UserRole.sales])(current_user)
 
 def require_any_role(current_user: dict = Depends(get_current_user)):
-    """يتطلب أي مستخدم مسجل دخول"""
+    """يتطلب أي مستخدم مسجل دخول ذو صلاحيات (ليس زبون فقط)"""
     return current_user

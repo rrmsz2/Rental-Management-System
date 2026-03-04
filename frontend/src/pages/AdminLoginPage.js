@@ -34,7 +34,14 @@ const AdminLoginPage = () => {
         try {
             await loginWithPassword(username, password);
             toast.success('تم تسجيل الدخول بنجاح');
-            navigate('/dashboard');
+
+            // Redirect based on role
+            const currentUser = JSON.parse(localStorage.getItem('user'));
+            if (currentUser?.role === 'sales') {
+                navigate('/rentals');
+            } else {
+                navigate('/dashboard');
+            }
         } catch (error) {
             const errorMsg = error.response?.data?.detail || 'فشل تسجيل الدخول';
             toast.error(errorMsg);

@@ -1,34 +1,38 @@
 import React, { useState, useEffect } from 'react';
 import axios from '../api/axios';
 import Layout from '../components/Layout';
-import { 
+import {
   BarChart, Bar, LineChart, Line, PieChart, Pie, Cell,
-  XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer 
+  XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
-import { 
-  DollarSign, ShoppingCart, Package, Users, 
-  TrendingUp, AlertTriangle, CheckCircle, Clock 
+import {
+  DollarSign, ShoppingCart, Package, Users,
+  TrendingUp, AlertTriangle, CheckCircle, Clock
 } from 'lucide-react';
 
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444'];
 
-// Stat Card Component
 const StatCard = ({ title, value, subtitle, icon: Icon, color, trend }) => (
-  <div className="bg-white rounded-lg shadow p-6 border border-gray-200">
-    <div className="flex items-center justify-between">
-      <div>
-        <p className="text-sm text-gray-600 mb-1">{title}</p>
-        <h3 className="text-2xl font-bold text-gray-900">{value}</h3>
-        {subtitle && <p className="text-xs text-gray-500 mt-1">{subtitle}</p>}
+  <div className="relative overflow-hidden bg-white/80 backdrop-blur-md rounded-2xl p-6 border border-slate-200/60 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 group">
+    {/* Decorative gradient blob */}
+    <div className={`absolute -right-6 -top-6 w-24 h-24 rounded-full bg-${color}-500/10 blur-2xl group-hover:bg-${color}-500/20 transition-all duration-500`}></div>
+
+    <div className="flex items-start justify-between relative z-10">
+      <div className="space-y-2">
+        <p className="text-sm font-medium text-slate-500 tracking-wide">{title}</p>
+        <h3 className="text-3xl font-black text-slate-800 tracking-tight">{value}</h3>
+        {subtitle && <p className="text-[11px] font-semibold text-slate-400 mt-1">{subtitle}</p>}
       </div>
-      <div className={`p-3 rounded-full bg-${color}-100`}>
-        <Icon className={`w-6 h-6 text-${color}-600`} />
+      <div className={`p-4 rounded-xl bg-gradient-to-br from-white to-${color}-50 border border-${color}-100 shadow-sm group-hover:scale-110 transition-transform duration-300`}>
+        <Icon className={`w-6 h-6 text-${color}-600`} strokeWidth={2.5} />
       </div>
     </div>
     {trend && (
-      <div className="mt-3 flex items-center text-sm">
-        <TrendingUp className="w-4 h-4 text-green-500 mr-1" />
-        <span className="text-green-500">{trend}</span>
+      <div className="mt-4 flex items-center text-xs font-semibold">
+        <div className="flex items-center gap-1 bg-green-50 text-green-600 px-2 py-1 rounded-md">
+          <TrendingUp className="w-3.5 h-3.5" strokeWidth={3} />
+          <span>{trend}</span>
+        </div>
       </div>
     )}
   </div>
@@ -68,7 +72,7 @@ const DashboardPage = () => {
     } catch (error) {
       console.error('Failed to fetch dashboard data:', error);
       console.error('Error details:', error.response?.data);
-      
+
       // Set empty data to prevent crashes
       setStats({
         revenue: { today: 0, month: 0, year: 0, total: 0 },
@@ -77,7 +81,7 @@ const DashboardPage = () => {
         customers: { total: 0 },
         invoices: { unpaid_count: 0, unpaid_amount: 0 }
       });
-      
+
       setLoading(false);
     }
   };
@@ -137,7 +141,8 @@ const DashboardPage = () => {
 
         {/* Additional Stats Row */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white rounded-lg shadow p-6 border border-gray-200">
+          <div className="relative bg-white/80 backdrop-blur-md rounded-2xl p-6 border border-slate-200/60 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+            <div className="absolute -right-4 -top-4 w-16 h-16 rounded-full bg-blue-500/5 blur-xl"></div>
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-gray-900">معدل الإشغال</h3>
               <Package className="w-5 h-5 text-blue-600" />
@@ -150,7 +155,8 @@ const DashboardPage = () => {
             </p>
           </div>
 
-          <div className="bg-white rounded-lg shadow p-6 border border-gray-200">
+          <div className="relative bg-white/80 backdrop-blur-md rounded-2xl p-6 border border-slate-200/60 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+            <div className="absolute -right-4 -top-4 w-16 h-16 rounded-full bg-red-500/5 blur-xl"></div>
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-gray-900">العقود المتأخرة</h3>
               <AlertTriangle className="w-5 h-5 text-red-600" />
@@ -161,7 +167,8 @@ const DashboardPage = () => {
             <p className="text-sm text-gray-600">عقد متأخر عن الموعد</p>
           </div>
 
-          <div className="bg-white rounded-lg shadow p-6 border border-gray-200">
+          <div className="relative bg-white/80 backdrop-blur-md rounded-2xl p-6 border border-slate-200/60 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+            <div className="absolute -right-4 -top-4 w-16 h-16 rounded-full bg-orange-500/5 blur-xl"></div>
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-gray-900">الفواتير غير المدفوعة</h3>
               <Clock className="w-5 h-5 text-orange-600" />
@@ -178,27 +185,25 @@ const DashboardPage = () => {
         {/* Charts Row 1 */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           {/* Revenue Chart */}
-          <div className="bg-white rounded-lg shadow p-6 border border-gray-200">
+          <div className="relative bg-white/80 backdrop-blur-md rounded-2xl p-6 border border-slate-200/60 shadow-sm">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg font-semibold text-gray-900">الإيرادات</h3>
               <div className="flex gap-2">
                 <button
                   onClick={() => setPeriod('month')}
-                  className={`px-3 py-1 rounded text-sm ${
-                    period === 'month' 
-                      ? 'bg-blue-600 text-white' 
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  }`}
+                  className={`px-3 py-1 rounded text-sm ${period === 'month'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
                 >
                   30 يوم
                 </button>
                 <button
                   onClick={() => setPeriod('year')}
-                  className={`px-3 py-1 rounded text-sm ${
-                    period === 'year' 
-                      ? 'bg-blue-600 text-white' 
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  }`}
+                  className={`px-3 py-1 rounded text-sm ${period === 'year'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
                 >
                   12 شهر
                 </button>
@@ -207,18 +212,18 @@ const DashboardPage = () => {
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={revenueData}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis 
-                  dataKey={period === 'year' ? 'month_name' : 'date_name'} 
+                <XAxis
+                  dataKey={period === 'year' ? 'month_name' : 'date_name'}
                   tick={{ fontSize: 12 }}
                 />
                 <YAxis tick={{ fontSize: 12 }} />
                 <Tooltip />
                 <Legend />
-                <Line 
-                  type="monotone" 
-                  dataKey="revenue" 
+                <Line
+                  type="monotone"
+                  dataKey="revenue"
                   name="الإيرادات (ر.ع)"
-                  stroke="#3b82f6" 
+                  stroke="#3b82f6"
                   strokeWidth={2}
                   dot={{ r: 4 }}
                 />
@@ -227,7 +232,7 @@ const DashboardPage = () => {
           </div>
 
           {/* Rentals Chart */}
-          <div className="bg-white rounded-lg shadow p-6 border border-gray-200">
+          <div className="relative bg-white/80 backdrop-blur-md rounded-2xl p-6 border border-slate-200/60 shadow-sm">
             <h3 className="text-lg font-semibold text-gray-900 mb-6">حالة العقود</h3>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={rentalsData}>
@@ -243,11 +248,11 @@ const DashboardPage = () => {
         </div>
 
         {/* Equipment Performance */}
-        <div className="bg-white rounded-lg shadow p-6 border border-gray-200">
+        <div className="relative bg-white/80 backdrop-blur-md rounded-2xl p-6 border border-slate-200/60 shadow-sm mb-12">
           <h3 className="text-lg font-semibold text-gray-900 mb-6">أداء المعدات - الأكثر إيجاراً</h3>
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+          <div className="overflow-x-auto rounded-xl border border-slate-200/60">
+            <table className="min-w-full divide-y divide-slate-200/60">
+              <thead className="bg-slate-50/50">
                 <tr>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">المعدة</th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">الفئة</th>
@@ -256,9 +261,9 @@ const DashboardPage = () => {
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">الحالة</th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-white/40 divide-y divide-slate-100">
                 {equipmentPerformance.map((equipment, idx) => (
-                  <tr key={idx} className="hover:bg-gray-50">
+                  <tr key={idx} className="hover:bg-slate-50/80 transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                       {equipment.equipment_name}
                     </td>
@@ -272,15 +277,14 @@ const DashboardPage = () => {
                       {equipment.total_revenue.toFixed(2)} ر.ع
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 py-1 text-xs rounded-full ${
-                        equipment.status === 'available' 
-                          ? 'bg-green-100 text-green-800' 
-                          : equipment.status === 'rented'
+                      <span className={`px-2 py-1 text-xs rounded-full ${equipment.status === 'available'
+                        ? 'bg-green-100 text-green-800'
+                        : equipment.status === 'rented'
                           ? 'bg-yellow-100 text-yellow-800'
                           : 'bg-red-100 text-red-800'
-                      }`}>
-                        {equipment.status === 'available' ? 'متاح' : 
-                         equipment.status === 'rented' ? 'مؤجر' : 'صيانة'}
+                        }`}>
+                        {equipment.status === 'available' ? 'متاح' :
+                          equipment.status === 'rented' ? 'مؤجر' : 'صيانة'}
                       </span>
                     </td>
                   </tr>

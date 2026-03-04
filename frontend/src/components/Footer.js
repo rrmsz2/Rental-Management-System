@@ -11,7 +11,7 @@ const Footer = () => {
 
   const fetchSettings = async () => {
     try {
-      const response = await axios.get('/settings');
+      const response = await axios.get('/settings/public');
       setSettings(response.data);
     } catch (error) {
       console.error('Failed to fetch settings');

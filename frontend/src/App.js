@@ -10,9 +10,8 @@ import Dashboard from './pages/Dashboard';
 import DashboardPage from './pages/DashboardPage';
 import CustomerPortalPage from './pages/CustomerPortalPage';
 import CustomersPage from './pages/CustomersPage';
-import EmployeesPage from './pages/EmployeesPage';
 import EquipmentPage from './pages/EquipmentPage';
-import RentalsPage from './pages/RentalsPage';
+import RentalsPage from './pages/RentalsPageImproved';
 import InvoicesPage from './pages/InvoicesPage';
 import ReportsPageNew from './pages/ReportsPageNew';
 import UsersPage from './pages/UsersPage';
@@ -35,7 +34,7 @@ const StaffRoute = ({ children }) => {
   }
 
   if (!user) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/admin-login" replace />;
   }
 
   // Redirect customers to their portal
@@ -62,8 +61,11 @@ const CustomerRoute = ({ children }) => {
     return <Navigate to="/login" replace />;
   }
 
-  // Redirect staff to dashboard
+  // Redirect staff
   if (!user.is_customer_only && user.role !== 'customer') {
+    if (user.role === 'sales') {
+      return <Navigate to="/rentals" replace />;
+    }
     return <Navigate to="/dashboard" replace />;
   }
 
@@ -116,7 +118,6 @@ function App() {
             <Route path="/dashboard" element={<StaffRoute><DashboardPage /></StaffRoute>} />
             <Route path="/dashboard-old" element={<StaffRoute><Dashboard /></StaffRoute>} />
             <Route path="/customers" element={<StaffRoute><CustomersPage /></StaffRoute>} />
-            <Route path="/employees" element={<StaffRoute><EmployeesPage /></StaffRoute>} />
             <Route path="/equipment" element={<StaffRoute><EquipmentPage /></StaffRoute>} />
             <Route path="/rentals" element={<StaffRoute><RentalsPage /></StaffRoute>} />
             <Route path="/invoices" element={<StaffRoute><InvoicesPage /></StaffRoute>} />

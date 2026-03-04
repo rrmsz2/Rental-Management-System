@@ -5,6 +5,7 @@ from typing import List
 import uuid
 import re
 from models import Customer, CustomerCreate, CustomerUpdate
+from middleware.permissions import require_sales, require_any_role
 
 router = APIRouter(prefix="/customers", tags=["Customers"])
 
@@ -13,21 +14,32 @@ from server import get_db
 OMANI_PHONE_REGEX = r'^\+968\d{8}$'
 
 @router.get("", response_model=List[Customer])
-async def get_customers(db: AsyncIOMotorDatabase = Depends(get_db)):
-    """Get all customers"""
+async def get_customers(
+    current_user: dict = Depends(require_sales),
+    db: AsyncIOMotorDatabase = Depends(get_db)
+):
+    """Get all customers - للموظفين والمدراء فقط"""
     customers = await db.customers.find({}, {"_id": 0}).to_list(1000)
     return customers
 
 @router.get("/{customer_id}", response_model=Customer)
-async def get_customer(customer_id: str, db: AsyncIOMotorDatabase = Depends(get_db)):
-    """Get customer by ID"""
+async def get_customer(
+    customer_id: str,
+    current_user: dict = Depends(require_any_role),
+    db: AsyncIOMotorDatabase = Depends(get_db)
+):
+    """Get customer by ID - لأي مستخدم مسجل"""
     customer = await db.customers.find_one({"id": customer_id}, {"_id": 0})
     if not customer:
         raise HTTPException(status_code=404, detail="Customer not found")
     return customer
 
 @router.post("", response_model=Customer)
-async def create_customer(customer: CustomerCreate, db: AsyncIOMotorDatabase = Depends(get_db)):
+async def create_customer(
+    customer: CustomerCreate,
+    current_user: dict = Depends(require_sales),
+    db: AsyncIOMotorDatabase = Depends(get_db)
+):
     """Create new customer"""
     # Validate phone
     if not re.match(OMANI_PHONE_REGEX, customer.phone):
@@ -54,6 +66,7 @@ async def create_customer(customer: CustomerCreate, db: AsyncIOMotorDatabase = D
 async def update_customer(
     customer_id: str,
     customer_update: CustomerUpdate,
+    current_user: dict = Depends(require_sales),
     db: AsyncIOMotorDatabase = Depends(get_db)
 ):
     """Update customer"""
@@ -87,7 +100,11 @@ async def update_customer(
     return Customer(**updated_customer)
 
 @router.delete("/{customer_id}")
-async def delete_customer(customer_id: str, db: AsyncIOMotorDatabase = Depends(get_db)):
+async def delete_customer(
+    customer_id: str,
+    current_user: dict = Depends(require_sales),
+    db: AsyncIOMotorDatabase = Depends(get_db)
+):
     """Delete customer"""
     # Check if customer has active rentals
     active_rentals = await db.rental_contracts.find_one({

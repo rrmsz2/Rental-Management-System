@@ -1,0 +1,35 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./venv/Scripts/activate.ps1)",
+      "Bash(uvicorn server:app --host 127.0.0.1 --port 8001 --reload)",
+      "Bash(python -m uvicorn server:app --host 127.0.0.1 --port 8001 --reload)",
+      "Bash(dir node_modules)",
+      "Bash(yarn start)",
+      "Bash(python add_admin.py)",
+      "Bash(python check_users.py)",
+      "Bash(python update_admin.py)",
+      "Bash(powershell Start-Process \"http://localhost:3000/login\")",
+      "Bash(python test_admin_login.py)",
+      "Bash(python debug_password.py)",
+      "Bash(curl -X POST \"http://127.0.0.1:8001/api/auth/login-password\" -H \"Content-Type: application/json\" -d \"{\"\"username\"\":\"\"+96892345218\"\",\"\"password\"\":\"\"admin123\"\"}\")",
+      "Bash(python test_whatsapp_notifications.py)",
+      "Bash(yarn add clsx tailwind-merge)",
+      "Bash(powershell Start-Process \"http://localhost:3000/admin-login\")",
+      "Bash(netstat -ano)",
+      "Bash(findstr :3000)",
+      "Bash(powershell Start-Process \"http://localhost:3000\")",
+      "Bash(python -c \"import json; test_data = {''username'': {''$ne'': None}}; print(json.dumps(test_data))\")",
+      "Bash(python test_pydantic_nosql.py)",
+      "Bash(python -c \"import pydantic; print(f''Pydantic version: {pydantic.VERSION}'')\")",
+      "Bash(python test_real_nosql_attack.py)",
+      "Bash(python test_pydantic_versions.py)",
+      "Bash(python test_attacker_view.py)",
+      "Bash(python test_set_password_nosql.py)",
+      "Bash(python -c \"import seed_data; print(seed_data.__file__)\")",
+      "Bash(curl -I https://api.textmebot.com/send.php)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

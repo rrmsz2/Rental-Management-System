@@ -8,22 +8,48 @@
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-slate-50 text-slate-900;
     font-family: 'Tajawal', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     direction: rtl;
     text-align: right;
   }
-  h1, h2, h3, h4, h5, h6 {
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     font-family: 'Tajawal', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     font-weight: 700;
   }
-  input, textarea, select {
+
+  input,
+  textarea,
+  select {
     text-align: right;
   }
-  input[type="tel"], input[dir="ltr"] {
+
+  input[type="tel"],
+  input[dir="ltr"] {
     text-align: left;
     direction: ltr;
+  }
+
+  /* Ensure numbers display correctly in OTP inputs */
+  .font-mono {
+    font-family: 'Courier New', monospace;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Fix number display in input fields */
+  input[type="tel"],
+  input[type="number"],
+  input.otp-input {
+    unicode-bidi: plaintext;
+    font-variant-numeric: tabular-nums;
   }
 }
 
@@ -38,15 +64,15 @@
   .modern-card {
     @apply bg-white/80 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300 border border-white/50;
   }
-  
+
   .glass-card {
     @apply bg-white/60 backdrop-blur-md shadow-xl border border-white/60;
   }
-  
+
   .gradient-border {
     @apply relative;
   }
-  
+
   .gradient-border::before {
     content: '';
     @apply absolute inset-0 rounded-lg bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 opacity-20 blur-sm;
@@ -69,4 +95,54 @@
 
 ::-webkit-scrollbar-thumb:hover {
   @apply bg-teal-500;
+}
+
+/* Print Styles for 80mm Thermal Receipt Printers */
+@media print {
+  @page {
+    margin: 0;
+    size: 80mm auto;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+
+  .print-receipt-section,
+  .print-receipt-section * {
+    visibility: visible;
+  }
+
+  /* Target the element directly to force standard receipt layout */
+  .print-receipt-section {
+    display: block !important;
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 9999 !important;
+    width: 76mm !important;
+    /* 80mm minus some safety margin */
+    padding: 2mm !important;
+    margin: 0 !important;
+    font-size: 11pt !important;
+    color: #000 !important;
+    background: #fff !important;
+    line-height: 1.2 !important;
+  }
+
+  /* Force hide all non-receipt elements */
+  nav,
+  header,
+  footer,
+  .sidebar,
+  button,
+  .modal-overlay,
+  .no-print {
+    display: none !important;
+  }
+
+  /* Reset tailwind border classes in print */
+  * {
+    border-color: #000 !important;
+  }
 }

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
 import axios from '../api/axios';
 import { Button } from '../components/ui/button';
@@ -7,9 +8,12 @@ import { Label } from '../components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../components/ui/dialog';
 import { toast } from 'sonner';
-import { FileText, Loader2, Plus, Eye, CheckCircle, XCircle, PlayCircle, AlertCircle, Search } from 'lucide-react';
+import { FileText, Loader2, Plus, Eye, CheckCircle, XCircle, PlayCircle, AlertCircle, Search, LayoutGrid, List as ListIcon } from 'lucide-react';
 
 const RentalsPage = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [viewMode, setViewMode] = useState('kanban'); // 'list' or 'kanban'
   const [rentals, setRentals] = useState([]);
   const [filteredRentals, setFilteredRentals] = useState([]);
   const [customers, setCustomers] = useState([]);
@@ -23,7 +27,9 @@ const RentalsPage = () => {
   const [rentalSummary, setRentalSummary] = useState(null);
   const [createdInvoice, setCreatedInvoice] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('active'); // Default: active only
+  const [statusFilter, setStatusFilter] = useState('all'); // Default: show all contracts
+  const [previewInvoice, setPreviewInvoice] = useState(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
   const [closeFormData, setCloseFormData] = useState({
     tax_rate: '0.05',
     discount_amount: '0',
@@ -42,7 +48,7 @@ const RentalsPage = () => {
   // Helper function to extract error message
   const getErrorMessage = (error, defaultMessage) => {
     const errorDetail = error.response?.data?.detail;
-    
+
     if (typeof errorDetail === 'string') {
       return errorDetail;
     } else if (Array.isArray(errorDetail)) {
@@ -50,13 +56,57 @@ const RentalsPage = () => {
     } else if (typeof errorDetail === 'object' && errorDetail?.message) {
       return errorDetail.message;
     }
-    
+
     return defaultMessage;
   };
 
   useEffect(() => {
     fetchData();
   }, []);
+
+  // Pre-fill form if directed from Equipment page directly
+  useEffect(() => {
+    if (location.state?.prefillEquipmentId && equipment.length > 0) {
+      setFormData(prev => ({
+        ...prev,
+        equipment_id: location.state.prefillEquipmentId
+      }));
+      setDialogOpen(true);
+
+      // Clean up the routing history state so it doesn't trigger on fresh reloads
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state, equipment]);
+
+  // Live Invoice Preview Effect
+  useEffect(() => {
+    if (!closeDialogOpen || !selectedRental) return;
+
+    const fetchPreview = async () => {
+      setPreviewLoading(true);
+      try {
+        const returnDateTime = new Date(closeFormData.return_date).toISOString();
+        const response = await axios.get(`/rentals/${selectedRental.id}/preview-close`, {
+          params: {
+            return_date: returnDateTime,
+            tax_rate: parseFloat(closeFormData.tax_rate) || 0,
+            discount_amount: parseFloat(closeFormData.discount_amount) || 0
+          }
+        });
+        setPreviewInvoice(response.data);
+      } catch (error) {
+        console.error('Failed to fetch invoice preview:', error);
+      } finally {
+        setPreviewLoading(false);
+      }
+    };
+
+    const timeoutId = setTimeout(() => {
+      fetchPreview();
+    }, 400); // 400ms debounce
+
+    return () => clearTimeout(timeoutId);
+  }, [closeFormData.return_date, closeFormData.tax_rate, closeFormData.discount_amount, closeDialogOpen, selectedRental]);
 
   // Filter and search rentals
   useEffect(() => {
@@ -66,13 +116,6 @@ const RentalsPage = () => {
     }
 
     let filtered = [...rentals];
-
-    // Sort by created_at (newest first)
-    filtered.sort((a, b) => {
-      const dateA = new Date(a.created_at || 0);
-      const dateB = new Date(b.created_at || 0);
-      return dateB - dateA; // Descending order
-    });
 
     // Filter by status
     if (statusFilter && statusFilter !== 'all') {
@@ -85,7 +128,7 @@ const RentalsPage = () => {
       filtered = filtered.filter(rental => {
         const customer = customers.find(c => c.id === rental.customer_id);
         const equip = equipment.find(e => e.id === rental.equipment_id);
-        
+
         return (
           rental.contract_no?.toLowerCase().includes(term) ||
           customer?.full_name?.toLowerCase().includes(term) ||
@@ -106,7 +149,10 @@ const RentalsPage = () => {
         axios.get('/customers'),
         axios.get('/equipment')
       ]);
-      setRentals(rentalsRes.data);
+      const sortedRentals = rentalsRes.data.sort((a, b) => {
+        return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
+      });
+      setRentals(sortedRentals);
       setCustomers(customersRes.data);
       setEquipment(equipmentRes.data);
     } catch (error) {
@@ -123,16 +169,20 @@ const RentalsPage = () => {
       if (submitData.deposit) {
         submitData.deposit = parseFloat(submitData.deposit);
       }
-      
+
       await axios.post('/rentals', submitData);
       toast.success('تم إنشاء عقد التأجير بنجاح');
+      // Wipe the pre-fill location state first so it doesn't re-trigger the useEffect
+      if (location.state) {
+        navigate(location.pathname, { replace: true, state: {} });
+      }
       setDialogOpen(false);
-      fetchData();
       resetForm();
+      fetchData();
     } catch (error) {
       const errorDetail = error.response?.data?.detail;
       let errorMessage = 'فشل في إنشاء العقد';
-      
+
       if (typeof errorDetail === 'string') {
         errorMessage = errorDetail;
       } else if (Array.isArray(errorDetail)) {
@@ -140,14 +190,14 @@ const RentalsPage = () => {
       } else if (typeof errorDetail === 'object' && errorDetail?.message) {
         errorMessage = errorDetail.message;
       }
-      
+
       toast.error(errorMessage);
     }
   };
 
   const handleActivate = async (id) => {
     if (!window.confirm('هل تريد تفعيل هذا العقد؟')) return;
-    
+
     try {
       await axios.post(`/rentals/${id}/activate`);
       toast.success('تم تفعيل العقد بنجاح');
@@ -184,10 +234,10 @@ const RentalsPage = () => {
         toast.error('يجب تحديد طريقة الدفع');
         return;
       }
-      
+
       // Convert return_date to ISO format with time
       const returnDateTime = new Date(closeFormData.return_date).toISOString();
-      
+
       console.log('Closing rental with data:', {
         return_date: returnDateTime,
         tax_rate: closeFormData.tax_rate,
@@ -195,7 +245,7 @@ const RentalsPage = () => {
         paid: closeFormData.paid,
         payment_method: closeFormData.payment_method
       });
-      
+
       const response = await axios.post(`/rentals/${selectedRental.id}/close`, null, {
         params: {
           return_date: returnDateTime,
@@ -205,17 +255,17 @@ const RentalsPage = () => {
           payment_method: closeFormData.paid ? closeFormData.payment_method : null
         }
       });
-      
+
       toast.success('تم إغلاق العقد وإنشاء الفاتورة بنجاح');
       setCloseDialogOpen(false);
-      
+
       // Show detailed invoice with rental info
       setCreatedInvoice({
         ...response.data.invoice,
         rental: response.data.rental
       });
       setInvoiceDialogOpen(true);
-      
+
       fetchData();
     } catch (error) {
       console.error('Close rental error:', error);
@@ -227,7 +277,7 @@ const RentalsPage = () => {
 
   const handleCancel = async (id) => {
     if (!window.confirm('هل تريد إلغاء هذا العقد؟')) return;
-    
+
     try {
       await axios.post(`/rentals/${id}/cancel`);
       toast.success('تم إلغاء العقد بنجاح');
@@ -312,7 +362,7 @@ const RentalsPage = () => {
                 <div className="grid grid-cols-2 gap-5">
                   <div className="col-span-2">
                     <Label htmlFor="customer_id" className="text-slate-700 font-medium text-sm mb-2 block">العميل *</Label>
-                    <Select value={formData.customer_id} onValueChange={(value) => setFormData({...formData, customer_id: value})} required>
+                    <Select value={formData.customer_id} onValueChange={(value) => setFormData({ ...formData, customer_id: value })} required>
                       <SelectTrigger className="h-11 border-slate-200 bg-slate-50/50">
                         <SelectValue placeholder="اختر العميل" />
                       </SelectTrigger>
@@ -328,7 +378,7 @@ const RentalsPage = () => {
 
                   <div className="col-span-2">
                     <Label htmlFor="equipment_id" className="text-slate-700 font-medium text-sm mb-2 block">المعدة *</Label>
-                    <Select value={formData.equipment_id} onValueChange={(value) => setFormData({...formData, equipment_id: value})} required>
+                    <Select value={formData.equipment_id} onValueChange={(value) => setFormData({ ...formData, equipment_id: value })} required>
                       <SelectTrigger className="h-11 border-slate-200 bg-slate-50/50">
                         <SelectValue placeholder="اختر المعدة" />
                       </SelectTrigger>
@@ -348,7 +398,7 @@ const RentalsPage = () => {
                       id="start_date"
                       type="date"
                       value={formData.start_date}
-                      onChange={(e) => setFormData({...formData, start_date: e.target.value})}
+                      onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
                       required
                       className="h-11 border-slate-200 bg-slate-50/50 focus:bg-white"
                     />
@@ -362,7 +412,7 @@ const RentalsPage = () => {
                       id="end_date"
                       type="date"
                       value={formData.end_date}
-                      onChange={(e) => setFormData({...formData, end_date: e.target.value})}
+                      onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
                       className="h-11 border-slate-200 bg-slate-50/50 focus:bg-white"
                       placeholder="اترك فارغاً لعقد مفتوح"
                     />
@@ -378,7 +428,7 @@ const RentalsPage = () => {
                       type="number"
                       step="0.01"
                       value={formData.deposit}
-                      onChange={(e) => setFormData({...formData, deposit: e.target.value})}
+                      onChange={(e) => setFormData({ ...formData, deposit: e.target.value })}
                       className="h-11 border-slate-200 bg-slate-50/50 focus:bg-white"
                       placeholder="0.00"
                     />
@@ -390,7 +440,7 @@ const RentalsPage = () => {
                     <Input
                       id="notes"
                       value={formData.notes}
-                      onChange={(e) => setFormData({...formData, notes: e.target.value})}
+                      onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                       className="h-11 border-slate-200 bg-slate-50/50 focus:bg-white"
                     />
                   </div>
@@ -439,6 +489,31 @@ const RentalsPage = () => {
                 </SelectContent>
               </Select>
             </div>
+            {/* View Mode Toggle */}
+            <div className="flex items-end justify-end">
+              <div className="bg-slate-100 p-1 rounded-lg inline-flex">
+                <button
+                  onClick={() => setViewMode('kanban')}
+                  className={`px-3 py-2 rounded-md flex items-center gap-2 text-sm font-medium transition-colors ${viewMode === 'kanban'
+                    ? 'bg-white text-cyan-700 shadow-sm'
+                    : 'text-slate-500 hover:text-slate-700'
+                    }`}
+                >
+                  <LayoutGrid size={16} />
+                  كانبان
+                </button>
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={`px-3 py-2 rounded-md flex items-center gap-2 text-sm font-medium transition-colors ${viewMode === 'list'
+                    ? 'bg-white text-cyan-700 shadow-sm'
+                    : 'text-slate-500 hover:text-slate-700'
+                    }`}
+                >
+                  <ListIcon size={16} />
+                  قائمة
+                </button>
+              </div>
+            </div>
           </div>
 
           {/* Results Count */}
@@ -465,86 +540,189 @@ const RentalsPage = () => {
             <p className="text-slate-400 text-sm">جرّب تغيير معايير البحث أو الفلترة</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-4">
-            {filteredRentals.map((rental) => {
-              const statusInfo = getStatusInfo(rental.status);
-              const StatusIcon = statusInfo.icon;
-              
-              return (
-                <div key={rental.id} data-testid={`rental-card-${rental.id}`} className="modern-card p-5">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1 space-y-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center">
-                          <FileText className="text-white" size={24} />
+          viewMode === 'list' ? (
+            <div className="grid grid-cols-1 gap-4">
+              {filteredRentals.map((rental) => {
+                const statusInfo = getStatusInfo(rental.status);
+                const StatusIcon = statusInfo.icon;
+
+                return (
+                  <div key={rental.id} data-testid={`rental-card-${rental.id}`} className="modern-card p-5">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1 space-y-3">
+                        <div className="flex items-center gap-3">
+                          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center">
+                            <FileText className="text-white" size={24} />
+                          </div>
+                          <div>
+                            <h3 className="text-lg font-bold text-slate-800">عقد #{rental.contract_no}</h3>
+                            <div className={`inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium ${statusInfo.color} mt-1`}>
+                              <StatusIcon size={14} />
+                              {statusInfo.label}
+                            </div>
+                          </div>
                         </div>
-                        <div>
-                          <h3 className="text-lg font-bold text-slate-800">عقد #{rental.contract_no}</h3>
-                          <div className={`inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium ${statusInfo.color} mt-1`}>
-                            <StatusIcon size={14} />
-                            {statusInfo.label}
+
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                          <div>
+                            <p className="text-slate-500 text-xs mb-1">العميل</p>
+                            <p className="text-slate-800 font-medium">{getCustomerName(rental.customer_id)}</p>
+                          </div>
+                          <div>
+                            <p className="text-slate-500 text-xs mb-1">المعدة</p>
+                            <p className="text-slate-800 font-medium">{getEquipmentName(rental.equipment_id)}</p>
+                          </div>
+                          <div>
+                            <p className="text-slate-500 text-xs mb-1">الفترة</p>
+                            <p className="text-slate-800 font-medium" style={{ fontSize: '11px' }}>{rental.start_date} → {rental.end_date}</p>
+                          </div>
+                          <div>
+                            <p className="text-slate-500 text-xs mb-1">السعر اليومي</p>
+                            <p className="text-cyan-600 font-semibold">{rental.daily_rate_snap} ريال</p>
                           </div>
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                        <div>
-                          <p className="text-slate-500 text-xs mb-1">العميل</p>
-                          <p className="text-slate-800 font-medium">{getCustomerName(rental.customer_id)}</p>
-                        </div>
-                        <div>
-                          <p className="text-slate-500 text-xs mb-1">المعدة</p>
-                          <p className="text-slate-800 font-medium">{getEquipmentName(rental.equipment_id)}</p>
-                        </div>
-                        <div>
-                          <p className="text-slate-500 text-xs mb-1">الفترة</p>
-                          <p className="text-slate-800 font-medium" style={{fontSize: '11px'}}>{rental.start_date} → {rental.end_date}</p>
-                        </div>
-                        <div>
-                          <p className="text-slate-500 text-xs mb-1">السعر اليومي</p>
-                          <p className="text-cyan-600 font-semibold">{rental.daily_rate_snap} ريال</p>
-                        </div>
+                      <div className="flex flex-col gap-2 mr-4">
+                        <Button
+                          size="sm"
+                          onClick={() => handleViewDetails(rental)}
+                          className="bg-slate-100 text-slate-700 hover:bg-slate-200"
+                        >
+                          <Eye size={16} className="ml-1" />
+                          عرض
+                        </Button>
+
+                        {rental.status === 'active' && (
+                          <Button
+                            size="sm"
+                            onClick={() => handleOpenCloseDialog(rental)}
+                            className="bg-blue-50 text-blue-600 hover:bg-blue-100 border-0"
+                          >
+                            <CheckCircle size={16} className="ml-1" />
+                            إرجاع وإغلاق
+                          </Button>
+                        )}
+
+                        {rental.status === 'active' && (
+                          <Button
+                            size="sm"
+                            onClick={() => handleCancel(rental.id)}
+                            variant="destructive"
+                            className="bg-red-50 text-red-600 hover:bg-red-100 border-0"
+                          >
+                            <XCircle size={16} className="ml-1" />
+                            إلغاء
+                          </Button>
+                        )}
                       </div>
                     </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="flex overflow-x-auto gap-6 pb-4 kanban-container min-h-[60vh] snap-x">
+              {['draft', 'active', 'closed', 'cancelled'].map(colStatus => {
+                const columnRentals = filteredRentals.filter(r => r.status === colStatus);
+                const colInfo = getStatusInfo(colStatus);
+                const ColIcon = colInfo.icon;
 
-                    <div className="flex flex-col gap-2 mr-4">
-                      <Button
-                        size="sm"
-                        onClick={() => handleViewDetails(rental)}
-                        className="bg-slate-100 text-slate-700 hover:bg-slate-200"
-                      >
-                        <Eye size={16} className="ml-1" />
-                        عرض
-                      </Button>
-                      
-                      {rental.status === 'active' && (
-                        <Button
-                          size="sm"
-                          onClick={() => handleOpenCloseDialog(rental)}
-                          className="bg-blue-50 text-blue-600 hover:bg-blue-100 border-0"
-                        >
-                          <CheckCircle size={16} className="ml-1" />
-                          إرجاع وإغلاق
-                        </Button>
-                      )}
-                      
-                      {rental.status === 'active' && (
-                        <Button
-                          size="sm"
-                          onClick={() => handleCancel(rental.id)}
-                          variant="destructive"
-                          className="bg-red-50 text-red-600 hover:bg-red-100 border-0"
-                        >
-                          <XCircle size={16} className="ml-1" />
-                          إلغاء
-                        </Button>
+                // Hide empty columns unless filtering explicitly for all
+                if (columnRentals.length === 0 && (statusFilter !== 'all' && statusFilter !== colStatus)) return null;
+
+                return (
+                  <div key={colStatus} className="flex-shrink-0 w-80 bg-slate-100/50 rounded-xl flex flex-col snap-center border border-slate-200 shadow-sm">
+                    {/* Column Header */}
+                    <div className="p-4 border-b border-slate-200 bg-white/50 rounded-t-xl flex justify-between items-center sticky top-0 backdrop-blur-sm z-10">
+                      <div className="flex items-center gap-2">
+                        <div className={`p-1.5 rounded-lg ${colInfo.color}`}>
+                          <ColIcon size={18} />
+                        </div>
+                        <h3 className="font-bold text-slate-800">{colInfo.label}</h3>
+                      </div>
+                      <span className="bg-slate-200 text-slate-700 text-xs font-bold px-2 py-1 rounded-full">
+                        {columnRentals.length}
+                      </span>
+                    </div>
+
+                    {/* Column Cards */}
+                    <div className="p-3 flex-1 overflow-y-auto space-y-3 p-[10px]">
+                      {columnRentals.map(rental => (
+                        <div key={rental.id} className="modern-card p-4 hover:-translate-y-1 transition-transform cursor-pointer border-l-4 border-l-transparent group" style={{ borderLeftColor: colStatus === 'active' ? '#10b981' : colStatus === 'closed' ? '#3b82f6' : colStatus === 'cancelled' ? '#ef4444' : '#94a3b8' }}>
+                          <div className="flex justify-between items-start mb-3">
+                            <div>
+                              <p className="text-xs font-semibold text-slate-500 mb-1">#{rental.contract_no}</p>
+                              <h4 className="font-bold text-slate-800 line-clamp-1">{getCustomerName(rental.customer_id)}</h4>
+                            </div>
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              className="h-8 w-8 text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity"
+                              onClick={(e) => { e.stopPropagation(); handleViewDetails(rental); }}
+                            >
+                              <Eye size={16} />
+                            </Button>
+                          </div>
+
+                          <div className="space-y-2 mb-4">
+                            <div className="flex items-center gap-2 text-sm text-slate-600 bg-slate-50 p-2 rounded-lg">
+                              <FileText size={14} className="text-cyan-600" />
+                              <span className="line-clamp-1 truncate">{getEquipmentName(rental.equipment_id)}</span>
+                            </div>
+                            <div className="flex justify-between text-xs text-slate-500 px-1">
+                              <span>{rental.start_date}</span>
+                              <span className="font-bold text-cyan-600">{rental.daily_rate_snap} ريال/يوم</span>
+                            </div>
+                          </div>
+
+                          {/* Actions */}
+                          {colStatus === 'active' && (
+                            <div className="flex gap-2 pt-2 border-t border-slate-100">
+                              <Button
+                                size="sm"
+                                onClick={(e) => { e.stopPropagation(); handleOpenCloseDialog(rental); }}
+                                className="flex-1 bg-blue-50 text-blue-600 hover:bg-blue-100 border-0 text-xs h-8"
+                              >
+                                إرجاع
+                              </Button>
+                              <Button
+                                size="sm"
+                                onClick={(e) => { e.stopPropagation(); handleCancel(rental.id); }}
+                                variant="destructive"
+                                className="bg-red-50 text-red-600 hover:bg-red-100 border-0 text-xs h-8 px-2"
+                              >
+                                إلغاء
+                              </Button>
+                            </div>
+                          )}
+
+                          {colStatus === 'draft' && (
+                            <div className="pt-2 border-t border-slate-100">
+                              <Button
+                                size="sm"
+                                onClick={(e) => { e.stopPropagation(); handleActivate(rental.id); }}
+                                className="w-full bg-green-50 text-green-600 hover:bg-green-100 border-0 text-xs h-8"
+                              >
+                                تفعيل العقد
+                              </Button>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+
+                      {columnRentals.length === 0 && (
+                        <div className="text-center py-8 text-slate-400 flex flex-col items-center justify-center border-2 border-dashed border-slate-200 rounded-xl h-full">
+                          <ColIcon size={32} className="mb-2 opacity-50 text-slate-300" />
+                          <p className="text-sm">لا يوجد عقود</p>
+                        </div>
                       )}
                     </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          )
         )}
 
         {!loading && rentals.length === 0 && (
@@ -622,78 +800,128 @@ const RentalsPage = () => {
                   <CheckCircle className="text-blue-600 flex-shrink-0 mt-0.5" size={20} />
                   <div>
                     <p className="text-sm text-blue-800 font-semibold mb-1">
-                      سيتم إنشاء الفاتورة تلقائياً
+                      معاينة الفاتورة قبل الإعتماد
                     </p>
                     <p className="text-xs text-blue-700">
-                      عند الضغط على "إغلاق وإنشاء الفاتورة"، سيتم:
+                      يتم الآن حساب تفاصيل الفاتورة بناءً على تاريخ الإرجاع الفعلي والخصومات المدخلة.
+                      بمجرد اعتمادك وإغلاق العقد، ستصدر الفاتورة النهائية مباشرة.
                     </p>
-                    <ul className="text-xs text-blue-700 mt-1 mr-4 list-disc space-y-0.5">
-                      <li>حساب عدد أيام الإيجار من تاريخ الإرجاع</li>
-                      <li>حساب غرامات التأخير (إن وجدت)</li>
-                      <li>إنشاء الفاتورة تلقائياً وعرضها</li>
-                      <li>إرسال إشعار للعميل عبر WhatsApp</li>
-                    </ul>
                   </div>
                 </div>
               </div>
 
-              <div>
-                <Label htmlFor="return_date" className="text-slate-700 font-medium text-sm mb-2 block">
-                  تاريخ الإرجاع الفعلي <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  id="return_date"
-                  type="date"
-                  value={closeFormData.return_date}
-                  onChange={(e) => setCloseFormData({...closeFormData, return_date: e.target.value})}
-                  className="h-11 border-slate-200 bg-slate-50/50 focus:bg-white"
-                  required
-                />
-                <p className="text-xs text-slate-500 mt-1">سيتم حساب عدد أيام الإيجار بناءً على هذا التاريخ</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="return_date" className="text-slate-700 font-medium text-sm mb-2 block">
+                    تاريخ الإرجاع الفعلي <span className="text-red-500">*</span>
+                  </Label>
+                  <Input
+                    id="return_date"
+                    type="date"
+                    value={closeFormData.return_date}
+                    onChange={(e) => setCloseFormData({ ...closeFormData, return_date: e.target.value })}
+                    className="h-11 border-slate-200 bg-slate-50/50 focus:bg-white"
+                    required
+                  />
+                  <p className="text-xs text-slate-500 mt-1">يحسب عدد الأيام بناءً على هذا التاريخ</p>
+                </div>
+
+                <div>
+                  <Label htmlFor="tax_rate" className="text-slate-700 font-medium text-sm mb-2 block">
+                    نسبة الضريبة (%)
+                  </Label>
+                  <Input
+                    id="tax_rate"
+                    type="number"
+                    step="0.01"
+                    value={closeFormData.tax_rate}
+                    onChange={(e) => setCloseFormData({ ...closeFormData, tax_rate: e.target.value })}
+                    className="h-11 border-slate-200 bg-slate-50/50 focus:bg-white"
+                    placeholder="0.05 = 5%"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="discount_amount" className="text-slate-700 font-medium text-sm mb-2 block">
+                    مبلغ الخصم (ريال)
+                  </Label>
+                  <Input
+                    id="discount_amount"
+                    type="number"
+                    step="0.01"
+                    value={closeFormData.discount_amount}
+                    onChange={(e) => setCloseFormData({ ...closeFormData, discount_amount: e.target.value })}
+                    className="h-11 border-slate-200 bg-slate-50/50 focus:bg-white"
+                    placeholder="0.00"
+                  />
+                </div>
               </div>
 
-              <div>
-                <Label htmlFor="tax_rate" className="text-slate-700 font-medium text-sm mb-2 block">
-                  نسبة الضريبة (%)
-                </Label>
-                <Input
-                  id="tax_rate"
-                  type="number"
-                  step="0.01"
-                  value={closeFormData.tax_rate}
-                  onChange={(e) => setCloseFormData({...closeFormData, tax_rate: e.target.value})}
-                  className="h-11 border-slate-200 bg-slate-50/50 focus:bg-white"
-                  placeholder="0.05 = 5%"
-                />
-                <p className="text-xs text-slate-500 mt-1">مثال: 0.05 تعني 5%</p>
+              {/* Dynamic Live Invoice Preview Widget */}
+              <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 mt-2">
+                <h4 className="font-bold text-slate-800 mb-3 flex items-center justify-between">
+                  <span>ملخص الفاتورة</span>
+                  {previewLoading && <Loader2 size={16} className="animate-spin text-cyan-600" />}
+                </h4>
+
+                {previewInvoice ? (
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-slate-600">أيام الإيجار ({previewInvoice.rental_days} يوم)</span>
+                      <span className="font-semibold">{previewInvoice.base_cost.toFixed(2)} ريال</span>
+                    </div>
+                    {previewInvoice.days_late > 0 && (
+                      <div className="flex justify-between text-red-600">
+                        <span>غرامة تأخير ({previewInvoice.days_late} يوم)</span>
+                        <span className="font-semibold">{previewInvoice.late_fee.toFixed(2)} ريال</span>
+                      </div>
+                    )}
+                    {previewInvoice.deposit > 0 && (
+                      <div className="flex justify-between text-green-600">
+                        <span>الوديعة المستردة</span>
+                        <span className="font-semibold">- {previewInvoice.deposit.toFixed(2)} ريال</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between pt-2 border-t border-slate-200">
+                      <span className="text-slate-600">المبلغ الفرعي</span>
+                      <span className="font-semibold">{previewInvoice.subtotal.toFixed(2)} ريال</span>
+                    </div>
+                    {previewInvoice.tax_amount > 0 && (
+                      <div className="flex justify-between">
+                        <span className="text-slate-600">الضريبة</span>
+                        <span className="font-semibold">{previewInvoice.tax_amount.toFixed(2)} ريال</span>
+                      </div>
+                    )}
+                    {previewInvoice.discount_amount > 0 && (
+                      <div className="flex justify-between text-green-600">
+                        <span>الخصم</span>
+                        <span className="font-semibold">- {previewInvoice.discount_amount.toFixed(2)} ريال</span>
+                      </div>
+                    )}
+
+                    <div className="flex justify-between pt-3 mt-1 border-t border-slate-200 bg-cyan-50 -mx-4 px-4 pb-2 rounded-b-lg">
+                      <span className="font-bold text-slate-800 text-lg">الإجمالي للعميل</span>
+                      <span className="font-bold text-cyan-700 text-xl">{previewInvoice.total.toFixed(2)} ريال</span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center py-4 text-slate-400 text-sm">
+                    جاري الحساب...
+                  </div>
+                )}
               </div>
 
-              <div>
-                <Label htmlFor="discount_amount" className="text-slate-700 font-medium text-sm mb-2 block">
-                  مبلغ الخصم (ريال)
-                </Label>
-                <Input
-                  id="discount_amount"
-                  type="number"
-                  step="0.01"
-                  value={closeFormData.discount_amount}
-                  onChange={(e) => setCloseFormData({...closeFormData, discount_amount: e.target.value})}
-                  className="h-11 border-slate-200 bg-slate-50/50 focus:bg-white"
-                  placeholder="0.00"
-                />
-              </div>
-
-              <div className="border-t border-slate-200 pt-4 mt-4">
+              <div className="border-t border-slate-200 pt-4 mt-2">
                 <div className="flex items-center gap-3 mb-3">
                   <input
                     id="paid_checkbox"
                     type="checkbox"
                     checked={closeFormData.paid}
-                    onChange={(e) => setCloseFormData({...closeFormData, paid: e.target.checked})}
+                    onChange={(e) => setCloseFormData({ ...closeFormData, paid: e.target.checked })}
                     className="w-5 h-5 text-green-600 border-slate-300 rounded focus:ring-green-500"
                   />
                   <Label htmlFor="paid_checkbox" className="text-slate-700 font-medium cursor-pointer">
-                    تم الدفع الآن
+                    تحصيل المبلغ الآن (تم الدفع)
                   </Label>
                 </div>
 
@@ -705,7 +933,7 @@ const RentalsPage = () => {
                     <select
                       id="payment_method"
                       value={closeFormData.payment_method}
-                      onChange={(e) => setCloseFormData({...closeFormData, payment_method: e.target.value})}
+                      onChange={(e) => setCloseFormData({ ...closeFormData, payment_method: e.target.value })}
                       className="w-full h-11 px-3 border border-slate-200 rounded-lg bg-slate-50/50 focus:bg-white focus:ring-2 focus:ring-green-500"
                     >
                       <option value="">اختر طريقة الدفع</option>
@@ -718,7 +946,7 @@ const RentalsPage = () => {
                 )}
               </div>
 
-              <div className="flex gap-3 pt-4">
+              <div className="flex gap-3 pt-2">
                 <Button
                   onClick={() => setCloseDialogOpen(false)}
                   variant="outline"
@@ -758,7 +986,7 @@ const RentalsPage = () => {
                     </p>
                   </div>
                   <p className="text-sm text-green-700">
-                    رقم الفاتورة: <span className="font-bold">{createdInvoice.invoice_no}</span> | 
+                    رقم الفاتورة: <span className="font-bold">{createdInvoice.invoice_no}</span> |
                     رقم العقد: <span className="font-bold">{createdInvoice.rental.contract_no}</span>
                   </p>
                 </div>
@@ -798,7 +1026,7 @@ const RentalsPage = () => {
                         <span className="text-sm font-semibold text-slate-700">تكلفة الإيجار:</span>
                         <span className="font-bold text-blue-700">{createdInvoice.rental.base_cost.toFixed(2)} ر.ع</span>
                       </div>
-                      
+
                       {createdInvoice.rental.late_days > 0 && (
                         <>
                           <div className="flex justify-between text-red-600">

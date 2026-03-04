@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
 import axios from '../api/axios';
 import { Button } from '../components/ui/button';
@@ -11,6 +12,7 @@ import { Package, Loader2, Plus, Edit, Trash2, CheckCircle2, XCircle, Wrench, Qr
 import { QRCodeCanvas } from 'qrcode.react';
 
 const EquipmentPage = () => {
+  const navigate = useNavigate();
   const [equipment, setEquipment] = useState([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -51,7 +53,7 @@ const EquipmentPage = () => {
       if (submitData.daily_rate) {
         submitData.daily_rate = parseFloat(submitData.daily_rate);
       }
-      
+
       if (editingEquipment) {
         await axios.put(`/equipment/${editingEquipment.id}`, submitData);
         toast.success('تم تحديث المعدة بنجاح');
@@ -69,7 +71,7 @@ const EquipmentPage = () => {
 
   const handleDelete = async (id) => {
     if (!window.confirm('هل أنت متأكد من حذف هذه المعدة؟')) return;
-    
+
     try {
       await axios.delete(`/equipment/${id}`);
       toast.success('تم حذف المعدة بنجاح');
@@ -107,16 +109,20 @@ const EquipmentPage = () => {
     setQrDialogOpen(true);
   };
 
+  const handleRentNow = (equipment) => {
+    navigate('/rentals', { state: { prefillEquipmentId: equipment.id } });
+  };
+
   const handlePrintQR = () => {
     if (!qrRef.current) return;
-    
+
     const canvas = qrRef.current.querySelector('canvas');
     if (!canvas) return;
 
     // Create print window
     const printWindow = window.open('', '_blank');
     const qrUrl = canvas.toDataURL('image/png');
-    
+
     printWindow.document.write(`
       <html dir="rtl">
         <head>
@@ -261,7 +267,7 @@ const EquipmentPage = () => {
                       id="name"
                       data-testid="input-name"
                       value={formData.name}
-                      onChange={(e) => setFormData({...formData, name: e.target.value})}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       required
                       className="h-11 border-slate-200 bg-slate-50/50 focus:bg-white"
                     />
@@ -272,7 +278,7 @@ const EquipmentPage = () => {
                       id="category"
                       data-testid="input-category"
                       value={formData.category}
-                      onChange={(e) => setFormData({...formData, category: e.target.value})}
+                      onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                       required
                       className="h-11 border-slate-200 bg-slate-50/50 focus:bg-white"
                       placeholder="مثال: أدوات كهربائية"
@@ -284,7 +290,7 @@ const EquipmentPage = () => {
                       id="serial_no"
                       data-testid="input-serial"
                       value={formData.serial_no}
-                      onChange={(e) => setFormData({...formData, serial_no: e.target.value})}
+                      onChange={(e) => setFormData({ ...formData, serial_no: e.target.value })}
                       className="h-11 border-slate-200 bg-slate-50/50 focus:bg-white"
                     />
                   </div>
@@ -296,14 +302,14 @@ const EquipmentPage = () => {
                       type="number"
                       step="0.01"
                       value={formData.daily_rate}
-                      onChange={(e) => setFormData({...formData, daily_rate: e.target.value})}
+                      onChange={(e) => setFormData({ ...formData, daily_rate: e.target.value })}
                       required
                       className="h-11 border-slate-200 bg-slate-50/50 focus:bg-white"
                     />
                   </div>
                   <div>
                     <Label htmlFor="status" className="text-slate-700 font-medium text-sm mb-2 block">الحالة *</Label>
-                    <Select value={formData.status} onValueChange={(value) => setFormData({...formData, status: value})}>
+                    <Select value={formData.status} onValueChange={(value) => setFormData({ ...formData, status: value })}>
                       <SelectTrigger className="h-11 border-slate-200 bg-slate-50/50">
                         <SelectValue />
                       </SelectTrigger>
@@ -321,7 +327,7 @@ const EquipmentPage = () => {
                       data-testid="input-purchase-date"
                       type="date"
                       value={formData.purchase_date}
-                      onChange={(e) => setFormData({...formData, purchase_date: e.target.value})}
+                      onChange={(e) => setFormData({ ...formData, purchase_date: e.target.value })}
                       className="h-11 border-slate-200 bg-slate-50/50 focus:bg-white"
                     />
                   </div>
@@ -331,7 +337,7 @@ const EquipmentPage = () => {
                       id="notes"
                       data-testid="input-notes"
                       value={formData.notes}
-                      onChange={(e) => setFormData({...formData, notes: e.target.value})}
+                      onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                       className="h-11 border-slate-200 bg-slate-50/50 focus:bg-white"
                     />
                   </div>
@@ -353,7 +359,7 @@ const EquipmentPage = () => {
             {equipment.map((item) => {
               const statusInfo = getStatusInfo(item.status);
               const StatusIcon = statusInfo.icon;
-              
+
               return (
                 <div key={item.id} data-testid={`equipment-card-${item.id}`} className="modern-card p-5">
                   <div className="space-y-3">
@@ -366,13 +372,13 @@ const EquipmentPage = () => {
                         <StatusIcon size={20} />
                       </div>
                     </div>
-                    
+
                     <div className="bg-cyan-50 px-3 py-2 rounded-lg">
                       <p className="text-sm text-cyan-700 font-semibold">
                         {item.daily_rate} ريال / يوم
                       </p>
                     </div>
-                    
+
                     <div className="space-y-1 text-sm">
                       {item.serial_no && (
                         <p className="text-slate-600">الرقم التسلسلي: {item.serial_no}</p>
@@ -382,8 +388,18 @@ const EquipmentPage = () => {
                         {statusInfo.label}
                       </div>
                     </div>
-                    
-                    <div className="flex gap-2 mt-4 pt-4 border-t border-slate-100">
+
+                    <div className="flex gap-2 mt-4 pt-4 border-t border-slate-100 flex-wrap">
+                      {item.status === 'available' && (
+                        <Button
+                          data-testid={`rent-direct-${item.id}`}
+                          size="sm"
+                          onClick={() => handleRentNow(item)}
+                          className="flex-1 bg-green-50 text-green-700 hover:bg-green-100 border border-green-200"
+                        >
+                          تأجير
+                        </Button>
+                      )}
                       <Button
                         data-testid={`qr-equipment-${item.id}`}
                         size="sm"

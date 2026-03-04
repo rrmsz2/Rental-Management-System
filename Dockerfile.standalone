@@ -1,0 +1,52 @@
+# Standalone Dockerfile - Application Only (Without Nginx)
+# Stage 1: Build Frontend
+FROM node:18-alpine AS frontend-builder
+
+WORKDIR /frontend
+COPY frontend/package*.json frontend/yarn.lock* ./
+RUN yarn install --frozen-lockfile
+
+COPY frontend/ .
+# Important: Set backend URL for production build
+ARG REACT_APP_BACKEND_URL=http://localhost:8001
+ENV REACT_APP_BACKEND_URL=$REACT_APP_BACKEND_URL
+RUN yarn build
+
+# Stage 2: Python Backend + Serve Frontend
+FROM python:3.11-slim
+
+# Install only required packages (no nginx)
+RUN apt-get update && apt-get install -y \
+    curl \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set working directory
+WORKDIR /app
+
+# Copy and install backend dependencies
+COPY backend/requirements.txt .
+RUN pip install --no-cache-dir --upgrade pip \
+    && pip install --no-cache-dir -r requirements.txt \
+    && pip install --no-cache-dir aiofiles
+
+# Copy backend code
+COPY backend/ ./backend/
+
+# Copy built frontend
+COPY --from=frontend-builder /frontend/build ./frontend/build
+
+# Create non-root user
+RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
+USER appuser
+
+# Expose port (using 8001 to avoid conflict with other services)
+EXPOSE 8001
+
+# Health check on the actual app port
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8001/api/health || exit 1
+
+# Start the application
+WORKDIR /app/backend
+CMD ["uvicorn", "server:app", "--host", "0.0.0.0", "--port", "8001", "--workers", "2"]

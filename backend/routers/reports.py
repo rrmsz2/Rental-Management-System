@@ -116,6 +116,11 @@ async def get_revenue_report(
 ):
     """Get revenue report for date range"""
     # Default to last 30 days
+    if start_date and "T" not in start_date:
+        start_date += "T00:00:00.000Z"
+    if end_date and "T" not in end_date:
+        end_date += "T23:59:59.999Z"
+        
     if not start_date:
         start_date = (datetime.now(timezone.utc) - timedelta(days=30)).isoformat()
     if not end_date:
@@ -127,9 +132,9 @@ async def get_revenue_report(
         "issue_date": {"$gte": start_date, "$lte": end_date}
     }, {"_id": 0}).to_list(1000)
     
-    total_revenue = sum(inv["total"] for inv in invoices)
-    total_tax = sum(inv["tax_amount"] for inv in invoices)
-    total_discount = sum(inv["discount_amount"] for inv in invoices)
+    total_revenue = sum(inv.get("total", 0) for inv in invoices)
+    total_tax = sum(inv.get("tax_amount", 0) for inv in invoices)
+    total_discount = sum(inv.get("discount_amount", 0) for inv in invoices)
     
     return {
         "start_date": start_date,

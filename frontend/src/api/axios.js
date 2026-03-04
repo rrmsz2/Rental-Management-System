@@ -28,10 +28,22 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    // Don't redirect to login for public endpoints
+    const isPublicEndpoint = error.config?.url?.includes('/public');
+    const isLoginPage = window.location.pathname === '/login' || window.location.pathname === '/';
+    const isAdminLoginPage = window.location.pathname === '/admin-login';
+
+    if (error.response?.status === 401 && !isPublicEndpoint && !isLoginPage && !isAdminLoginPage) {
       localStorage.removeItem('access_token');
       localStorage.removeItem('user');
-      window.location.href = '/login';
+
+      // Check if we're on an admin/staff route, redirect accordingly
+      const isStaffRoute = window.location.pathname.includes('/dashboard') ||
+                          window.location.pathname.includes('/settings') ||
+                          window.location.pathname.includes('/employees') ||
+                          window.location.pathname.includes('/reports');
+
+      window.location.href = isStaffRoute ? '/admin-login' : '/login';
     }
     return Promise.reject(error);
   }

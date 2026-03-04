@@ -33,7 +33,7 @@ const VerifyOtpPage = () => {
 
   const handleVerify = async (e) => {
     e.preventDefault();
-    
+
     if (code.length !== 6) {
       toast.error('يرجى إدخال الرمز المكون من 6 أرقام');
       return;
@@ -43,11 +43,13 @@ const VerifyOtpPage = () => {
     try {
       const response = await verifyOtp(phone, code);
       toast.success('تم تسجيل الدخول بنجاح');
-      
+
       // Redirect based on user type
       const userData = response?.user || JSON.parse(localStorage.getItem('user') || '{}');
       if (userData.is_customer_only || userData.role === 'customer') {
         navigate('/customer-portal');
+      } else if (userData.role === 'sales') {
+        navigate('/rentals');
       } else {
         navigate('/dashboard');
       }
@@ -89,85 +91,85 @@ const VerifyOtpPage = () => {
       {/* Main Content */}
       <div className="flex-1 flex items-center justify-center p-4 relative z-10">
         <div className="w-full max-w-md fade-in">
-        <Card className="modern-card shadow-xl border-0" data-testid="verify-card">
-          <CardHeader className="space-y-1 pb-6">
-            <CardTitle className="text-2xl font-bold text-center text-slate-800">
-              التحقق من الرمز
-            </CardTitle>
-            <CardDescription className="text-center text-slate-600">
-              أدخل الرمز المرسل إلى
-              <br />
-              <span className="font-semibold text-cyan-600" dir="ltr">{phone}</span>
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleVerify} className="space-y-6">
-              <div className="flex justify-center" data-testid="otp-input-container">
-                <InputOTP
-                  maxLength={6}
-                  value={code}
-                  onChange={(value) => setCode(value)}
-                  data-testid="otp-input"
-                >
-                  <InputOTPGroup>
-                    <InputOTPSlot index={0} data-testid="otp-slot-0" className="h-14 w-12 text-lg border-slate-200 bg-slate-50/50" />
-                    <InputOTPSlot index={1} data-testid="otp-slot-1" className="h-14 w-12 text-lg border-slate-200 bg-slate-50/50" />
-                    <InputOTPSlot index={2} data-testid="otp-slot-2" className="h-14 w-12 text-lg border-slate-200 bg-slate-50/50" />
-                    <InputOTPSlot index={3} data-testid="otp-slot-3" className="h-14 w-12 text-lg border-slate-200 bg-slate-50/50" />
-                    <InputOTPSlot index={4} data-testid="otp-slot-4" className="h-14 w-12 text-lg border-slate-200 bg-slate-50/50" />
-                    <InputOTPSlot index={5} data-testid="otp-slot-5" className="h-14 w-12 text-lg border-slate-200 bg-slate-50/50" />
-                  </InputOTPGroup>
-                </InputOTP>
-              </div>
-
-              <Button
-                type="submit"
-                data-testid="verify-button"
-                className="w-full h-12 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-semibold btn-primary"
-                disabled={loading || code.length !== 6}
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    جاري التحقق...
-                  </>
-                ) : (
-                  'تحقق'
-                )}
-              </Button>
-
-              <div className="text-center">
-                {resendCooldown > 0 ? (
-                  <p className="text-sm text-slate-500">
-                    يمكنك إعادة الإرسال بعد {resendCooldown} ثانية
-                  </p>
-                ) : (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    onClick={handleResend}
-                    data-testid="resend-button"
-                    className="text-cyan-600 hover:text-cyan-700 hover:bg-cyan-50"
+          <Card className="modern-card shadow-xl border-0" data-testid="verify-card">
+            <CardHeader className="space-y-1 pb-6">
+              <CardTitle className="text-2xl font-bold text-center text-slate-800">
+                التحقق من الرمز
+              </CardTitle>
+              <CardDescription className="text-center text-slate-600">
+                أدخل الرمز المرسل إلى
+                <br />
+                <span className="font-semibold text-cyan-600" dir="ltr">{phone}</span>
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleVerify} className="space-y-6">
+                <div className="flex justify-center" data-testid="otp-input-container" dir="ltr">
+                  <InputOTP
+                    maxLength={6}
+                    value={code}
+                    onChange={(value) => setCode(value)}
+                    data-testid="otp-input"
                   >
-                    إعادة إرسال الرمز
-                  </Button>
-                )}
-              </div>
-            </form>
+                    <InputOTPGroup className="gap-2">
+                      <InputOTPSlot index={0} data-testid="otp-slot-0" className="h-14 w-12 text-xl font-mono border-slate-200 bg-slate-50/50 focus:bg-white focus:border-cyan-500 transition-all" />
+                      <InputOTPSlot index={1} data-testid="otp-slot-1" className="h-14 w-12 text-xl font-mono border-slate-200 bg-slate-50/50 focus:bg-white focus:border-cyan-500 transition-all" />
+                      <InputOTPSlot index={2} data-testid="otp-slot-2" className="h-14 w-12 text-xl font-mono border-slate-200 bg-slate-50/50 focus:bg-white focus:border-cyan-500 transition-all" />
+                      <InputOTPSlot index={3} data-testid="otp-slot-3" className="h-14 w-12 text-xl font-mono border-slate-200 bg-slate-50/50 focus:bg-white focus:border-cyan-500 transition-all" />
+                      <InputOTPSlot index={4} data-testid="otp-slot-4" className="h-14 w-12 text-xl font-mono border-slate-200 bg-slate-50/50 focus:bg-white focus:border-cyan-500 transition-all" />
+                      <InputOTPSlot index={5} data-testid="otp-slot-5" className="h-14 w-12 text-xl font-mono border-slate-200 bg-slate-50/50 focus:bg-white focus:border-cyan-500 transition-all" />
+                    </InputOTPGroup>
+                  </InputOTP>
+                </div>
 
-            <div className="mt-6 text-center">
-              <Button
-                variant="link"
-                onClick={() => navigate('/login')}
-                data-testid="back-to-login-button"
-                className="text-slate-600 hover:text-cyan-600"
-              >
-                <ArrowRight className="ml-2 h-4 w-4" />
-                العودة لتسجيل الدخول
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+                <Button
+                  type="submit"
+                  data-testid="verify-button"
+                  className="w-full h-12 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-semibold btn-primary"
+                  disabled={loading || code.length !== 6}
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                      جاري التحقق...
+                    </>
+                  ) : (
+                    'تحقق'
+                  )}
+                </Button>
+
+                <div className="text-center">
+                  {resendCooldown > 0 ? (
+                    <p className="text-sm text-slate-500">
+                      يمكنك إعادة الإرسال بعد {resendCooldown} ثانية
+                    </p>
+                  ) : (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      onClick={handleResend}
+                      data-testid="resend-button"
+                      className="text-cyan-600 hover:text-cyan-700 hover:bg-cyan-50"
+                    >
+                      إعادة إرسال الرمز
+                    </Button>
+                  )}
+                </div>
+              </form>
+
+              <div className="mt-6 text-center">
+                <Button
+                  variant="link"
+                  onClick={() => navigate('/login')}
+                  data-testid="back-to-login-button"
+                  className="text-slate-600 hover:text-cyan-600"
+                >
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                  العودة لتسجيل الدخول
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
 
